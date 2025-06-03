@@ -1,0 +1,172 @@
+.segment "HEADER"
+    .include "header.inc"               ; Check docs/header.md
+
+; -------------------------------------------------------------------------------
+; Fast memory (use less cycles)
+.segment "ZEROPAGE"
+    frame_count:            .byte 0     ; Total amount of frames (255 loop)
+    execution_state:        .byte 0     ; Execution in progress? ---- -FNI (F: Frame, N: NMI, I: IRQ)
+    ptr:                    .word 0     ; An indirect pointer to be used anywhere
+    tempA:                  .byte 0     ; Temporary variable A
+    tempB:                  .byte 0     ; Temporary variable B
+    scroll_x:               .byte 0     ; Scroll X position
+    scroll_y:               .byte 0     ; Scroll Y position
+    buttons:                .byte 0     ; Button states (RLDU SSBA)
+    last_buttons:           .byte 0     ; Last button states (RLDU SSBA)
+    pressed_buttons:        .byte 0     ; Newly pressed buttons (RLDU SSBA)
+    sprite_ptr:             .word 0     ; Current sprite pointer
+    scene_return_label:     .word 0     ; Scene return label address
+    scene_frame_addr:       .word 0     ; Scene frame address to be executed (0 if none)
+    scene_nmi_addr:         .word 0     ; Scene NMI address to be executed (0 if none)
+
+; -------------------------------------------------------------------------------
+; RAM
+.segment "RAM"
+    current_stage:          .byte 0     ; Current stage
+
+; -------------------------------------------------------------------------------
+; Main code
+; You can use a maximum of ~20'000 cycles
+.segment "CODE"
+
+    ; Declarations, utils, tools, etc.
+    .include "consts.inc"
+    .include "utils/reset.inc"
+    .include "utils/register.inc"
+    .include "utils/ppu.inc"
+    .include "utils/scroll.inc"
+    .include "utils/sound.inc"
+    .include "utils/addr.inc"
+    .include "utils/metasprite.inc"
+
+    ; Skip directly to reset
+    jmp RESET
+
+    ; Code to be referenced later on
+    .include "data/metasprite.inc"
+    .include "maps/level1.inc"
+
+    ; Initialize the NES
+    RESET:
+
+        ; Reset and wait for 2 VBlanks
+        Reset_NES
+
+        ; Reset execution state
+        sta execution_state
+
+        ; Safe to clear everything now
+        PPU_Clear_Nametable $2000, #TILE_EMPTY, #0
+        PPU_Clear_Nametable $2400, #TILE_EMPTY, #0
+        ;PPU_Clear_Background_Palette #COLOR_BLACK
+        ;PPU_Clear_Sprite_Palette #COLOR_BLACK
+
+        ; Experiments
+        ;.include "experiments/chess_scrolling.init.inc"
+
+        ; Change background color by applying light blue to the first palette index
+        PPU_Write $3F00, #COLOR_BLACK
+
+        ; Enables NMI, background and sprites rendering
+        PPU_Set_CtrlMask #%10001000, #%00011110
+
+        ; Enable sound effects
+        jsr Sound::Enable
+
+        ; Jump to scene initialization if available
+        Addr_Set scene_return_label, Forever
+        jmp Stage_Level1_Init
+
+    ; Main game loop
+    Forever:
+
+        ; Skip uncompleted game cycles
+        lda execution_state
+        and #%00000111                  ; Check if frame was running or not?
+        bne Forever                     ; Frame is already running (1), skip...
+
+        ; Flag execution state as a new cycle
+        lda #%00000111
+        sta execution_state
+
+        ; Read controller inputs
+        .include "lib/controllers.read.inc"
+
+        ; Experiments
+        ;.include "experiments/chess_scrolling.loop.inc"
+
+        ; Jump to scene frame code if available
+        Addr_Set scene_return_label, AfterSceneFrame
+        Addr_BNE_Jump scene_frame_addr
+
+        AfterSceneFrame:
+            ; CPU cycle completed
+            lda #%00000011              ; Remove frame bit (bit #2)
+            sta execution_state
+
+            jmp Forever                 ; Infinite loop
+
+; -------------------------------------------------------------------------------
+; Operations like updating scroll position and sprites need to be synchronized with VBlank
+; to avoid visual artifacts. Remember that the PPU scroll position needs to be reset during
+; each NMI/VBlank because the PPU hardware automatically changes the scroll position
+; as it renders the screen.
+NMI:                                    ; Maximum of ~2273 cycles
+
+    Register_Push_All
+
+    ; Do not execute if previous NMI code was not completed
+    ; to prevent a too many cycles issue
+    lda execution_state
+    and #%00000010                      ; Check if NMI was running or not?
+    bne :+                              ; NMI was not running, continue with the script
+        Register_Pull_All
+        rti
+    :
+
+    ; Flat NMI execution state as a new cycle
+    lda execution_state
+    ora #%00000010                      ; Set NMI execution bit to 1
+    sta execution_state
+
+    inc frame_count                     ; Increment frame count
+
+    ; Apply current scroll position
+    Scroll_Set_Position scroll_x, scroll_y
+
+    ; Jump to scene initialization if available
+    Addr_Set scene_return_label, AfterSceneNMI
+    Addr_BNE_Jump scene_nmi_addr
+
+    AfterSceneNMI:
+
+        ; Trigger OAM DMA
+        LDA #$00
+        STA OAM_ADDR
+        lda #$02                        ; Page number (high-byte $0200)
+        sta PPU_OAM_DMA                 ; Trigger
+
+        ; NMI execution completed
+        lda execution_state
+        and #%11111100                  ; Reset NMI and IRQ bit to 0 (ready to be executed again)
+        sta execution_state
+
+        Register_Pull_All
+        rti                             ; Return from NMI
+
+; -------------------------------------------------------------------------------
+; Lower priority than NMI, always executed after if enabled (cli) and not disabled (sei)
+; Good for sound updates, split-screen effets or timer-based events.
+IRQ:
+  rti
+
+; -------------------------------------------------------------------------------
+; Sprites data
+.segment "CHR"
+    .incbin "banks/tiles.chr"           ; Include CHR data (2 KB of tile data)
+    .incbin "banks/sprites.chr"         ; Include CHR data (2 KB of sprite data)
+
+.segment "VECTORS"
+    .word NMI                           ; NMI vector
+    .word RESET                         ; Reset vector
+    .word IRQ                           ; IRQ/BRK vector
