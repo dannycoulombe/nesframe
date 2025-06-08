@@ -19,6 +19,20 @@
     sta PPU_DATA                        ; $2007
 .endmacro
 
+; Wait for the next VBlank
+.macro PPU_Wait_VBlank
+:
+    bit PPU_STATUS
+    bpl :-
+.endmacro
+
+; Wait for the next VBlank
+.macro PPU_Disable_Rendering
+    lda #0
+    sta PPU_CTRL
+    sta PPU_MASK
+.endmacro
+
 ; Check docs/ppu_ctrl.md and docs/ppu_mask.md for parameter information
 ; Parameters:
 ; nmi - The PPU_CTRL nmi bit sequence
@@ -92,7 +106,7 @@
 ; addr - From a given address
 .macro PPU_Load_Screen mapLabel, paletteLabel
 
-    Addr_Set ptr, mapLabel              ; Copy label to indirect pointer address
+    Addr_Set ptr, mapLabel, 1           ; Copy label to indirect pointer address
     PPU_Set_Addr $2000                  ; Set PPU to given address
 
     ldx #4                              ; 4 rows of 255 bytes

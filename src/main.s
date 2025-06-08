@@ -2,25 +2,37 @@
     .include "header.inc"               ; Check docs/header.md
 
 ; -------------------------------------------------------------------------------
+; ZERO PAGE (0000-00FF)
 ; Fast memory (use less cycles)
+; 256 bytes total available
 .segment "ZEROPAGE"
     frame_count:            .byte 0     ; Total amount of frames (255 loop)
     execution_state:        .byte 0     ; Execution in progress? ---- -FNI (F: Frame, N: NMI, I: IRQ)
     ptr:                    .word 0     ; An indirect pointer to be used anywhere
-    tempA:                  .byte 0     ; Temporary variable A
-    tempB:                  .byte 0     ; Temporary variable B
+    tile_ptr:               .word 0     ; An indirect tile pointer
+    params_bytes:           .res 4,0
+    params_labels:          .res 4,0
     scroll_x:               .byte 0     ; Scroll X position
     scroll_y:               .byte 0     ; Scroll Y position
     buttons:                .byte 0     ; Button states (RLDU SSBA)
     last_buttons:           .byte 0     ; Last button states (RLDU SSBA)
     pressed_buttons:        .byte 0     ; Newly pressed buttons (RLDU SSBA)
+    oam_ptr:                .word 0     ; Current OAM pointer
     sprite_ptr:             .word 0     ; Current sprite pointer
-    scene_return_label:     .word 0     ; Scene return label address
+    metasprite_x:           .byte 0
+    metasprite_y:           .byte 0
+    scene_init_label:       .word 0     ; Scene frame address to be executed (0 if none)
     scene_frame_addr:       .word 0     ; Scene frame address to be executed (0 if none)
     scene_nmi_addr:         .word 0     ; Scene NMI address to be executed (0 if none)
+    actor_index:            .byte 0     ; Current actor index
+    actor_ptr:              .word 0     ; Current actor pointer
+    actor_array:            .res 8*8,0  ; 8 actors with 8 bytes each
 
 ; -------------------------------------------------------------------------------
-; RAM
+; RAM (0100-07FF)
+;      0100-01FF (256 bytes): Stack
+;      0200-02FF (256 bytes): OAM (Sprite) memory
+;      0300-07FF (1280 bytes): General purpose RAM
 .segment "RAM"
     current_stage:          .byte 0     ; Current stage
 
@@ -31,6 +43,8 @@
 
     ; Declarations, utils, tools, etc.
     .include "consts.inc"
+    .include "utils/debug.inc"
+    .include "utils/general.inc"
     .include "utils/reset.inc"
     .include "utils/register.inc"
     .include "utils/ppu.inc"
@@ -38,6 +52,10 @@
     .include "utils/sound.inc"
     .include "utils/addr.inc"
     .include "utils/metasprite.inc"
+    .include "utils/actors.inc"
+    .include "actors/player.inc"
+    .include "actors/round-rock.inc"
+    .include "actors/torch.inc"
 
     ; Skip directly to reset
     jmp RESET
@@ -61,21 +79,23 @@
         ;PPU_Clear_Background_Palette #COLOR_BLACK
         ;PPU_Clear_Sprite_Palette #COLOR_BLACK
 
-        ; Experiments
-        ;.include "experiments/chess_scrolling.init.inc"
-
         ; Change background color by applying light blue to the first palette index
         PPU_Write $3F00, #COLOR_BLACK
+
+        ; First scene is level 1
+        Addr_Set scene_init_label, Stage_Level1_Init, 1
+
+    BeforeSceneInit:
+        PPU_Disable_Rendering           ; Disable rendering (this code contains too many cycles)
+        jmp (scene_init_label)
+
+    AfterSceneInit:
 
         ; Enables NMI, background and sprites rendering
         PPU_Set_CtrlMask #%10001000, #%00011110
 
         ; Enable sound effects
         jsr Sound::Enable
-
-        ; Jump to scene initialization if available
-        Addr_Set scene_return_label, Forever
-        jmp Stage_Level1_Init
 
     ; Main game loop
     Forever:
@@ -92,11 +112,11 @@
         ; Read controller inputs
         .include "lib/controllers.read.inc"
 
-        ; Experiments
-        ;.include "experiments/chess_scrolling.loop.inc"
+        ; Convert actors to sprites
+        Actor_Run_Callback
+        Actor_Push_To_OAM
 
         ; Jump to scene frame code if available
-        Addr_Set scene_return_label, AfterSceneFrame
         Addr_BNE_Jump scene_frame_addr
 
         AfterSceneFrame:
@@ -135,14 +155,11 @@ NMI:                                    ; Maximum of ~2273 cycles
     Scroll_Set_Position scroll_x, scroll_y
 
     ; Jump to scene initialization if available
-    Addr_Set scene_return_label, AfterSceneNMI
     Addr_BNE_Jump scene_nmi_addr
 
     AfterSceneNMI:
 
         ; Trigger OAM DMA
-        LDA #$00
-        STA OAM_ADDR
         lda #$02                        ; Page number (high-byte $0200)
         sta PPU_OAM_DMA                 ; Trigger
 

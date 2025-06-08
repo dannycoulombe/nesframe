@@ -12,7 +12,9 @@ PPU_OAM_DMA           = $4014           ; Initiates DMA transfer of 256 bytes fr
 
 ; --------------------------------------
 ; OAM 
-OAM_FLIP_H            = $40
+OAM_FLIP_H            = 1 << 6
+OAM_FLIP_V            = 1 << 7
+FLAG_N                = 1 << 7
 
 ; --------------------------------------
 ; CONTROLLERS
@@ -156,3 +158,31 @@ DMC_LENGTH     = $4013                  ; Sample length
 ; Status and Frame Counter
 APU_STATUS     = $4015                  ; Channel enable and status
 APU_FRAME      = $4017                  ; Frame counter control
+
+; --------------------------------------
+; Mesen debug
+MESEN_LOG_ADDR      = $00FC
+
+; --------------------------------------
+; Modulos
+MOD_2   = %00000001   ; $01
+MOD_4   = %00000011   ; $03
+MOD_8   = %00000111   ; $07
+MOD_16  = %00001111   ; $0F
+MOD_32  = %00011111   ; $1F
+MOD_64  = %00111111   ; $3F
+MOD_128 = %01111111   ; $7F
+
+; --------------------------------------
+; Actor constants
+;ACTOR_TOTAL_BYTES     = 10
+;ACTOR_DATA_PTR_LO     = 0
+;ACTOR_DATA_PTR_HI     = 1
+;ACTOR_X               = 2
+;ACTOR_Y               = 3
+;ACTOR_FRAME           = 4
+;ACTOR_STATE           = 5               ; 0--- ---- (A: Active?)
+;ACTOR_COUNTER         = 6
+;ACTOR_CALLBACK_LO     = 7
+;ACTOR_CALLBACK_HI     = 8
+;ACTOR_NOT_USED_YET    = 9
