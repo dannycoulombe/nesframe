@@ -16,7 +16,7 @@
   lda (ptr),y                           ; Tile amount
   tax
   inc ptr
-@loop:
+@MetaspriteSetLoop:
   clc
   sec
 
@@ -67,7 +67,7 @@
   :
 
   dex
-  bne @loop
+  bne @MetaspriteSetLoop
 
   rts
 .endproc

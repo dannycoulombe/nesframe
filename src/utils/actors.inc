@@ -1,16 +1,4 @@
 ; --------------------------------------
-; Actor constants
-ACTOR_DATA_PTR_LO = 0
-ACTOR_DATA_PTR_HI = 1
-ACTOR_X           = 2
-ACTOR_Y           = 3
-ACTOR_STATE       = 4                   ; 0--- ---- (A: Active?)
-ACTOR_COUNTER     = 5
-ACTOR_CALLBACK_LO = 6
-ACTOR_CALLBACK_HI = 7
-ACTOR_ANIM_DATA   = 8
-
-; --------------------------------------
 ; Add an actor in memory, position it on
 ; the screen define its state and define
 ; a callback function to be run on each
@@ -20,11 +8,19 @@ ACTOR_ANIM_DATA   = 8
 ; xPos - Position on the X axis
 ; yPos - Position on the Y axis
 ; callback - Function called on each frame
-.macro Actor_Add dataLabel, xPos, yPos, callback
+; state - State of the actor
+.macro Actor_Add dataLabel, xPos, yPos, callback, state
   Set_Param_Label dataLabel, 0
   Set_Param_Label callback, 1
   Set_Param_Byte xPos, 0
   Set_Param_Byte yPos, 1
+
+  .ifnblank state
+    Set_Param_Byte state, 2
+  .else
+    Set_Param_Byte #ACTOR_STATE_ACTIVATED | ACTOR_STATE_ANIMATED, 2
+  .endif
+
   jsr Actor_Add
 .endmacro
 .proc Actor_Add
@@ -33,13 +29,12 @@ ACTOR_ANIM_DATA   = 8
   dataLabel = params_labels
   xPos = params_bytes
   yPos = params_bytes+1
+  state = params_bytes+2
   callback = params_labels+2
 
-  ; Calculate Y index (actor_index * 8)
-  lda actor_index
-  asl
-  asl
-  asl
+  ; Calculate Y index (actor_index * actor total bytes)
+  lda actor_index;
+  MUL_A #ACTOR_TOTAL_BYTES
   tay
 
   ; Set actor metasprite label
@@ -55,7 +50,7 @@ ACTOR_ANIM_DATA   = 8
   sta actor_array + ACTOR_Y, y
 
   ; Set state
-  lda #(1 << 7)                         ; Set active
+  lda state;
   sta actor_array + ACTOR_STATE, y
 
   ; Set counter
@@ -78,16 +73,14 @@ ACTOR_ANIM_DATA   = 8
 .macro Actor_Run_Callback
 
   lda actor_array
-  ldx #0
-  :
-    ; Multiple index by 8
+  ldx #0                                ; Actor index counter
+  ActorRunCallbackLoop:
+    ; Multiple index by actor total bytes
     txa
-    asl
-    asl
-    asl
+    MUL_A #ACTOR_TOTAL_BYTES
     tay
 
-    ; Move current actor pointer by 8 bytes
+    ; Move current actor pointer by ACTOR_TOTAL_BYTES amount
     adc #<actor_array
     sta actor_ptr
 
@@ -109,7 +102,7 @@ ACTOR_ANIM_DATA   = 8
       inx
       txa
       cmp actor_index
-      bne :-
+      bne ActorRunCallbackLoop
 .endmacro
 
 ; --------------------------------------
@@ -118,34 +111,63 @@ ACTOR_ANIM_DATA   = 8
   Addr_Set oam_ptr, $0200, 1            ; Set OAM initial address
 
   ldx #0                                ; Actor index (up to 8)
-  ldy #0                                ; Pointer address (index*8)
+  ldy #0                                ; Pointer address (index * actor total bytes)
   @loop:
     lda actor_array + ACTOR_STATE, y    ; Get actor state
-    and #(1 << 7)
-    beq @skip                             ; Skip if not active
+    and #ACTOR_STATE_ACTIVATED
+    beq @skip                           ; Skip if not active
 
-      ; Switch to next metasprite if animation completed
-      tya
-      pha
+      ; Check if need to switch to next metasprite if animation active
+      lda actor_array + ACTOR_STATE, y  ; Get actor state
+      and #ACTOR_STATE_ANIMATED
+      beq @skipAnim                     ; Skip animation if not active
+
+        ; Push registers XY to the stack
+        tya
+        pha
+
+        ; Metasprite pointer
+        lda actor_array + ACTOR_DATA_PTR_LO, y
+        sta ptr
+        lda actor_array + ACTOR_DATA_PTR_HI, y
+        sta ptr+1
+
+        ; Fetch animation data index
         ldy #0
-        lda (sprite_ptr),y              ; Tile amount
+        lda (ptr), y                    ; Tile amount
         asl
         asl                             ; Multiple by 4 bytes
-        tay
-        lda (sprite_ptr+1), y           ; Animation data
-        beq :+                          ; Skip if 0 (static)
-        cmp actor_array + ACTOR_COUNTER, y
-        bne :+                          ; Skip if not completed
-          iny
-        :
+        tay                             ; Last tile index
+        iny                             ; Animation data index
 
-        ; Set actor low/high byte
-        lda actor_array + ACTOR_DATA_PTR_LO, y
-        sta sprite_ptr
-        lda actor_array + ACTOR_DATA_PTR_HI, y
-        sta sprite_ptr+1
-      pla
-      tay
+        ; If animated, check if we need to fetch
+        ; next metasprite
+        lda (ptr), y                    ; Get animation data
+        beq :+                          ; Skip if 0 (static)
+
+          ; Increase pointer index if counter reaches
+          ; animation data value
+          pla
+          tay
+          pha
+
+          cmp actor_array + ACTOR_COUNTER, y
+          bne :++                       ; Skip if not completed
+            lda #0
+            sta actor_array + ACTOR_COUNTER, y
+            LogY 0
+;            iny
+          :
+        :
+        pla
+        tay
+      @skipAnim:
+
+      ; Set actor low/high byte
+      lda actor_array + ACTOR_DATA_PTR_LO, y
+      sta sprite_ptr
+      lda actor_array + ACTOR_DATA_PTR_HI, y
+      sta sprite_ptr+1
 
       ; Set position
       lda actor_array + ACTOR_X, y
@@ -157,12 +179,10 @@ ACTOR_ANIM_DATA   = 8
       StackedXY_Call Metasprite_Set
     @skip:
 
-    ; Get next actor index (index * 8)
+    ; Get next actor index (index * actor total bytes)
     inx
     txa
-    asl
-    asl
-    asl
+    MUL_A #ACTOR_TOTAL_BYTES
     tay
 
     cpx actor_index

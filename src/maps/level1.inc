@@ -16,9 +16,9 @@ Stage_Level1_Init:
 
   ; Prepare actors
   Actor_Add GnomeStillFront, #40, #90, PlayerCallback
-  Actor_Add RoundRock, #88, #120, RoundRockCallback
+  Actor_Add RoundRock, #88, #120, RoundRockCallback, #ACTOR_STATE_ACTIVATED
   Actor_Add TorchA, #184, #167, TorchCallback
-  Actor_Add MushroomA, #136, #72, RoundRockCallback
+;  Actor_Add MushroomA, #136, #72, RoundRockCallback, #ACTOR_STATE_ACTIVATED
 
   jmp AfterSceneInit
 

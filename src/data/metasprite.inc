@@ -141,25 +141,4 @@ Cane:
 	.byte <- 4,  0,$31,2
 .byte 0
 
-MetaspritePointers:
-
-	.word GnomeStillFront
-	.word GnomeWalkFrontA
-	.word GnomeWalkFrontB
-	.word GnomePushFront
-	.word GnomeStillBack
-	.word GnomeWalkBackA
-	.word GnomeWalkBackB
-	.word GnomePushBack
-	.word GnomeStillRight
-	.word GnomeWalkRight
-	.word GnomePushRight
-	.word GnomeStillLeft
-	.word GnomeWalkLeft
-	.word GnomePushLeft
-	.word RoundRock
-	.word TorchA
-	.word TorchB
-	.word MushroomA
-	.word Cane
 

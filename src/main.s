@@ -1,3 +1,5 @@
+.include "consts.inc"
+
 .segment "HEADER"
     .include "header.inc"               ; Check docs/header.md
 
@@ -9,6 +11,7 @@
     frame_count:            .byte 0     ; Total amount of frames (255 loop)
     execution_state:        .byte 0     ; Execution in progress? ---- -FNI (F: Frame, N: NMI, I: IRQ)
     ptr:                    .word 0     ; An indirect pointer to be used anywhere
+    temp:                   .byte 0     ; Whatever...
     tile_ptr:               .word 0     ; An indirect tile pointer
     params_bytes:           .res 4,0
     params_labels:          .res 4,0
@@ -26,7 +29,7 @@
     scene_nmi_addr:         .word 0     ; Scene NMI address to be executed (0 if none)
     actor_index:            .byte 0     ; Current actor index
     actor_ptr:              .word 0     ; Current actor pointer
-    actor_array:            .res 8*8,0  ; 8 actors with 8 bytes each
+    actor_array:            .res 8*ACTOR_TOTAL_BYTES,0  ; 8 actors times total bytes each
 
 ; -------------------------------------------------------------------------------
 ; RAM (0100-07FF)
@@ -42,7 +45,6 @@
 .segment "CODE"
 
     ; Declarations, utils, tools, etc.
-    .include "consts.inc"
     .include "utils/debug.inc"
     .include "utils/general.inc"
     .include "utils/reset.inc"

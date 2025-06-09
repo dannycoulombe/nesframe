@@ -4,7 +4,7 @@ STATE_DIRECTION_UP = 3
 STATE_DIRECTION_RIGHT = 2
 STATE_DIRECTION_DOWN = 1
 STATE_DIRECTION_LEFT = 0
-STATE_DEFAULT = %10000000
+STATE_DEFAULT = ACTOR_STATE_ACTIVATED | ACTOR_STATE_ANIMATED
 
 PlayerCallback:
 
@@ -74,7 +74,7 @@ PlayerCallback:
   txa
   and #BUTTON_RIGHT
   beq :+
-    CurActor_SetStateFlagBit 2, 1
+    CurActor_SetStateFlagBit STATE_DIRECTION_RIGHT, 1
     CurActor_SetMetasprite GnomeWalkRight
       jmp :++
   :
@@ -83,7 +83,7 @@ PlayerCallback:
   txa
   and #BUTTON_LEFT
   beq :+
-    CurActor_SetStateFlagBit 0, 1
+    CurActor_SetStateFlagBit STATE_DIRECTION_LEFT, 1
     CurActor_SetMetasprite GnomeWalkLeft
   :
 
