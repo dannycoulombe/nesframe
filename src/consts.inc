@@ -175,7 +175,7 @@ MOD_128 = %01111111   ; $7F
 
 ; --------------------------------------
 ; Actor constants
-ACTOR_TOTAL_BYTES     = 10
+ACTOR_TOTAL_BYTES     = 8
 ACTOR_STATE_ACTIVATED = (1 << 7)
 ACTOR_STATE_ANIMATED  = (1 << 6)
 
@@ -183,11 +183,9 @@ ACTOR_STATE_ANIMATED  = (1 << 6)
 ACTOR_DATA_PTR_LO     = 0
 ACTOR_DATA_PTR_HI     = 1
 ACTOR_STATE           = 2               ; EA-- ---- (E: Enabled?, A: Animate?)
-ACTOR_FRAME           = 3
-ACTOR_COUNTER         = 4
-ACTOR_X               = 5
-ACTOR_Y               = 6
-ACTOR_CALLBACK_LO     = 7
-ACTOR_CALLBACK_HI     = 8
-ACTOR_NOT_USED_YET    = 9
+ACTOR_COUNTER         = 3
+ACTOR_X               = 4
+ACTOR_Y               = 5
+ACTOR_CALLBACK_LO     = 6
+ACTOR_CALLBACK_HI     = 7
 

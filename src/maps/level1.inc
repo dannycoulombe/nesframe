@@ -15,8 +15,8 @@ Stage_Level1_Init:
   PPU_Load_Palette Stage_Level1_Sprite_Palette, $3F10, #16
 
   ; Prepare actors
-  Actor_Add GnomeStillFront, #40, #90, PlayerCallback
-  Actor_Add RoundRock, #88, #120, RoundRockCallback, #ACTOR_STATE_ACTIVATED
+;  Actor_Add GnomeStillFront, #40, #90, PlayerCallback
+;  Actor_Add RoundRock, #88, #120, RoundRockCallback, #ACTOR_STATE_ACTIVATED
   Actor_Add TorchA, #184, #167, TorchCallback
 ;  Actor_Add MushroomA, #136, #72, RoundRockCallback, #ACTOR_STATE_ACTIVATED
 

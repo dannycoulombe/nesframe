@@ -1,4 +1,120 @@
 ; --------------------------------------
+; Push all actors to OAM
+.macro Actor_Push_To_OAM
+  Addr_Set oam_ptr, $0200, 1            ; Set OAM initial address
+
+  ; Some variables
+  animData = params_bytes+0
+  animIndex = params_bytes+1
+  actorIndex = params_bytes+2
+
+  ldx #0                                ; Actor index (up to 8)
+  ldy #0                                ; Pointer address (index * actor total bytes)
+  @ActorPushToOAMLoop:
+    tya
+    sta actorIndex
+
+    lda actor_array + ACTOR_STATE, y    ; Get actor state
+    and #ACTOR_STATE_ACTIVATED
+    beq @ActorPushToOAMSkip             ; Skip if not active
+
+      ; Check if need to switch to next metasprite if animation active
+      lda actor_array + ACTOR_STATE, y  ; Get actor state
+      and #ACTOR_STATE_ANIMATED
+      beq @ActorPushToOAMSkipUpdateData ; Skip animation if not active
+
+        ; Metasprite pointer
+        lda actor_array + ACTOR_DATA_PTR_LO, y
+        sta ptr
+        lda actor_array + ACTOR_DATA_PTR_HI, y
+        sta ptr+1
+
+        ; Fetch animation data index
+        ldy #0
+        lda (ptr), y                    ; Tile amount
+        asl
+        asl                             ; Multiple by 4 bytes
+        tay                             ; Copy to register Y
+        iny                             ; Move to last byte
+        sty animIndex
+
+        ; If animated, check if we need to fetch
+        ; next metasprite or return to the first
+        ; one if already at the last one
+        lda (ptr), y                    ; Get animation data
+        sta animData
+        beq @ActorPushToOAMSkipUpdateData ; Skip if 0 (static)
+
+          ; Update pointer value to next/first
+          ; metasprite if required
+          ldy actorIndex
+          cmp actor_array + ACTOR_COUNTER, y
+          bne @ActorPushToOAMSkipUpdateData ; Skip if not completed
+
+            ; Reset counter to 0
+            lda #0
+            sta actor_array + ACTOR_COUNTER, y
+
+            ; Update frame index
+            lda animData
+            and #FLAG_N                 ; Check if loop flag
+            bne :++
+            beq :+ ; First
+              ldy #0
+              lda (ptr), y
+              sta actor_array + ACTOR_DATA_PTR_LO, x
+              iny
+              lda (ptr), y
+              sta actor_array + ACTOR_DATA_PTR_HI, x
+              jmp :++
+            : ; Next
+              Register_Push_XY
+              ldx actorIndex
+              ldy animIndex
+;              iny
+;              lda (ptr), y
+              lda #$A4;
+              sta actor_array + ACTOR_DATA_PTR_LO, x
+;              iny
+;              lda (ptr), y
+              lda #$82;
+              sta actor_array + ACTOR_DATA_PTR_HI,x
+              Register_Pull_XY
+            :
+            jmp @ActorPushToOAMSkipUpdateData
+
+      @ActorPushToOAMSkipUpdateData:
+
+      ; Set metasprite
+      ldy actorIndex
+      lda actor_array + ACTOR_DATA_PTR_LO, y
+      sta sprite_ptr
+      lda actor_array + ACTOR_DATA_PTR_HI, y
+      sta sprite_ptr+1
+
+      ; Set position
+      lda actor_array + ACTOR_X, y
+      sta metasprite_x
+      lda actor_array + ACTOR_Y, y
+      sta metasprite_y
+
+      ; Push metasprite to OAM
+      StackedXY_Call Metasprite_Set
+    @ActorPushToOAMSkip:
+
+    ; Get next actor index (index * actor total bytes)
+    inx
+    txa
+    MUL_A #ACTOR_TOTAL_BYTES
+    tay
+
+    cpx actor_index
+    beq :+
+      jmp @ActorPushToOAMLoop
+    :
+.endmacro
+
+; --------------------------------------
 ; Add an actor in memory, position it on
 ; the screen define its state and define
 ; a callback function to be run on each
@@ -103,90 +219,6 @@
       txa
       cmp actor_index
       bne ActorRunCallbackLoop
-.endmacro
-
-; --------------------------------------
-; Push all actors to OAM
-.macro Actor_Push_To_OAM
-  Addr_Set oam_ptr, $0200, 1            ; Set OAM initial address
-
-  ldx #0                                ; Actor index (up to 8)
-  ldy #0                                ; Pointer address (index * actor total bytes)
-  @loop:
-    lda actor_array + ACTOR_STATE, y    ; Get actor state
-    and #ACTOR_STATE_ACTIVATED
-    beq @skip                           ; Skip if not active
-
-      ; Check if need to switch to next metasprite if animation active
-      lda actor_array + ACTOR_STATE, y  ; Get actor state
-      and #ACTOR_STATE_ANIMATED
-      beq @skipAnim                     ; Skip animation if not active
-
-        ; Push registers XY to the stack
-        tya
-        pha
-
-        ; Metasprite pointer
-        lda actor_array + ACTOR_DATA_PTR_LO, y
-        sta ptr
-        lda actor_array + ACTOR_DATA_PTR_HI, y
-        sta ptr+1
-
-        ; Fetch animation data index
-        ldy #0
-        lda (ptr), y                    ; Tile amount
-        asl
-        asl                             ; Multiple by 4 bytes
-        tay                             ; Last tile index
-        iny                             ; Animation data index
-
-        ; If animated, check if we need to fetch
-        ; next metasprite
-        lda (ptr), y                    ; Get animation data
-        beq :+                          ; Skip if 0 (static)
-
-          ; Increase pointer index if counter reaches
-          ; animation data value
-          pla
-          tay
-          pha
-
-          cmp actor_array + ACTOR_COUNTER, y
-          bne :++                       ; Skip if not completed
-            lda #0
-            sta actor_array + ACTOR_COUNTER, y
-            LogY 0
-;            iny
-          :
-        :
-        pla
-        tay
-      @skipAnim:
-
-      ; Set actor low/high byte
-      lda actor_array + ACTOR_DATA_PTR_LO, y
-      sta sprite_ptr
-      lda actor_array + ACTOR_DATA_PTR_HI, y
-      sta sprite_ptr+1
-
-      ; Set position
-      lda actor_array + ACTOR_X, y
-      sta metasprite_x
-      lda actor_array + ACTOR_Y, y
-      sta metasprite_y
-
-      ; Push metasprite to OAM
-      StackedXY_Call Metasprite_Set
-    @skip:
-
-    ; Get next actor index (index * actor total bytes)
-    inx
-    txa
-    MUL_A #ACTOR_TOTAL_BYTES
-    tay
-
-    cpx actor_index
-    bne @loop
 .endmacro
 
 .macro CurActor_IncVal ptr, index
