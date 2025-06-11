@@ -21,6 +21,7 @@ GnomeWalkFrontB:
 	.byte   0,  0,$10,0|OAM_FLIP_H
 	.byte <- 8,  0,$11,0|OAM_FLIP_H
 	.byte 15 | FLAG_N
+	.word GnomeWalkFrontA
 
 GnomePushFront:
 	.byte   4
@@ -53,6 +54,7 @@ GnomeWalkBackB:
 	.byte <- 8,  0,$13,0|OAM_FLIP_H
 	.byte   0,  0,$12,0|OAM_FLIP_H
 	.byte 15 | FLAG_N
+	.word GnomeWalkBackA
 
 GnomePushBack:
 	.byte   4
@@ -68,7 +70,7 @@ GnomeStillRight:
 	.byte   0,<- 8,$06,0
 	.byte <- 8,  0,$15,0
 	.byte   0,  0,$16,0
-	.byte 0
+	.byte 15
 
 GnomeWalkRight:
 	.byte   4
@@ -77,6 +79,7 @@ GnomeWalkRight:
 	.byte <- 8,  1,$07,0
 	.byte   0,  1,$08,0
 	.byte 15 | FLAG_N
+	.word GnomeStillRight
 
 GnomePushRight:
 	.byte   4
@@ -92,7 +95,7 @@ GnomeStillLeft:
 	.byte <- 8,<- 8,$06,0|OAM_FLIP_H
 	.byte   0,  0,$15,0|OAM_FLIP_H
 	.byte <- 8,  0,$16,0|OAM_FLIP_H
-	.byte 0
+	.byte 15
 
 GnomeWalkLeft:
 	.byte   4
@@ -101,6 +104,7 @@ GnomeWalkLeft:
 	.byte   0,  1,$07,0|OAM_FLIP_H
 	.byte <- 8,  1,$08,0|OAM_FLIP_H
 	.byte 15 | FLAG_N
+	.word GnomeStillLeft
 
 GnomePushLeft:
 	.byte   4

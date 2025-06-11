@@ -59,3 +59,25 @@
       jmp (addr)                  ; jump to the address
   :
 .endmacro
+
+.macro Pointer_IncVal ptr, index
+  ldy index
+  lda (ptr),y
+  clc
+  adc #1
+  sta (ptr),y
+.endmacro
+
+.macro Pointer_DecVal ptr, index
+  ldy index
+  lda (ptr),y
+  sec
+  sbc #1
+  sta (ptr),y
+.endmacro
+
+.macro Pointer_SetVal ptr, value, index
+  ldy index
+  lda value
+  sta (ptr),y
+.endmacro

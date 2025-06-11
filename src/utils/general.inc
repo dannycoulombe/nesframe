@@ -17,7 +17,7 @@
   lda #0
   @MULALoop:
     clc
-    adc #10 ; Add value to A
+    adc amount ; Add value to A
     dex       ; Decrement counter
     bne @MULALoop ; Branch if still positive
     ldx temp

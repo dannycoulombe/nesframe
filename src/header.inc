@@ -1,6 +1,6 @@
 .byte "NES", $1A                        ; NES Identifier
 
-.byte 2                                 ; PRG-ROM Size: 2x16kb (32kb)
+.byte 1                                 ; PRG-ROM Size: 1x16kb (16kb)
 .byte 1                                 ; CHR-ROM Size: 1x8kb (8kb)
 
 .byte 1 << 0                            ; Bit 7: Reserved (must be 0).

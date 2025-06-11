@@ -182,8 +182,8 @@ IRQ:
 ; -------------------------------------------------------------------------------
 ; Sprites data
 .segment "CHR"
-    .incbin "banks/tiles.chr"           ; Include CHR data (2 KB of tile data)
-    .incbin "banks/sprites.chr"         ; Include CHR data (2 KB of sprite data)
+    .incbin "banks/tiles.chr"           ; Include CHR data (4 KB of tile data)
+    .incbin "banks/sprites.chr"         ; Include CHR data (4 KB of sprite data)
 
 .segment "VECTORS"
     .word NMI                           ; NMI vector

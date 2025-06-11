@@ -8,6 +8,10 @@ sta CONTROLLER_1                        ; Tells the controller to take a snapsho
 lda #$00
 sta CONTROLLER_1                        ; Set the controller back to read mode
 
+; Initialize buttons
+lda #0
+sta buttons
+
 ; Read all 8 bits of the controller snapshot
 ldx #8
 :

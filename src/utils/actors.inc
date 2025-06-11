@@ -16,14 +16,16 @@
 
     lda actor_array + ACTOR_STATE, y    ; Get actor state
     and #ACTOR_STATE_ACTIVATED
-    beq @ActorPushToOAMSkip             ; Skip if not active
+    bne :+
+      jmp @ActorPushToOAMSkip           ; Skip if not active
+    :
 
       ; Check if need to switch to next metasprite if animation active
       lda actor_array + ACTOR_STATE, y  ; Get actor state
       and #ACTOR_STATE_ANIMATED
       beq @ActorPushToOAMSkipUpdateData ; Skip animation if not active
 
-        ; Metasprite pointer
+        ; Set metasprite pointer
         lda actor_array + ACTOR_DATA_PTR_LO, y
         sta ptr
         lda actor_array + ACTOR_DATA_PTR_HI, y
@@ -48,6 +50,8 @@
           ; Update pointer value to next/first
           ; metasprite if required
           ldy actorIndex
+          lda animData
+          and #$7F
           cmp actor_array + ACTOR_COUNTER, y
           bne @ActorPushToOAMSkipUpdateData ; Skip if not completed
 
@@ -56,32 +60,36 @@
             sta actor_array + ACTOR_COUNTER, y
 
             ; Update frame index
+            txa
+            pha
             lda animData
             and #FLAG_N                 ; Check if loop flag
-            bne :++
-            beq :+ ; First
-              ldy #0
+            ; Redirect to metasprite label
+            beq :+
+              ldy animIndex
+              ldx actorIndex
+              iny
               lda (ptr), y
               sta actor_array + ACTOR_DATA_PTR_LO, x
               iny
               lda (ptr), y
               sta actor_array + ACTOR_DATA_PTR_HI, x
-              jmp :++
-            : ; Next
-              Register_Push_XY
+              jmp @ActorPushToOAMUpdatedFrame
+            : ; Fetch next sprite
+              ldy #0
               ldx actorIndex
-              ldy animIndex
-;              iny
-;              lda (ptr), y
-              lda #$A4;
+              clc
+              lda ptr
+              inc animIndex
+              adc animIndex
               sta actor_array + ACTOR_DATA_PTR_LO, x
-;              iny
-;              lda (ptr), y
-              lda #$82;
-              sta actor_array + ACTOR_DATA_PTR_HI,x
-              Register_Pull_XY
-            :
-            jmp @ActorPushToOAMSkipUpdateData
+              lda ptr+1
+              adc #$00
+              sta actor_array + ACTOR_DATA_PTR_HI, x
+
+      @ActorPushToOAMUpdatedFrame:
+            pla
+            tax
 
       @ActorPushToOAMSkipUpdateData:
 
@@ -219,28 +227,6 @@
       txa
       cmp actor_index
       bne ActorRunCallbackLoop
-.endmacro
-
-.macro CurActor_IncVal ptr, index
-  ldy index
-  lda (ptr),y
-  clc
-  adc #1
-  sta (ptr),y
-.endmacro
-
-.macro CurActor_DecVal ptr, index
-  ldy index
-  lda (ptr),y
-  sec
-  sbc #1
-  sta (ptr),y
-.endmacro
-
-.macro CurActor_SetValue value, index
-  ldy index
-  lda value
-  sta (actor_ptr),y
 .endmacro
 
 .macro CurActor_SetStateFlagAll value
