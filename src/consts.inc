@@ -29,6 +29,7 @@ BUTTON_UP             = 1 << 3
 BUTTON_DOWN           = 1 << 2
 BUTTON_LEFT           = 1 << 1
 BUTTON_RIGHT          = 1 << 0
+BUTTON_DIRECTION_ALL  = %00001111
 
 ; --------------------------------------
 ; TILE
@@ -176,8 +177,8 @@ MOD_128 = %01111111   ; $7F
 ; --------------------------------------
 ; Actor constants
 ACTOR_TOTAL_BYTES     = 8
-ACTOR_STATE_ACTIVATED = (1 << 7)
-ACTOR_STATE_ANIMATED  = (1 << 6)
+ACTOR_STATE_ACTIVATED = 1 << 7
+ACTOR_STATE_ANIMATED  = 1 << 6
 
 ; Actor struct
 ACTOR_DATA_PTR_LO     = 0

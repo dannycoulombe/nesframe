@@ -11,6 +11,7 @@
     frame_count:            .byte 0     ; Total amount of frames (255 loop)
     execution_state:        .byte 0     ; Execution in progress? ---- -FNI (F: Frame, N: NMI, I: IRQ)
     ptr:                    .word 0     ; An indirect pointer to be used anywhere
+    debug:                  .byte 0     ; Used for debugging purposes
     temp:                   .byte 0     ; Whatever...
     tile_ptr:               .word 0     ; An indirect tile pointer
     params_bytes:           .res 4,0

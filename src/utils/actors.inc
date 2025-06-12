@@ -1,6 +1,9 @@
 ; --------------------------------------
 ; Push all actors to OAM
 .macro Actor_Push_To_OAM
+  Push_ParamsByte 0
+  Push_ParamsByte 1
+  Push_ParamsByte 2
   Addr_Set oam_ptr, $0200, 1            ; Set OAM initial address
 
   ; Some variables
@@ -120,6 +123,10 @@
     beq :+
       jmp @ActorPushToOAMLoop
     :
+
+  Pull_ParamsByte 2
+  Pull_ParamsByte 1
+  Pull_ParamsByte 0
 .endmacro
 
 ; --------------------------------------
@@ -134,24 +141,32 @@
 ; callback - Function called on each frame
 ; state - State of the actor
 .macro Actor_Add dataLabel, xPos, yPos, callback, state
-  Set_Param_Label dataLabel, 0
-  Set_Param_Label callback, 1
-  Set_Param_Byte xPos, 0
-  Set_Param_Byte yPos, 1
+  Push_ParamsByte 0
+  Push_ParamsByte 1
+  Push_ParamsByte 2
+
+  Set_ParamLabel dataLabel, 0
+  Set_ParamLabel callback, 1
+  Set_ParamByte xPos, 0
+  Set_ParamByte yPos, 1
 
   .ifnblank state
-    Set_Param_Byte state, 2
+    Set_ParamByte state, 2
   .else
-    Set_Param_Byte #ACTOR_STATE_ACTIVATED | ACTOR_STATE_ANIMATED, 2
+    Set_ParamByte #ACTOR_STATE_ACTIVATED | ACTOR_STATE_ANIMATED, 2
   .endif
 
   jsr Actor_Add
+
+  Pull_ParamsByte 2
+  Pull_ParamsByte 1
+  Pull_ParamsByte 0
 .endmacro
 .proc Actor_Add
 
   ; Map parameters to constants
   dataLabel = params_labels
-  xPos = params_bytes
+  xPos = params_bytes+0
   yPos = params_bytes+1
   state = params_bytes+2
   callback = params_labels+2
@@ -239,9 +254,9 @@
   ldy #ACTOR_STATE
   lda (actor_ptr),y
   .if activate
-    ora #(1 << bit_number)
+    ora bit_number
   .else
-    ora #~(1 << bit_number)
+    ora #~bit_number
   .endif
   sta (actor_ptr),y
 .endmacro

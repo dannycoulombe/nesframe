@@ -23,6 +23,8 @@
 ; value - Value to set
 ; immediate - Get immediate value?
 .macro Addr_SetPointer addr, value, immediate
+  tya
+  pha
   .if immediate
     ldy #1
     lda #>value
@@ -38,6 +40,8 @@
     lda value
     sta (addr),y
   .endif
+  pla
+  tay
 .endmacro
 
 ; Clear address
@@ -61,23 +65,35 @@
 .endmacro
 
 .macro Pointer_IncVal ptr, index
+  tya
+  pha
   ldy index
   lda (ptr),y
   clc
   adc #1
   sta (ptr),y
+  pla
+  tay
 .endmacro
 
 .macro Pointer_DecVal ptr, index
+  tya
+  pha
   ldy index
   lda (ptr),y
   sec
   sbc #1
   sta (ptr),y
+  pla
+  tay
 .endmacro
 
 .macro Pointer_SetVal ptr, value, index
+  tya
+  pha
   ldy index
   lda value
   sta (ptr),y
+  pla
+  tay
 .endmacro

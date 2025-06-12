@@ -1,9 +1,19 @@
-.macro Set_Param_Byte value, index
+.macro Set_ParamByte value, index
   lda value
   sta params_bytes+index
 .endmacro
 
-.macro Set_Param_Label label, index
+.macro Push_ParamsByte index
+  lda params_bytes+index
+  pha
+.endmacro
+
+.macro Pull_ParamsByte index
+  pla
+  sta params_bytes+index
+.endmacro
+
+.macro Set_ParamLabel label, index
   lda #<label
   sta params_labels+(index * 2)
   lda #>label
