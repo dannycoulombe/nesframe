@@ -1,63 +1,82 @@
-.macro Collision_Check xPos, yPos, direction, collision, offset
+.macro CollisionCheckResetXY xPos, yPos
+  lda xPos
+  sta collision_check_x
+  lda yPos
+  sta collision_check_y
+.endmacro
+.macro Collision_Check xPos, yPos, direction, offsetX, offsetY
 
   PPU_Disable_Rendering
+  CollisionCheckResetXY xPos, yPos
 
   ; Check all directions
   lda direction
   tax
   and #ACTOR_STATE_DIRECTION_UP
-  beq :++
-    dec yPos
-    Tilemap_GetAddressByXY xPos, yPos
+  beq :+
+    dec collision_check_y
+    lda collision_check_y
+    sec
+    sbc offsetY
+    sta collision_check_y
+    Tilemap_GetAddressByXY collision_check_x, collision_check_y
     PPU_GetTileIdx temp
     tay
     lda TilesPropertiesData, y
     and #COLLISION_SOLID
-    beq :+
-      inc yPos
-    :
-    jmp :++
+    bne :++
+    dec yPos
   :
   txa
   and #ACTOR_STATE_DIRECTION_DOWN
-  beq :++
-    inc yPos
-    Tilemap_GetAddressByXY xPos, yPos
+  beq :+
+    CollisionCheckResetXY xPos, yPos
+    inc collision_check_y
+    lda collision_check_y
+    clc
+    adc offsetY
+    sta collision_check_y
+    Tilemap_GetAddressByXY collision_check_x, collision_check_y
     PPU_GetTileIdx temp
     tay
     lda TilesPropertiesData, y
     and #COLLISION_SOLID
-    beq :+
-      dec yPos
-    :
-    sta temp
+    bne :+
+    inc yPos
   :
   txa
   and #ACTOR_STATE_DIRECTION_LEFT
-  beq :++
-    dec xPos
-    Tilemap_GetAddressByXY xPos, yPos
+  beq :+
+    CollisionCheckResetXY xPos, yPos
+    dec collision_check_x
+    lda collision_check_x
+    sec
+    sbc offsetX
+    sta collision_check_x
+    Tilemap_GetAddressByXY collision_check_x, collision_check_y
     PPU_GetTileIdx temp
     tay
     lda TilesPropertiesData, y
     and #COLLISION_SOLID
-    beq :+
-      inc xPos
-    :
-    jmp :++
+    bne :++
+    dec xPos
   :
   txa
   and #ACTOR_STATE_DIRECTION_RIGHT
-  beq :++
-    inc xPos
-    Tilemap_GetAddressByXY xPos, yPos
+  beq :+
+    CollisionCheckResetXY xPos, yPos
+    inc collision_check_x
+    lda collision_check_x
+    clc
+    adc offsetX
+    sta collision_check_x
+    Tilemap_GetAddressByXY collision_check_x, collision_check_y
     PPU_GetTileIdx temp
     tay
     lda TilesPropertiesData, y
     and #COLLISION_SOLID
-    beq :+
-      dec xPos
-    :
+    bne :+
+    inc xPos
   :
 
   PPU_Enable_Rendering

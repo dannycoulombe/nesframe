@@ -1,7 +1,8 @@
 PlayerReadControls:
 
-  Pull_ParamsBytes 1
-  collision = params_bytes+0
+  Pull_ParamsBytes 2
+  collisionOffsetX = params_bytes+0
+  collisionOffsetY = params_bytes+1
   originalDirection = params_bytes+2
 
   ; Keep position in memory
@@ -15,7 +16,11 @@ PlayerReadControls:
   ; Initialize direction
   lda #0
   sta metasprite_direction
-  LogA
+
+  ; Initialize collision detection offset
+  lda #8
+  sta collisionOffsetX
+  sta collisionOffsetY
 
   ; Read buttons
   lda buttons
@@ -80,6 +85,8 @@ PlayerReadControls:
     lda metasprite_direction
     ora #ACTOR_STATE_DIRECTION_UP
     sta metasprite_direction
+    lda #0
+    sta collisionOffsetY
     jmp :++
   :
 
@@ -99,6 +106,8 @@ PlayerReadControls:
     lda metasprite_direction
     ora #ACTOR_STATE_DIRECTION_RIGHT
     sta metasprite_direction
+    lda #7
+    sta collisionOffsetX
     jmp :++
   :
 
@@ -109,10 +118,12 @@ PlayerReadControls:
     lda metasprite_direction
     ora #ACTOR_STATE_DIRECTION_LEFT
     sta metasprite_direction
+    lda #7
+    sta collisionOffsetX
   :
 
   ; Detect collision
-  Collision_Check metasprite_x, metasprite_y, metasprite_direction, #8
+  Collision_Check metasprite_x, metasprite_y, metasprite_direction, collisionOffsetX, collisionOffsetY
 
   ; Update sprites
   lda metasprite_direction
@@ -206,4 +217,4 @@ PlayerReadControls:
 
   PlayerReadControlsEnd:
 
-  Push_ParamsBytes 1
+  Push_ParamsBytes 2

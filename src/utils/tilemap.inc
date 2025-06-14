@@ -10,14 +10,15 @@
 .proc Tilemap_GetAddressByXY
 
   xPos = params_bytes+0
-  yPos = params_bytes+1
+  yPos = params_bytes+1aaaaaaa
 
   ; Convert to multiple of 8s
+  ; Nice way of converting numbers to a grid
   lda xPos
-  and #%11111000        ; Get remainder for X (0-7)
+  and #%11111000
   sta xPos
   lda yPos
-  and #%11111000        ; Get remainder for Y (0-7)
+  and #%11111000
   sta yPos
 
   ; Handle Y position first (multiply by 32)

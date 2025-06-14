@@ -34,6 +34,8 @@
     actor_index:            .byte 0     ; Current actor index
     actor_ptr:              .word 0     ; Current actor pointer
     actor_array:            .res 8*ACTOR_TOTAL_BYTES,0  ; 8 actors times total bytes each
+    collision_check_x:      .byte 0
+    collision_check_y:      .byte 0
 
 ; -------------------------------------------------------------------------------
 ; RAM (0100-07FF)
