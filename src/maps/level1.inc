@@ -9,6 +9,7 @@ Stage_Level1_Init:
   ; Set level address labels
   Addr_Set scene_frame_addr, Stage_Level1_Frame, 1
   Addr_Set scene_nmi_addr, Stage_Level1_NMI, 1
+  Addr_Set scene_nametable_label, Stage_Level1_Map, 1
 
   ; Load nametable
   PPU_Load_Screen Stage_Level1_Map, Stage_Level1_Bg_Palette
@@ -24,8 +25,6 @@ Stage_Level1_Init:
 
 ; Will be ran on each frame
 Stage_Level1_Frame:
-
-  ;PPU_Wait_VBlank                       ; Wait for next VBlank
 
   jmp AfterSceneFrame
 

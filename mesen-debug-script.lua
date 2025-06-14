@@ -6,6 +6,9 @@ local currentCycles = 0
 local frameCount = 0
 local logAddr = 252
 local mustWait = false
+local BIT_SIZE = 8     -- Size of each bit square in pixels
+local BIT_SPACING = 2  -- Space between bits
+
 
 -- Get initial content
 local function getFileContent(path)
@@ -25,6 +28,43 @@ if not lastContent then
     print("Error: Cannot find ROM at: " .. romPath)
     return
 end
+
+function drawPointFromHex(hex, color)
+  local x = emu.read(hex, emu.memType.nesDebug) - 1
+  local y = emu.read(hex + 1, emu.memType.nesDebug) - 1
+  emu.drawRectangle(x -1, y -1, 4, 4, 0xFFFFFF, true)  -- Filled rectangle
+  emu.drawRectangle(x, y, 2, 2, color, true)  -- Filled rectangle
+end
+
+function drawBit(x, y, isSet)
+    local color = isSet and 0xFFFFFF or 0x444444  -- White for set bits, dark gray for unset
+    emu.drawRectangle(x, y, BIT_SIZE, BIT_SIZE, color, true)  -- Filled rectangle
+    emu.drawRectangle(x, y, BIT_SIZE, BIT_SIZE, 0x000000, false)  -- Black border
+end
+
+function displayBits(address, xPos, yPos, includeNumbers, includeTitle)
+    local value = emu.read(address, emu.memType.nesDebug)
+
+    -- Draw title
+    if includeTitle then
+      emu.drawString(xPos, yPos - 10, string.format("$%04X: $%02X", address, value), 0xFFFFFF, 0xFF000000)
+    end
+
+    -- Draw bit numbers
+    if includeNumbers then
+      for i = 0, 7 do
+          emu.drawString(xPos + i * (BIT_SIZE + BIT_SPACING), yPos + BIT_SIZE + 2, tostring(7-i), 0xFFFFFF, 0xFF000000)
+      end
+    end
+
+    -- Draw bits
+    for bit = 0, 7 do
+        local isSet = (value & (1 << (7-bit))) ~= 0
+        local x = xPos + bit * (BIT_SIZE + BIT_SPACING)
+        drawBit(x, yPos, isSet)
+    end
+end
+
 
 function printLog()
   state = emu.getState()
@@ -54,6 +94,8 @@ function onFrame()
   frameCount = frameCount + 1
   if mustWait ~= true then
     printLog()
+    displayBits(0x002A, 170, 220, false)
+    drawPointFromHex(0x002C, 0xFF0000)
   end
   if frameCount >= 60 then
     if mustWait ~= true then

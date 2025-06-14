@@ -1,8 +1,10 @@
 ; Set the PPU_ADDR to write to
 ; Parameters:
 ; addr - The PPU memory address to write to
-.macro PPU_Set_Addr addr
+.macro PPU_Set_Addr addr, latch
+    .ifblank latch
     bit PPU_STATUS                      ; Reset PPU_ADDR latch
+    .endif
     lda #>addr                          ; Load high byte of address
     sta PPU_ADDR                        ; $2006
     lda #<addr                          ; Load low byte of address
@@ -24,6 +26,11 @@
 :
     bit PPU_STATUS
     bpl :-
+.endmacro
+
+; Wait for the next VBlank
+.macro PPU_Enable_Rendering
+    PPU_Set_CtrlMask #%10001000, #%00011110
 .endmacro
 
 ; Wait for the next VBlank
@@ -158,4 +165,13 @@
     sta addr+1
     lda attr
     sta addr+2
+.endmacro
+
+.macro PPU_GetTileIdx addr
+    lda addr+1                          ; Load high byte of address
+    sta PPU_ADDR                        ; $2006
+    lda addr                            ; Load low byte of address
+    sta PPU_ADDR                        ; $2006
+    lda PPU_DATA
+    lda PPU_DATA
 .endmacro

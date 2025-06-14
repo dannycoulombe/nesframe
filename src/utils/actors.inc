@@ -1,9 +1,7 @@
 ; --------------------------------------
 ; Push all actors to OAM
 .macro Actor_Push_To_OAM
-  Push_ParamsByte 0
-  Push_ParamsByte 1
-  Push_ParamsByte 2
+  Push_ParamsBytes 3
   Addr_Set oam_ptr, $0200, 1            ; Set OAM initial address
 
   ; Some variables
@@ -124,9 +122,7 @@
       jmp @ActorPushToOAMLoop
     :
 
-  Pull_ParamsByte 2
-  Pull_ParamsByte 1
-  Pull_ParamsByte 0
+  Pull_ParamsBytes 3
 .endmacro
 
 ; --------------------------------------
@@ -141,9 +137,7 @@
 ; callback - Function called on each frame
 ; state - State of the actor
 .macro Actor_Add dataLabel, xPos, yPos, callback, state
-  Push_ParamsByte 0
-  Push_ParamsByte 1
-  Push_ParamsByte 2
+  Push_ParamsBytes 3
 
   Set_ParamLabel dataLabel, 0
   Set_ParamLabel callback, 1
@@ -158,9 +152,7 @@
 
   jsr Actor_Add
 
-  Pull_ParamsByte 2
-  Pull_ParamsByte 1
-  Pull_ParamsByte 0
+  Pull_ParamsBytes 3
 .endmacro
 .proc Actor_Add
 
@@ -244,21 +236,30 @@
       bne ActorRunCallbackLoop
 .endmacro
 
-.macro CurActor_SetStateFlagAll value
+.macro CurActor_SetStateOr value
   ldy #ACTOR_STATE
-  lda value
+  lda (actor_ptr),y
+  ora value
   sta (actor_ptr),y
 .endmacro
 
-.macro CurActor_SetStateFlagBit bit_number, activate
+.macro CurActor_SetStateAnd value
   ldy #ACTOR_STATE
   lda (actor_ptr),y
-  .if activate
-    ora bit_number
+  and value
+  sta (actor_ptr),y
+.endmacro
+
+.macro CurActor_SetStateBit bit_number, positive
+  ldy #ACTOR_STATE
+  lda (actor_ptr),y
+  .if positive = 1
+    ora #bit_number
   .else
-    ora #~bit_number
+    and #<~bit_number
   .endif
   sta (actor_ptr),y
+
 .endmacro
 
 .macro CurActor_SetMetasprite label

@@ -13,6 +13,7 @@
     ptr:                    .word 0     ; An indirect pointer to be used anywhere
     debug:                  .byte 0     ; Used for debugging purposes
     temp:                   .byte 0     ; Whatever...
+    temp2:                  .byte 0     ; Whatever...
     tile_ptr:               .word 0     ; An indirect tile pointer
     params_bytes:           .res 4,0
     params_labels:          .res 4,0
@@ -23,9 +24,11 @@
     pressed_buttons:        .byte 0     ; Newly pressed buttons (RLDU SSBA)
     oam_ptr:                .word 0     ; Current OAM pointer
     sprite_ptr:             .word 0     ; Current sprite pointer
+    metasprite_direction:   .byte 0
     metasprite_x:           .byte 0
     metasprite_y:           .byte 0
     scene_init_label:       .word 0     ; Scene frame address to be executed (0 if none)
+    scene_nametable_label:  .word 0     ; Scene nametable address (0 if none)
     scene_frame_addr:       .word 0     ; Scene frame address to be executed (0 if none)
     scene_nmi_addr:         .word 0     ; Scene NMI address to be executed (0 if none)
     actor_index:            .byte 0     ; Current actor index
@@ -56,6 +59,8 @@
     .include "utils/addr.inc"
     .include "utils/metasprite.inc"
     .include "utils/actors.inc"
+    .include "utils/collision.inc"
+    .include "utils/tilemap.inc"
     .include "actors/player.inc"
     .include "actors/round-rock.inc"
     .include "actors/torch.inc"
@@ -63,9 +68,9 @@
     ; Skip directly to reset
     jmp RESET
 
-    ; Code to be referenced later on
-    .include "data/metasprite.inc"
-    .include "maps/level1.inc"
+    ; Code and data to be referenced later on
+    MetaspriteData: .include "data/metasprite.inc"
+    Level1Data: .include "maps/level1.inc"
 
     ; Initialize the NES
     RESET:
@@ -95,7 +100,7 @@
     AfterSceneInit:
 
         ; Enables NMI, background and sprites rendering
-        PPU_Set_CtrlMask #%10001000, #%00011110
+        PPU_Enable_Rendering
 
         ; Enable sound effects
         jsr Sound::Enable
@@ -179,6 +184,10 @@ NMI:                                    ; Maximum of ~2273 cycles
 ; Good for sound updates, split-screen effets or timer-based events.
 IRQ:
   rti
+
+; -------------------------------------------------------------------------------
+; Additional data
+TilesPropertiesData: .incbin "data/tiles.tprop"
 
 ; -------------------------------------------------------------------------------
 ; Sprites data

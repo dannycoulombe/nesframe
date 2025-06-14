@@ -176,17 +176,29 @@ MOD_128 = %01111111   ; $7F
 
 ; --------------------------------------
 ; Actor constants
+ACTOR_STATE_DEFAULT = %11110000
 ACTOR_TOTAL_BYTES     = 8
 ACTOR_STATE_ACTIVATED = 1 << 7
 ACTOR_STATE_ANIMATED  = 1 << 6
+ACTOR_STATE_COLLISION  = 1 << 5
+ACTOR_STATE_DIRECTION_UP = 1 << 3
+ACTOR_STATE_DIRECTION_RIGHT = 1 << 2
+ACTOR_STATE_DIRECTION_DOWN = 1 << 1
+ACTOR_STATE_DIRECTION_LEFT = 1 << 0
 
 ; Actor struct
 ACTOR_DATA_PTR_LO     = 0
 ACTOR_DATA_PTR_HI     = 1
-ACTOR_STATE           = 2               ; EA-- ---- (E: Enabled?, A: Animate?)
+ACTOR_STATE           = 2               ; EA-- ---- (E: Enabled?, A: Animate?, C: Collision?)
 ACTOR_COUNTER         = 3
 ACTOR_X               = 4
 ACTOR_Y               = 5
 ACTOR_CALLBACK_LO     = 6
 ACTOR_CALLBACK_HI     = 7
+
+; Collision
+COLLISION_SOLID       = 1 << 0
+COLLISION_DANGEROUS   = 1 << 1
+COLLISION_ESCAPE      = 1 << 6
+
 
