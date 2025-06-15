@@ -32,8 +32,8 @@ end
 function drawPointFromHex(hex, color)
   local x = emu.read(hex, emu.memType.nesDebug) - 1
   local y = emu.read(hex + 1, emu.memType.nesDebug) - 1
-  emu.drawRectangle(x -1, y -1, 4, 4, 0xFFFFFF, true)  -- Filled rectangle
-  emu.drawRectangle(x, y, 2, 2, color, true)  -- Filled rectangle
+  emu.drawRectangle(x -1, y -1, 3, 3, 0xFFFFFF, true)  -- Filled rectangle
+  emu.drawRectangle(x, y, 1, 1, color, true)  -- Filled rectangle
 end
 
 function drawBit(x, y, isSet)
@@ -94,8 +94,9 @@ function onFrame()
   frameCount = frameCount + 1
   if mustWait ~= true then
     printLog()
-    displayBits(0x002A, 170, 220, false)
-    drawPointFromHex(0x002C, 0xFF0000)
+    displayBits(0x002A, 170, 220, false) -- Player state
+    drawPointFromHex(0x002C, 0x0000FF) -- Player X/Y
+    drawPointFromHex(0x0068, 0xFF0000) -- Collision X/Y
   end
   if frameCount >= 60 then
     if mustWait ~= true then

@@ -118,8 +118,6 @@ PlayerReadControls:
     lda metasprite_direction
     ora #ACTOR_STATE_DIRECTION_LEFT
     sta metasprite_direction
-    lda #7
-    sta collisionOffsetX
   :
 
   ; Detect collision
