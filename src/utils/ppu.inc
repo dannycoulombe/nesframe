@@ -111,7 +111,7 @@
 ; Parameters:
 ; label - Data label to load into the PPU
 ; addr - From a given address
-.macro PPU_Load_Screen mapLabel, paletteLabel
+.macro PPU_Load_1x1_Screen mapLabel, paletteLabel
 
     Addr_Set ptr, mapLabel, 1           ; Copy label to indirect pointer address
     PPU_Set_Addr $2000                  ; Set PPU to given address
@@ -127,6 +127,77 @@
     inc ptr+1                           ; Increment high byte of address
     dex
     bne :--                             ; Loop for all 4 pages
+
+    ; Load background palette
+    PPU_Load_Palette paletteLabel, $3F00, #16
+.endmacro
+
+; Load a screen of 2x2 metatiles into the PPU
+.macro PPU_Load_2x2_Screen fromPPUAddress, totalRows, map2x2Label, paletteLabel
+
+    Addr_Set ptr, map2x2Label, 1           ; Copy label to indirect pointer address
+    PPU_Set_Addr fromPPUAddress         ; Set PPU to given address
+
+    lda totalRows
+    sta temp
+    ldy #0
+
+    ; First row (under 16)
+    @loop2x2FirstRow:
+        lda (ptr),y               ; Load byte at X index
+        asl
+        asl
+        asl                             ; Multiply by 8 bytes (metatile)
+        tax
+
+        lda Metatiles2x2Data, x
+        sta PPU_DATA
+        inx
+        lda Metatiles2x2Data, x
+        sta PPU_DATA
+
+        ; If haven't hit 16 yet (end of line) continue with first row
+        iny
+        cpy #16
+        bcc @loop2x2FirstRow
+        tya
+        sec
+        sbc #16
+        tay
+
+    ; Second row (over 16)
+    @loop2x2SecondRow:
+        lda (ptr),y                     ; Load byte at X index
+        asl
+        asl
+        asl                             ; Multiply by 8 bytes (one metatile)
+        tax
+
+        inx                             ; Get byte index 2 and 3
+        inx
+        lda Metatiles2x2Data, x
+        sta PPU_DATA
+        inx
+        lda Metatiles2x2Data, x
+        sta PPU_DATA
+
+        ; If hit 32 (end of line) reset register Y
+        iny
+        cpy #16
+        bne @loop2x2SecondRow
+        dec temp
+        beq @loop2x2End
+        ldy #0
+
+        ; Move pointer to next 16 tiles
+        clc
+        lda ptr
+        adc #16
+        sta ptr
+
+        jmp @loop2x2FirstRow
+
+    @loop2x2End:
 
     ; Load background palette
     PPU_Load_Palette paletteLabel, $3F00, #16
@@ -168,6 +239,7 @@
 .endmacro
 
 .macro PPU_GetTileIdx addr
+    bit PPU_ADDR
     lda addr+1                          ; Load high byte of address
     sta PPU_ADDR                        ; $2006
     lda addr                            ; Load low byte of address

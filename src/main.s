@@ -36,6 +36,7 @@
     actor_array:            .res 8*ACTOR_TOTAL_BYTES,0  ; 8 actors times total bytes each
     collision_check_x:      .byte 0
     collision_check_y:      .byte 0
+    collision_map:          .res 30     ; Keep
 
 ; -------------------------------------------------------------------------------
 ; RAM (0100-07FF)
@@ -71,8 +72,8 @@
     jmp RESET
 
     ; Code and data to be referenced later on
-    MetaspriteData: .include "data/metasprite.inc"
-    Level1Data: .include "maps/level1.inc"
+    MetaspriteData: .include "data/metasprite.s"
+    Level1Data: .include "maps/level1/level1.inc"
 
     ; Initialize the NES
     RESET:
@@ -189,13 +190,13 @@ IRQ:
 
 ; -------------------------------------------------------------------------------
 ; Additional data
-TilesPropertiesData: .incbin "data/tiles.tprop"
+Metatiles2x2Data: .incbin "data/tiles.2x2"
 
 ; -------------------------------------------------------------------------------
 ; Sprites data
 .segment "CHR"
-    .incbin "banks/tiles.chr"           ; Include CHR data (4 KB of tile data)
-    .incbin "banks/sprites.chr"         ; Include CHR data (4 KB of sprite data)
+    .incbin "data/tiles.chr"           ; Include CHR data (4 KB of tile data)
+    .incbin "data/sprites.chr"         ; Include CHR data (4 KB of sprite data)
 
 .segment "VECTORS"
     .word NMI                           ; NMI vector

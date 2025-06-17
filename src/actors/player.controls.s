@@ -120,7 +120,9 @@ PlayerReadControls:
     sta metasprite_direction
   :
 
-  ; Detect collision
+  ; First collision check (influencer)
+  ; The influencer pushes the character
+  ; in the opposite direction
   Collision_Check metasprite_x, metasprite_y, metasprite_direction, collisionOffsetX, collisionOffsetY
 
   ; Update sprites

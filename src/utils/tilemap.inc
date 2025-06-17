@@ -1,56 +1,38 @@
-; Check actor collision and return value
-; of tile in register A
-.macro Tilemap_GetAddressByXY xPos, yPos
+.macro Tilemap_GetTilePropByXY xPos, yPos
   Push_ParamsBytes 2
   Set_ParamByte xPos, 0
   Set_ParamByte yPos, 1
-  jsr Tilemap_GetAddressByXY
+  jsr Tilemap_GetTilePropByXY
   Pull_ParamsBytes 2
 .endmacro
-.proc Tilemap_GetAddressByXY
-
+.proc Tilemap_GetTilePropByXY
   xPos = params_bytes+0
   yPos = params_bytes+1
 
-  ; Convert to multiple of 8s
-  ; Nice way of converting numbers to a grid
-  lda xPos
+  ; Compute Y Pos
+  lda yPos                              ; Get Y coordinate
   and #%11111000
-  sta xPos
-  lda yPos
-  and #%11111000
-  sta yPos
-
-  ; Handle Y position first (multiply by 32)
-  lda yPos                              ; Get Y position
   lsr                                   ; Divide by 8 first (pixel to tile position)
   lsr
   lsr
-  sta temp
+  asl                                   ; Multiply by
+  asl                                   ; Y * 4
+  asl                                   ; Y * 8
+  sta temp                              ; Store Y*8 in temp
 
-  lda #0                                ; Initialize high byte
-  sta temp+1
-
-  ; Multiply by 32 (shift left 5 times)
-  clc                                   ; Clear carry before shifts
-  .repeat 5
-  asl temp                              ; Shift 1 (×2)
-  rol temp+1
-  .endrepeat
-
-  ; Now add X position
-  clc
-  lda xPos                              ; Get X position
-  lsr                                   ; Divide by 8 (pixel to tile position)
+  ; Compute X pos
+  lda xPos                              ; Get X coordinate
+  and #%11111000
+  lsr                                   ; Divide by 16 first (pixel to tile position)
   lsr
   lsr
-  adc temp                              ; Add to low byte
-  sta temp
-  lda temp+1                            ; Get high byte
-  adc #0                                ; Add carry if any
+  lsr
   clc
-  adc #$20                              ; Add nametable base address
-  sta temp+1
+  adc temp                              ; Add Y*8 to X to get final offset
+
+  ; Fetch tile index
+;  tay
+;  lda scene_nametable_label, y
 
   rts
 .endproc
