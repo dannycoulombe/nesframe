@@ -81,6 +81,29 @@ function highlightTile(address, color, showLabel)
     end
 end
 
+function highlightTlBrTile(tlAddress, brAddress, color, showLabel)
+    local tlIndex = emu.read(tlAddress, emu.memType.nesDebug)
+    local tlX, tlY = tileIndexToCoords(tlIndex, 16)
+    local brIndex = emu.read(brAddress, emu.memType.nesDebug)
+    local brX, brY = tileIndexToCoords(brIndex, 16)
+
+    tlX = tlX * 16
+    tlY = tlY * 16
+    brX = brX * 16
+    brY = brY * 16
+
+    emu.log(brX)
+
+    if tlX > 0 and brX > 0 then
+      emu.drawRectangle(tlX, tlY, (brX - tlX) + 16, (brY - tlY) + 16, color, false, false, 0.5)
+
+      -- Draw title
+      if showLabel then
+        emu.drawString(brX , brY - 10, string.format("%s", index), 0xFFFFFF, 0xFF000000)
+      end
+    end
+end
+
 function displayBits(address, xPos, yPos, includeNumbers, includeTitle)
     local value = emu.read(address, emu.memType.nesDebug)
 
@@ -145,8 +168,11 @@ function onFrame()
 --     drawPointFromHex(0x0067, 0xFF0000, false) -- Collision X1/Y1
 --     drawPointFromHex(0x0069, 0xFF0000) -- Collision X2/Y2
     printMemoryValue(12, 0, "Collision: $%02X:$%02X / $%02X:$%02X", { 0x0067, 0x0068, 0x0069, 0x006A, })
-    highlightTile(0x0069, 0xFF00FF, false)
-    highlightTile(0x006A, 0xFF00FF, false)
+--     highlightTile(0x0069, 0xFF00FF, false)
+--     highlightTile(0x006A, 0xFF00FF, false)
+--     highlightTile(0x006B, 0xFF00FF, false)
+--     highlightTile(0x006C, 0xFF00FF, false)
+    highlightTlBrTile(0x0069, 0x006A, 0xFF00FF, false)
   end
   if frameCount >= 60 then
     if mustWait ~= true then

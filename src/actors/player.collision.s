@@ -51,4 +51,4 @@ PlayerCollision:
 ;  sta deltaY
 
   ; Update position
-  Collision_SpritePushback mapData, xPos, yPos, #<~8, #4, #16, #4, deltaX, deltaY
+  Collision_SpritePushback mapData, xPos, yPos, #<~7, #4, #15, #4, deltaX, deltaY

@@ -50,6 +50,8 @@
   collision_check_y:      .byte 0
   collision_tl_tile_idx:  .byte 0
   collision_br_tile_idx:  .byte 0
+  collision_tr_tile_idx:  .byte 0
+  collision_bl_tile_idx:  .byte 0
 
 ; -------------------------------------------------------------------------------
 ; RAM (0100-07FF)

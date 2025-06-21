@@ -19,25 +19,37 @@
     rts
 
   ; ------------------------------------
-  ; Fetch top-left tile
-  @Collision_SpritePushback_GetTopLeft:
+  ; Update tile indexes
+  @Collision_SpritePushback_UpdateTileIndexes:
+
+    ; Get top-left tile
     jsr @Collision_SpritePushback_GetTileIdx
     sta collision_tl_tile_idx
-    rts
 
-  ; ------------------------------------
-  ; Fetch bottom-right tile
-  @Collision_SpritePushback_GetBottomRight:
+    ; Check top-right tile
     lda collision_check_x
     clc
     adc width
     sta collision_check_x
+    jsr @Collision_SpritePushback_GetTileIdx
+    sta collision_tr_tile_idx
+
+    ; Get bottom-right tile
     lda collision_check_y
     clc
     adc height
     sta collision_check_y
     jsr @Collision_SpritePushback_GetTileIdx
     sta collision_br_tile_idx
+
+    ; Check bottom-left tile
+    lda collision_check_x
+    sec
+    sbc width
+    sta collision_check_x
+    jsr @Collision_SpritePushback_GetTileIdx
+    sta collision_bl_tile_idx
+
     rts
 
   ; ------------------------------------
@@ -57,8 +69,7 @@
       sta collision_check_y
 
       ; Get positions
-      jsr @Collision_SpritePushback_GetTopLeft
-      jsr @Collision_SpritePushback_GetBottomRight
+      jsr @Collision_SpritePushback_UpdateTileIndexes
 
       ; Which direction?
       lda deltaY
@@ -71,9 +82,7 @@
         beq @Collision_SpritePushback_DoVerticalEnd
 
         ; Check top-right tile
-        ldx collision_tl_tile_idx
-        inx
-        txa
+        lda collision_tr_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoVerticalEnd
@@ -88,9 +97,7 @@
         beq @Collision_SpritePushback_DoVerticalEnd
 
         ; Check bottom-left position
-        ldx collision_br_tile_idx
-        dex
-        txa
+        lda collision_bl_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoVerticalEnd
@@ -122,8 +129,7 @@
       sta collision_check_x
 
       ; Get positions
-      jsr @Collision_SpritePushback_GetTopLeft
-      jsr @Collision_SpritePushback_GetBottomRight
+      jsr @Collision_SpritePushback_UpdateTileIndexes
 
       ; Which direction?
       lda deltaX
@@ -136,9 +142,7 @@
         beq @Collision_SpritePushback_DoHorizontalEnd
 
         ; Check bottom-left tile
-        ldx collision_br_tile_idx
-        dex
-        txa
+        lda collision_bl_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoHorizontalEnd
@@ -147,9 +151,7 @@
       : ; Going right
 
         ; Check top-right position
-        ldx collision_tl_tile_idx
-        inx
-        txa
+        lda collision_tr_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoHorizontalEnd
@@ -171,24 +173,6 @@
         rts
 
   ; ------------------------------------
-  ; Get tile properties
-  @Collision_SpritePushback_GetTileProp:
-    sec
-    sbc #32
-    tay
-
-    ; Get metatile index (x8 bytes)
-    lda (mapData), y
-    asl
-    asl
-    asl
-    tay
-
-    lda Metatiles2x2Data+METATILE_2X2_PROP, y
-
-    rts
-
-  ; ------------------------------------
   ; Get tile index from collision coordinates
   @Collision_SpritePushback_GetTileIdx:
 
@@ -207,6 +191,24 @@
     clc
     adc temp                            ; Add Y*8 to X to get final offset
     sta temp
+
+    rts
+
+  ; ------------------------------------
+  ; Get tile properties
+  @Collision_SpritePushback_GetTileProp:
+    sec
+    sbc #32
+    tay
+
+    ; Get metatile index (x8 bytes)
+    lda (mapData), y
+    asl
+    asl
+    asl
+    tay
+
+    lda Metatiles2x2Data+METATILE_2X2_PROP, y
 
     rts
 
