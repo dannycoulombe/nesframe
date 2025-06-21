@@ -40,15 +40,5 @@ PlayerCollision:
     inc deltaX
   :
 
-;  lda deltaX
-;  asl
-;  asl
-;  sta deltaX
-;
-;  lda deltaY
-;  asl
-;  asl
-;  sta deltaY
-
   ; Update position
   Collision_SpritePushback mapData, xPos, yPos, #<~7, #4, #15, #4, deltaX, deltaY

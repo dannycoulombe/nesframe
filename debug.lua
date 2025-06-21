@@ -172,7 +172,7 @@ function onFrame()
 --     highlightTile(0x006A, 0xFF00FF, false)
 --     highlightTile(0x006B, 0xFF00FF, false)
 --     highlightTile(0x006C, 0xFF00FF, false)
-    highlightTlBrTile(0x0069, 0x006A, 0xFF00FF, false)
+--     highlightTlBrTile(0x0069, 0x006A, 0xFF00FF, false)
   end
   if frameCount >= 60 then
     if mustWait ~= true then

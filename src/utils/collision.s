@@ -79,13 +79,13 @@
         lda collision_tl_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
-        beq @Collision_SpritePushback_DoVerticalEnd
+        beq @Collision_SpritePushback_DoVerticalCollisionUp
 
         ; Check top-right tile
         lda collision_tr_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
-        beq @Collision_SpritePushback_DoVerticalEnd
+        beq @Collision_SpritePushback_DoVerticalCollisionUp
 
         jmp :++
       : ; Going down
@@ -94,13 +94,13 @@
         lda collision_br_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
-        beq @Collision_SpritePushback_DoVerticalEnd
+        beq @Collision_SpritePushback_DoVerticalCollisionDown
 
         ; Check bottom-left position
         lda collision_bl_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
-        beq @Collision_SpritePushback_DoVerticalEnd
+        beq @Collision_SpritePushback_DoVerticalCollisionDown
       :
 
       ; No collision: update Y position
@@ -110,6 +110,22 @@
       sta yPos
 
       @Collision_SpritePushback_DoVerticalEnd:
+        rts
+
+      @Collision_SpritePushback_DoVerticalCollisionUp:
+        lda collision_check_y
+        and #%11111000
+        sec
+        sbc offsetY
+        sta yPos
+        rts
+
+      @Collision_SpritePushback_DoVerticalCollisionDown:
+        lda yPos
+        and #%11111000
+        clc
+        adc #7
+        sta yPos
         rts
 
   ; ------------------------------------
@@ -139,13 +155,13 @@
         lda collision_tl_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
-        beq @Collision_SpritePushback_DoHorizontalEnd
+        beq @Collision_SpritePushback_DoHorizontalCollisionLeft
 
         ; Check bottom-left tile
         lda collision_bl_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
-        beq @Collision_SpritePushback_DoHorizontalEnd
+        beq @Collision_SpritePushback_DoHorizontalCollisionLeft
 
         jmp :++
       : ; Going right
@@ -154,13 +170,13 @@
         lda collision_tr_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
-        beq @Collision_SpritePushback_DoHorizontalEnd
+        beq @Collision_SpritePushback_DoHorizontalCollisionRight
 
         ; Check bottom-right position
         lda collision_br_tile_idx
         jsr @Collision_SpritePushback_GetTileProp
         cmp #COLLISION_SOLID
-        beq @Collision_SpritePushback_DoHorizontalEnd
+        beq @Collision_SpritePushback_DoHorizontalCollisionRight
       :
 
       ; No collision: update X position
@@ -170,6 +186,20 @@
       sta xPos
 
       @Collision_SpritePushback_DoHorizontalEnd:
+        rts
+
+      @Collision_SpritePushback_DoHorizontalCollisionLeft:
+        lda xPos
+        and #%11111000
+        sta xPos
+        rts
+
+      @Collision_SpritePushback_DoHorizontalCollisionRight:
+        lda collision_check_x
+        and #%11111000
+        clc
+        adc #8
+        sta xPos
         rts
 
   ; ------------------------------------
