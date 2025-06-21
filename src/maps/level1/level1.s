@@ -12,13 +12,13 @@ Stage_Level1_Init:
   Addr_Set scene_nametable_label, Stage_Level1_Map, 1
 
   ; Load nametable
-  PPU_Load_2x2_Screen $2060, #13, Stage_Level1_Map, Stage_Level1_Bg_Palette
+  PPU_Load_2x2_Screen LEVEL_OFFSET, #13, Stage_Level1_Map, Stage_Level1_Bg_Palette
   PPU_Load_Palette Stage_Level1_Sprite_Palette, $3F10, #16
 
   ; Prepare actors
-  Actor_Add GnomeStillFront, #40, #90, PlayerCallback
+  Actor_Add GnomeStillFront, #40, #88, PlayerCallback
 ;  Actor_Add RoundRock, #88, #120, RoundRockCallback, #ACTOR_STATE_ACTIVATED
-;  Actor_Add TorchA, #184, #167, TorchCallback
+;  Actor_Add TorchA, #184, #168, TorchCallback
 ;  Actor_Add MushroomA, #136, #72, RoundRockCallback, #ACTOR_STATE_ACTIVATED
 
   jmp AfterSceneInit

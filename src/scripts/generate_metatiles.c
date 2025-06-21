@@ -6,24 +6,19 @@
 #define MAX_LINE_LENGTH 2048
 #define MAX_DECODED_SIZE 65536  // Adjust size as needed
 
-// Structure to hold decoded data
 typedef struct {
     unsigned char* data;
     size_t size;
 } DecodedData;
 
-// Function prototype - add this near the top of the file, after the includes and defines
 unsigned char hex_to_byte(const char *hex);
 
-// The actual function implementation remains the same where it was
 unsigned char hex_to_byte(const char *hex) {
     int value = 0;
     sscanf(hex, "%2x", &value);
     return (unsigned char)value;
 }
 
-
-// Modified process_encoded_string to return decoded data in memory
 DecodedData process_encoded_string(const char* encoded) {
     DecodedData result = {malloc(MAX_DECODED_SIZE), 0};
 
@@ -40,11 +35,14 @@ DecodedData process_encoded_string(const char* encoded) {
             if (encoded[i] == '[') {
                 i++;
                 count = 0;
-                while (isdigit(encoded[i])) {
-                    count = count * 10 + (encoded[i] - '0');
-                    i++;
+                char repeat_hex[9] = {0}; // Buffer for up to 8 hex digits
+                int hex_pos = 0;
+
+                while (isxdigit(encoded[i]) && hex_pos < 8) {
+                    repeat_hex[hex_pos++] = encoded[i++];
                 }
-                i++;
+                sscanf(repeat_hex, "%x", &count);
+                i++; // Skip closing bracket
             }
 
             unsigned char byte = hex_to_byte(hex);
@@ -58,6 +56,7 @@ DecodedData process_encoded_string(const char* encoded) {
 
     return result;
 }
+
 
 int process_file(const char* input_path, const char* output_path) {
     FILE* infile = fopen(input_path, "r");
@@ -75,18 +74,14 @@ int process_file(const char* input_path, const char* output_path) {
 
     char line[MAX_LINE_LENGTH];
     DecodedData id_data = {NULL, 0};
-    DecodedData pal_data = {NULL, 0};
     DecodedData props_data = {NULL, 0};
 
-    // Read and decode all three lines
+    // Read and decode lines
     while (fgets(line, sizeof(line), infile)) {
         line[strcspn(line, "\n")] = 0;
 
         if (strncmp(line, "MetatileSet_2x2_id=", strlen("MetatileSet_2x2_id=")) == 0) {
             id_data = process_encoded_string(line + strlen("MetatileSet_2x2_id="));
-        }
-        else if (strncmp(line, "MetatileSet_2x2_pal=", strlen("MetatileSet_2x2_pal=")) == 0) {
-            pal_data = process_encoded_string(line + strlen("MetatileSet_2x2_pal="));
         }
         else if (strncmp(line, "MetatileSet_2x2_props=", strlen("MetatileSet_2x2_props=")) == 0) {
             props_data = process_encoded_string(line + strlen("MetatileSet_2x2_props="));
@@ -94,9 +89,8 @@ int process_file(const char* input_path, const char* output_path) {
     }
 
     // Write combined data to output file
-    if (id_data.data && pal_data.data && props_data.data) {
-        size_t pal_index = 0;
-        size_t props_index = 0;
+    if (id_data.data && props_data.data) {
+        size_t props_index = 2;
 
         for (size_t i = 0; i < id_data.size; i += 4) {
             // Write 4 bytes from id_data
@@ -104,17 +98,13 @@ int process_file(const char* input_path, const char* output_path) {
                 fwrite(&id_data.data[i + j], 1, 1, outfile);
             }
 
-            // Write 1 byte from pal_data if available
-            if (pal_index < pal_data.size) {
-                fwrite(&pal_data.data[pal_index++], 1, 1, outfile);
-            }
-
             // Write 1 byte from props_data if available
             if (props_index < props_data.size) {
-                fwrite(&props_data.data[props_index++], 1, 1, outfile);
+                fwrite(&props_data.data[props_index], 1, 1, outfile);
+                props_index += 4; // Move 4 bytes forward (1 used + 3 skipped)
             }
 
-            fwrite("\0\0", 1, 2, outfile);
+            fwrite("\0\0\0", 1, 3, outfile);
         }
     } else {
         printf("Failed to find all required data lines\n");
@@ -126,13 +116,13 @@ int process_file(const char* input_path, const char* output_path) {
 
     // Clean up
     free(id_data.data);
-    free(pal_data.data);
     free(props_data.data);
     fclose(infile);
     fclose(outfile);
 
     return 1;
 }
+
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         printf("Usage: %s <input_mtt2_file> <output_meta_file>\n", argv[0]);

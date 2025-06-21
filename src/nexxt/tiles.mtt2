@@ -1,6 +1,6 @@
 NXmttTXT
 
-VarMtClickID=0
+VarMtClickID=13
 VarMtClickID_store_2x2=0
 VarMetatileSets_2x2=1
 
@@ -11,7 +11,7 @@ MetatileSet_2x2_id=00[3]0700[2]08[2]00[2]0900[6]34003435373537505160613637363738
 MetatileSet_2x2_pal=03[c]00[4]03[18]00[4]03[2c]00[4]03[4]00[4]03[18]00[84]
 
 
-MetatileSet_2x2_props=01[18]40[4]01[c]00[4]01[12]40[2]01[8]40[4]01[c]00[4]01[4]00[4]01[f]0001[8]00[84]
+MetatileSet_2x2_props=01[18]40[4]01[c]00[4]01[1c]40[4]01[c]00[4]01[4]00[4]01[f]0001[8]00[84]
 
 
 MetatileSetLabels_2x2=Floor

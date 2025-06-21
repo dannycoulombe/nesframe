@@ -201,4 +201,8 @@ COLLISION_SOLID       = 1 << 0
 COLLISION_DANGEROUS   = 1 << 1
 COLLISION_ESCAPE      = 1 << 6
 
+; Metatiles
+METATILE_2X2_PROP     = 4
 
+; Level
+LEVEL_OFFSET          = $2080

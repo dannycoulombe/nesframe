@@ -29,17 +29,56 @@ if not lastContent then
     return
 end
 
-function drawPointFromHex(hex, color)
-  local x = emu.read(hex, emu.memType.nesDebug) - 1
-  local y = emu.read(hex + 1, emu.memType.nesDebug) - 1
-  emu.drawRectangle(x -1, y -1, 3, 3, 0xFFFFFF, true)  -- Filled rectangle
+function drawPointFromHex(hex, color, showValue)
+  local x = emu.read(hex, emu.memType.nesDebug)
+  local y = emu.read(hex + 1, emu.memType.nesDebug)
+
+  if x > 0 and y > 0 then
+  --   emu.drawRectangle(x -1, y -1, 3, 3, 0xFFFFFF, true)  -- Filled rectangle
+    emu.drawRectangle(x, y, 1, 1, color, true)  -- Filled rectangle
+
+    if showValue then
+      emu.drawString(x + 5, y - 3, string.format("$%02X:$%02X", x, y), color, 0xFF000000)
+    end
+  end
+
+end
+
+function drawHeaderTextLeft(value)
+  local x = emu.read(hex, emu.memType.nesDebug)
+  local y = emu.read(hex + 1, emu.memType.nesDebug)
+--   emu.drawRectangle(x -1, y -1, 3, 3, 0xFFFFFF, true)  -- Filled rectangle
   emu.drawRectangle(x, y, 1, 1, color, true)  -- Filled rectangle
+
+  if showValue then
+    emu.drawString(x + 5, y - 3, string.format("$%02X:$%02X", x, y), color, 0xFF000000)
+  end
 end
 
 function drawBit(x, y, isSet)
     local color = isSet and 0xFFFFFF or 0x444444  -- White for set bits, dark gray for unset
     emu.drawRectangle(x, y, BIT_SIZE, BIT_SIZE, color, true)  -- Filled rectangle
     emu.drawRectangle(x, y, BIT_SIZE, BIT_SIZE, 0x000000, false)  -- Black border
+end
+
+function tileIndexToCoords(index, mapWidth)
+  local x = index % mapWidth
+  local y = math.floor(index / mapWidth)
+  return x, y
+end
+
+function highlightTile(address, color, showLabel)
+    local index = emu.read(address, emu.memType.nesDebug)
+    local x, y = tileIndexToCoords(index, 16)
+
+    if x > 0 and y > 0 then
+      emu.drawRectangle(x * 16, y * 16, 16, 16, color, false, false, 0.5)
+
+      -- Draw title
+      if showLabel then
+        emu.drawString(x * 16, (y * 16) - 10, string.format("%s", index), 0xFFFFFF, 0xFF000000)
+      end
+    end
 end
 
 function displayBits(address, xPos, yPos, includeNumbers, includeTitle)
@@ -65,14 +104,21 @@ function displayBits(address, xPos, yPos, includeNumbers, includeTitle)
     end
 end
 
+function printMemoryValue(xPos, yPos, format, addresses)
+  local values = {}
+  for i, addr in ipairs(addresses) do
+      values[i] = emu.read(addr, emu.memType.nesDebug)
+  end
+  emu.drawString(xPos, yPos, string.format(format, table.unpack(values)), 0xFFFFFF, 0xFF000000)
+end
 
-function printLog()
+function printLog(xPos, yPos)
   state = emu.getState()
   value1 = string.format("%04X", emu.read16(logAddr, emu.memType.nesDebug))
   value2 = string.format("%04X", emu.read16(logAddr + 2, emu.memType.nesDebug))
 
   local cyclesDiff = state["cpu.cycleCount"] - lastCycles
-  emu.drawString(15, 220, "Log: #" .. value1 .. " : #" .. value2, 0xFFFFFF, 0xFF000000)
+  emu.drawString(xPos, yPos, "Log: #" .. value1 .. " : #" .. value2, 0xFFFFFF, 0xFF000000)
   lastCycles = state["cpu.cycleCount"]
 end
 
@@ -93,10 +139,14 @@ end
 function onFrame()
   frameCount = frameCount + 1
   if mustWait ~= true then
-    printLog()
-    displayBits(0x002A, 170, 220, false) -- Player state
-    drawPointFromHex(0x002C, 0x0000FF) -- Player X/Y
-    drawPointFromHex(0x0068, 0xFF0000) -- Collision X/Y
+    printLog(15, 230)
+    displayBits(0x0026, 170, 230, false) -- Player state
+--     drawPointFromHex(0x0028, 0x0000FF, false) -- Player X/Y
+--     drawPointFromHex(0x0067, 0xFF0000, false) -- Collision X1/Y1
+--     drawPointFromHex(0x0069, 0xFF0000) -- Collision X2/Y2
+    printMemoryValue(12, 0, "Collision: $%02X:$%02X / $%02X:$%02X", { 0x0067, 0x0068, 0x0069, 0x006A, })
+    highlightTile(0x0069, 0xFF00FF, false)
+    highlightTile(0x006A, 0xFF00FF, false)
   end
   if frameCount >= 60 then
     if mustWait ~= true then
@@ -108,4 +158,5 @@ function onFrame()
   end
 end
 
-emu.addEventCallback(onFrame, emu.eventType.endFrame)
+emu.addEventCallback(onFrame, emu.eventType.paint)
+-- emu.addEventCallback(onFrame, emu.eventType.endFrame)

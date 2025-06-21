@@ -194,6 +194,9 @@
         lda ptr
         adc #16
         sta ptr
+        lda ptr+1                       ; Handle carry to high byte
+        adc #0
+        sta ptr+1
 
         jmp @loop2x2FirstRow
 

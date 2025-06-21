@@ -79,9 +79,9 @@
             : ; Fetch next sprite
               ldy #0
               ldx actorIndex
-              clc
               lda ptr
               inc animIndex
+              clc
               adc animIndex
               sta actor_array + ACTOR_DATA_PTR_LO, x
               lda ptr+1
@@ -106,6 +106,7 @@
       sta metasprite_x
       lda actor_array + ACTOR_Y, y
       sta metasprite_y
+;      LogA
 
       ; Push metasprite to OAM
       StackedXY_Call Metasprite_Set
@@ -212,6 +213,7 @@
     tay
 
     ; Move current actor pointer by ACTOR_TOTAL_BYTES amount
+    clc
     adc #<actor_array
     sta actor_ptr
 
@@ -259,7 +261,6 @@
     and #<~bit_number
   .endif
   sta (actor_ptr),y
-
 .endmacro
 
 .macro CurActor_SetMetasprite label

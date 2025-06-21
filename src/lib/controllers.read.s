@@ -15,12 +15,12 @@ sta buttons
 ; Read all 8 bits of the controller snapshot
 ldx #8
 :
-    clc                                 ; Clear the carry (since we're using ROL)
-    lda CONTROLLER_1
-    lsr A                               ; Shift right, bit 0 goes into Carry
-    rol buttons                         ; Rotate Carry into buttons variable
-    dex
-    bne :-
+  clc                                   ; Clear the carry (since we're using ROL)
+  lda CONTROLLER_1
+  lsr A                                 ; Shift right, bit 0 goes into Carry
+  rol buttons                           ; Rotate Carry into buttons variable
+  dex
+  bne :-
 
 ; Calculate newly pressed buttons
 lda last_buttons
