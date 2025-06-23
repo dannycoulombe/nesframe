@@ -115,7 +115,7 @@
     ; Get next actor index (index * actor total bytes)
     inx
     txa
-    MUL_A #ACTOR_TOTAL_BYTES
+    MUL_A ACTOR_TOTAL_BYTES
     tay
 
     cpx actor_index
@@ -157,6 +157,8 @@
 .endmacro
 .proc Actor_Add
 
+  ACTOR_TOTAL_BYTES = 8                  ; Needed because is a proc
+
   ; Map parameters to constants
   dataLabel = params_labels
   xPos = params_bytes+0
@@ -165,8 +167,8 @@
   callback = params_labels+2
 
   ; Calculate Y index (actor_index * actor total bytes)
-  lda actor_index;
-  MUL_A #ACTOR_TOTAL_BYTES
+  lda actor_index
+  MUL_A ACTOR_TOTAL_BYTES
   tay
 
   ; Set actor metasprite label
@@ -209,7 +211,7 @@
   ActorRunCallbackLoop:
     ; Multiple index by actor total bytes
     txa
-    MUL_A #ACTOR_TOTAL_BYTES
+    MUL_A ACTOR_TOTAL_BYTES
     tay
 
     ; Move current actor pointer by ACTOR_TOTAL_BYTES amount

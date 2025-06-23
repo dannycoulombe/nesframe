@@ -11,7 +11,7 @@ A lightweight but powerful framework designed for building NES games using 6502 
 
 ### Map Compression & NEXXT Integration
 
-* Scripts to parse and compress **2x2 metatile maps** exported from [NEXXT](https://www.romhacking.net/utilities/1716/).
+* Scripts to parse and compress **2x2 metatile maps** exported from [NEXXT](https://frankengraphics.itch.io/nexxt).
 * Optimized for memory efficiency while maintaining tile clarity and organization.
 
 ### Actor Macros
@@ -42,7 +42,7 @@ A lightweight but powerful framework designed for building NES games using 6502 
 
 ## Tools & Dependencies
 
-* [NEXXT](https://www.romhacking.net/utilities/1716/) (for tile editing)
+* [NEXXT](https://frankengraphics.itch.io/nexxt) (for tile editing)
 * [Mesen](https://mesen.ca/) (for debugging)
 * cc65 toolchain (ca65, ld65, etc.)
 

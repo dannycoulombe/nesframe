@@ -53,15 +53,31 @@
 .endmacro
 
 .macro MUL_A amount
-  beq @MULAEnd
-  stx temp
-  tax
-  lda #0
-  @MULALoop:
-    clc
-    adc amount ; Add value to A
-    dex       ; Decrement counter
-    bne @MULALoop ; Branch if still positive
-    ldx temp
-  @MULAEnd:
+  .if amount = 2
+    asl
+  .elseif amount = 4
+    asl
+    asl
+  .elseif amount = 8
+    asl
+    asl
+    asl
+  .elseif amount = 16
+    asl
+    asl
+    asl
+    asl
+  .else
+    beq @MULAEnd
+    stx temp
+    tax
+    lda #0
+    @MULALoop:
+      clc
+      adc amount                          ; Add value to A
+      dex                                 ; Decrement counter
+      bne @MULALoop                       ; Branch if still positive
+      ldx temp
+    @MULAEnd:
+  .endif
 .endmacro
