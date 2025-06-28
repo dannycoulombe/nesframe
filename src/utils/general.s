@@ -68,16 +68,28 @@
     asl
     asl
   .else
-    beq @MULAEnd
-    stx temp
-    tax
-    lda #0
-    @MULALoop:
-      clc
-      adc amount                          ; Add value to A
-      dex                                 ; Decrement counter
-      bne @MULALoop                       ; Branch if still positive
-      ldx temp
-    @MULAEnd:
+    DYN_MUL_A amount
   .endif
+.endmacro
+
+.macro DYN_MUL_A amount, var
+  beq :++
+  .ifnblank
+  stx var
+  .else
+  stx temp
+  .endif
+  tax
+  lda #0
+  :
+    clc
+    adc amount                          ; Add value to A
+    dex                                 ; Decrement counter
+    bne :-                              ; Branch if still positive
+    .ifnblank
+    ldx var
+    .else
+    ldx temp
+    .endif
+  :
 .endmacro

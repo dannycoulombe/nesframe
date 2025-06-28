@@ -1,10 +1,5 @@
 PlayerReadControls:
 
-  Pull_ParamsBytes 2
-  collisionOffsetX = params_bytes+0
-  collisionOffsetY = params_bytes+1
-  originalDirection = params_bytes+2
-
   ; Keep position in memory
   ldy #ACTOR_Y
   lda (actor_ptr), y
@@ -19,8 +14,8 @@ PlayerReadControls:
 
   ; Initialize collision detection offset
   lda #8
-  sta collisionOffsetX
-  sta collisionOffsetY
+  sta player_coll_off_x
+  sta player_coll_off_y
 
   ; Read buttons
   lda buttons
@@ -29,11 +24,11 @@ PlayerReadControls:
   :
 
     ; If required, reset to stillness
-    lda originalDirection
+    lda player_ori_dir
     tax
 
     ; Up
-    and #ACTOR_STATE_DIRECTION_UP
+    and #DIRECTION_UP
     beq :+
       CurActor_SetMetasprite GnomeStillBack
       jmp @PlayerReadControlsResetEnd
@@ -41,7 +36,7 @@ PlayerReadControls:
 
     ; Down
     txa
-    and #ACTOR_STATE_DIRECTION_DOWN
+    and #DIRECTION_DOWN
     beq :+
       CurActor_SetMetasprite GnomeStillFront
       jmp @PlayerReadControlsResetEnd
@@ -49,7 +44,7 @@ PlayerReadControls:
 
     ; Left
     txa
-    and #ACTOR_STATE_DIRECTION_LEFT
+    and #DIRECTION_LEFT
     beq :+
       CurActor_SetMetasprite GnomeStillLeft
       jmp @PlayerReadControlsResetEnd
@@ -57,7 +52,7 @@ PlayerReadControls:
 
     ; Right
     txa
-    and #ACTOR_STATE_DIRECTION_RIGHT
+    and #DIRECTION_RIGHT
     beq :+
       CurActor_SetMetasprite GnomeStillRight
       jmp @PlayerReadControlsResetEnd
@@ -65,13 +60,13 @@ PlayerReadControls:
 
     @PlayerReadControlsResetEnd:
 
-    lda originalDirection
+    lda player_ori_dir
     beq :+
       CurActor_SetStateBit %00001111, 0
       Pointer_SetVal actor_ptr, #0, #ACTOR_COUNTER
 
       lda #0
-      sta originalDirection
+      sta player_ori_dir
     :
 
     jmp PlayerReadControlsEnd
@@ -83,10 +78,10 @@ PlayerReadControls:
   and #BUTTON_UP
   beq :+
     lda metasprite_direction
-    ora #ACTOR_STATE_DIRECTION_UP
+    ora #DIRECTION_UP
     sta metasprite_direction
     lda #0
-    sta collisionOffsetY
+    sta player_coll_off_y
     jmp :++
   :
 
@@ -95,7 +90,7 @@ PlayerReadControls:
   and #BUTTON_DOWN
   beq :+
     lda metasprite_direction
-    ora #ACTOR_STATE_DIRECTION_DOWN
+    ora #DIRECTION_DOWN
     sta metasprite_direction
   :
 
@@ -104,10 +99,10 @@ PlayerReadControls:
   and #BUTTON_RIGHT
   beq :+
     lda metasprite_direction
-    ora #ACTOR_STATE_DIRECTION_RIGHT
+    ora #DIRECTION_RIGHT
     sta metasprite_direction
     lda #7
-    sta collisionOffsetX
+    sta player_coll_off_x
     jmp :++
   :
 
@@ -116,15 +111,16 @@ PlayerReadControls:
   and #BUTTON_LEFT
   beq :+
     lda metasprite_direction
-    ora #ACTOR_STATE_DIRECTION_LEFT
+    ora #DIRECTION_LEFT
     sta metasprite_direction
   :
 
+  ; Check collision
   .include "player.collision.s"
 
   ; Update sprites
   lda metasprite_direction
-  cmp originalDirection
+  cmp player_ori_dir
   bne :+
     jmp PlayerReadControlsSetMetaspriteEnd
   :
@@ -133,61 +129,61 @@ PlayerReadControls:
     tax
 
     ; Up
-    cmp #ACTOR_STATE_DIRECTION_UP
+    cmp #DIRECTION_UP
     bne :+
-      lda #ACTOR_STATE_DIRECTION_UP
-      sta originalDirection
+      lda #DIRECTION_UP
+      sta player_ori_dir
       CurActor_SetMetasprite GnomeWalkBackA
       jmp PlayerReadControlsSetMetaspriteEnd
     :
 
     ; Down
     txa
-    cmp #ACTOR_STATE_DIRECTION_DOWN
+    cmp #DIRECTION_DOWN
     bne :+
-      lda #ACTOR_STATE_DIRECTION_DOWN
-      sta originalDirection
+      lda #DIRECTION_DOWN
+      sta player_ori_dir
       CurActor_SetMetasprite GnomeWalkFrontA
       jmp PlayerReadControlsSetMetaspriteEnd
     :
 
     ; Left
     txa
-    cmp #ACTOR_STATE_DIRECTION_LEFT
+    cmp #DIRECTION_LEFT
     bne :+
       @PlayerReadControlsSetMetaspriteLeft:
-      lda #ACTOR_STATE_DIRECTION_LEFT
-      sta originalDirection
+      lda #DIRECTION_LEFT
+      sta player_ori_dir
       CurActor_SetMetasprite GnomeWalkLeft
       jmp PlayerReadControlsSetMetaspriteEnd
     :
 
     ; Right
     txa
-    cmp #ACTOR_STATE_DIRECTION_RIGHT
+    cmp #DIRECTION_RIGHT
     bne :+
       @PlayerReadControlsSetMetaspriteRight:
-      lda #ACTOR_STATE_DIRECTION_RIGHT
-      sta originalDirection
+      lda #DIRECTION_RIGHT
+      sta player_ori_dir
       CurActor_SetMetasprite GnomeWalkRight
       jmp PlayerReadControlsSetMetaspriteEnd
     :
 
     ; Multiple buttons have been pressed at
     ; the same time
-    lda originalDirection
+    lda player_ori_dir
     bne PlayerReadControlsSetMetaspriteEnd
     txa
-    cmp #ACTOR_STATE_DIRECTION_UP | ACTOR_STATE_DIRECTION_LEFT
+    cmp #DIRECTION_UP | DIRECTION_LEFT
     beq @PlayerReadControlsSetMetaspriteLeft
     txa
-    cmp #ACTOR_STATE_DIRECTION_UP | ACTOR_STATE_DIRECTION_RIGHT
+    cmp #DIRECTION_UP | DIRECTION_RIGHT
     beq @PlayerReadControlsSetMetaspriteRight
     txa
-    cmp #ACTOR_STATE_DIRECTION_DOWN | ACTOR_STATE_DIRECTION_LEFT
+    cmp #DIRECTION_DOWN | DIRECTION_LEFT
     beq @PlayerReadControlsSetMetaspriteLeft
     txa
-    cmp #ACTOR_STATE_DIRECTION_DOWN | ACTOR_STATE_DIRECTION_RIGHT
+    cmp #DIRECTION_DOWN | DIRECTION_RIGHT
     beq @PlayerReadControlsSetMetaspriteRight
   PlayerReadControlsSetMetaspriteEnd:
 
@@ -207,11 +203,9 @@ PlayerReadControls:
   sta (actor_ptr),y
 
   ; Update actor counter
-  lda originalDirection
+  lda player_ori_dir
   beq :+
     Pointer_IncVal actor_ptr, #ACTOR_COUNTER
   :
 
   PlayerReadControlsEnd:
-
-  Push_ParamsBytes 2

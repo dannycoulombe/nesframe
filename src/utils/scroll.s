@@ -2,9 +2,11 @@
 ; Parameters:
 ; xPos - X position of the scroll
 ; yPos - Y position of the scroll
-.macro Scroll_Set_Position xPos, yPos
-  lda xPos
-  sta PPU_SCROLL                        ; Set X scroll
-  lda yPos
-  sta PPU_SCROLL                        ; Set Y scroll
-.endmacro
+.scope Scroll
+  .proc UpdatePosition
+    lda scroll_x
+    sta PPU_SCROLL                      ; Set X scroll
+    lda scroll_y
+    sta PPU_SCROLL                      ; Set Y scroll
+  .endproc
+.endscope

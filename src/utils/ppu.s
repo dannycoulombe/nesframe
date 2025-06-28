@@ -28,18 +28,6 @@
   bpl :-
 .endmacro
 
-; Wait for the next VBlank
-.macro PPU_Enable_Rendering
-  PPU_Set_CtrlMask #%10001000, #%00011110
-.endmacro
-
-; Wait for the next VBlank
-.macro PPU_Disable_Rendering
-  lda #0
-  sta PPU_CTRL
-  sta PPU_MASK
-.endmacro
-
 ; Check docs/ppu_ctrl.md and docs/ppu_mask.md for parameter information
 ; Parameters:
 ; nmi - The PPU_CTRL nmi bit sequence
@@ -129,13 +117,24 @@
   bne :--                               ; Loop for all 4 pages
 
   ; Load background palette
-  PPU_Load_Palette paletteLabel, $3F00, #16
+  PPU_LoadPalette paletteLabel, $3F00, #16
+.endmacro
+
+; Load correct nametable
+.macro PPU_SetMapPtr ptr, mapTable
+  lda nametable_idx                     ; Load index
+  asl                                   ; Multiply index by 2 (word size)
+  tax                                   ; Use X as offset
+  lda mapTable, x                        ; Load low byte of pointer
+  sta ptr
+  lda mapTable+1, x                      ; Load high byte of pointer
+  sta ptr+1
 .endmacro
 
 ; Load a screen of 2x2 metatiles into the PPU
-.macro PPU_Load_2x2_Screen fromPPUAddress, totalRows, map2x2Label, paletteLabel
+.macro PPU_Load_2x2_Screen fromPPUAddress, totalRows, mapTable, paletteLabel
 
-  Addr_Set ptr, map2x2Label, 1          ; Copy label to indirect pointer address
+  PPU_SetMapPtr ptr, mapTable
   PPU_Set_Addr fromPPUAddress           ; Set PPU to given address
 
   lda totalRows
@@ -145,9 +144,6 @@
   ; First row (under 16)
   @loop2x2FirstRow:
     lda (ptr),y                         ; Load byte at X index
-    asl
-    asl
-    asl                                 ; Multiply by 8 bytes (metatile)
     tax
 
     lda Metatiles2x2Data, x
@@ -168,9 +164,6 @@
   ; Second row (over 16)
   @loop2x2SecondRow:
     lda (ptr),y                         ; Load byte at X index
-    asl
-    asl
-    asl                                 ; Multiply by 8 bytes (one metatile)
     tax
 
     inx                                 ; Get byte index 2 and 3
@@ -202,8 +195,99 @@
 
   @loop2x2End:
 
+  ; Load background attributes
+  PPU_LoadAttributes mapTable
+
   ; Load background palette
-  PPU_Load_Palette paletteLabel, $3F00, #16
+  PPU_LoadPalette paletteLabel, $3F00, #16
+.endmacro
+
+.macro PPU_LoadHeader
+
+.endmacro
+
+; Expensive in CPU, but hey.. saves a lot of bytes!
+; If stage has 16 nametables, it's 48 bytes x 16 ~ 768 bytes
+; So if 8 levels ~ 6.1k and if you include an overworld of
+; let's say 16x8, that would be another 6.1k for a total of
+; 12k saved.
+.macro PPU_LoadAttributes mapTable
+
+  PPU_Set_Addr $23C8
+  PPU_SetMapPtr ptr, mapTable
+
+  ldx #48
+  ldy #0
+  @PPU_LoadAttributes_Loop:
+    txa
+    pha
+
+    lda #0
+    sta temp
+
+    lda (ptr), y
+    tax
+    lda Metatiles2x2Prop+1, x
+    ora temp
+    sta temp
+
+    iny
+    lda (ptr), y
+    tax
+    lda Metatiles2x2Prop+1, x
+    asl
+    asl
+    ora temp
+    sta temp
+
+    tya
+    clc
+    adc #15
+    tay
+    lda (ptr), y
+    tax
+    lda Metatiles2x2Prop+1, x
+    asl
+    asl
+    asl
+    asl
+    ora temp
+    sta temp
+
+    iny
+    lda (ptr), y
+    tax
+    lda Metatiles2x2Prop+1, x
+    asl
+    asl
+    asl
+    asl
+    asl
+    asl
+    ora temp
+    sta temp
+
+    lda temp
+    sta PPU_DATA
+
+    iny
+    tya
+    and #MOD_32
+    beq :+
+      tya
+      sec
+      sbc #16
+      tay
+    :
+
+    pla
+    tax
+    dex
+    bne @PPU_LoadAttributes_Loop
+.endmacro
+
+.macro PPU_Load_2x2_Column nametableIdx
+
 .endmacro
 
 ; Load a palette of of colors from a given address
@@ -211,7 +295,7 @@
 ; label - The label address to read the color from
 ; addr - The PPU address to write to
 ; amount - The amount of bytes to read/write
-.macro PPU_Load_Palette label, addr, amount
+.macro PPU_LoadPalette label, addr, amount
   PPU_Set_Addr addr                     ; Set PPU to given address
 
   ldx #0                                ; Index for palette bytes
@@ -230,7 +314,7 @@
 ; yPos - Position of the sprite on the Y axis
 ; tite - Tile hexadecimal
 ; attr - Tile attributes
-.macro PPU_Set_Sprite addr, xPos, yPos, tile, attr
+.macro PPU_SetSprite addr, xPos, yPos, tile, attr
   lda xPos
   sta addr+3
   lda yPos
@@ -250,3 +334,17 @@
   lda PPU_DATA
   lda PPU_DATA
 .endmacro
+
+.scope PPU
+  .proc EnableRendering
+    PPU_Set_CtrlMask #%10001000, #%00011110
+    rts
+  .endproc
+
+  ; Wait for the next VBlank
+  .proc DisableRendering
+    lda #0
+    sta PPU_CTRL
+    sta PPU_MASK
+  .endproc
+.endscope

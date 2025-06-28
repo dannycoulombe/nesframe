@@ -17,22 +17,38 @@
   tax
   inc ptr
 @MetaspriteSetLoop:
-  clc
-  sec
 
   ; Calculating X offset
   ldy #0
   lda metasprite_x
   clc
   adc (ptr),y
+  sec
+  sbc scroll_x
+
+  ; Push X offset to OAM
   ldy #3
   sta (oam_ptr),y
 
   ; Calculating Y offset
   ldy #1
-  lda metasprite_y
-  clc
-  adc (ptr),y
+;  lda scroll_y
+;  cmp #$10
+;  bcc :+
+;    LogInc
+;    lda metasprite_y
+;    sec
+;    sbc #$0C
+;    jmp :++
+;  :
+    lda metasprite_y
+;  :
+    clc
+    adc (ptr),y
+    sec
+    sbc scroll_y
+
+  ; Push Y offset to OAM
   ldy #0
   sta (oam_ptr),y
 

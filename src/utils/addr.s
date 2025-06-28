@@ -97,3 +97,15 @@
   pla
   tay
 .endmacro
+
+.macro IndirectJSR ptr
+  lda #>:+
+  pha
+  lda #<:+
+  pha
+  jmp (ptr)
+  pla
+  :
+  pla
+.endmacro
+

@@ -4,14 +4,12 @@
 #include <ctype.h>
 
 #define MAX_LINE_LENGTH 2048
-#define MAX_DECODED_SIZE 65536  // Adjust size as needed
+#define MAX_DECODED_SIZE 65536
 
 typedef struct {
     unsigned char* data;
     size_t size;
 } DecodedData;
-
-unsigned char hex_to_byte(const char *hex);
 
 unsigned char hex_to_byte(const char *hex) {
     int value = 0;
@@ -35,14 +33,14 @@ DecodedData process_encoded_string(const char* encoded) {
             if (encoded[i] == '[') {
                 i++;
                 count = 0;
-                char repeat_hex[9] = {0}; // Buffer for up to 8 hex digits
+                char repeat_hex[9] = {0};
                 int hex_pos = 0;
 
                 while (isxdigit(encoded[i]) && hex_pos < 8) {
                     repeat_hex[hex_pos++] = encoded[i++];
                 }
                 sscanf(repeat_hex, "%x", &count);
-                i++; // Skip closing bracket
+                i++;
             }
 
             unsigned char byte = hex_to_byte(hex);
@@ -57,26 +55,33 @@ DecodedData process_encoded_string(const char* encoded) {
     return result;
 }
 
-
-int process_file(const char* input_path, const char* output_path) {
+int process_file(const char* input_path, const char* bin_output_path, const char* props_output_path) {
     FILE* infile = fopen(input_path, "r");
     if (!infile) {
         printf("Failed to open input file: %s\n", input_path);
         return 0;
     }
 
-    FILE* outfile = fopen(output_path, "wb");
-    if (!outfile) {
-        printf("Failed to create output file: %s\n", output_path);
+    FILE* tiles_outfile = fopen(bin_output_path, "wb");
+    if (!tiles_outfile) {
+        printf("Failed to create tiles output file: %s\n", bin_output_path);
         fclose(infile);
+        return 0;
+    }
+
+    FILE* props_outfile = fopen(props_output_path, "wb");
+    if (!props_outfile) {
+        printf("Failed to create props output file: %s\n", props_output_path);
+        fclose(infile);
+        fclose(tiles_outfile);
         return 0;
     }
 
     char line[MAX_LINE_LENGTH];
     DecodedData id_data = {NULL, 0};
     DecodedData props_data = {NULL, 0};
+    DecodedData pal_data = {NULL, 0};
 
-    // Read and decode lines
     while (fgets(line, sizeof(line), infile)) {
         line[strcspn(line, "\n")] = 0;
 
@@ -86,52 +91,70 @@ int process_file(const char* input_path, const char* output_path) {
         else if (strncmp(line, "MetatileSet_2x2_props=", strlen("MetatileSet_2x2_props=")) == 0) {
             props_data = process_encoded_string(line + strlen("MetatileSet_2x2_props="));
         }
+        else if (strncmp(line, "MetatileSet_2x2_pal=", strlen("MetatileSet_2x2_pal=")) == 0) {
+            pal_data = process_encoded_string(line + strlen("MetatileSet_2x2_pal="));
+        }
     }
 
-    // Write combined data to output file
-    if (id_data.data && props_data.data) {
+    if (id_data.data && props_data.data && pal_data.data) {
         size_t props_index = 2;
+        size_t pal_index = 0;
 
         for (size_t i = 0; i < id_data.size; i += 4) {
-            // Write 4 bytes from id_data
+            // Write 4 bytes of tile data
             for (size_t j = 0; j < 4 && (i + j) < id_data.size; j++) {
-                fwrite(&id_data.data[i + j], 1, 1, outfile);
+                fwrite(&id_data.data[i + j], 1, 1, tiles_outfile);
             }
 
-            // Write 1 byte from props_data if available
-            if (props_index < props_data.size) {
-                fwrite(&props_data.data[props_index], 1, 1, outfile);
-                props_index += 4; // Move 4 bytes forward (1 used + 3 skipped)
-            }
+            // Write props and palette data (4 bytes)
+            if (props_index < props_data.size && pal_index < pal_data.size) {
+                // Write the props byte (first byte)
+                fwrite(&props_data.data[props_index], 1, 1, props_outfile);
 
-            fwrite("\0\0\0", 1, 3, outfile);
+                // Write the palette byte (second byte)
+                fwrite(&pal_data.data[pal_index], 1, 1, props_outfile);
+
+                // Write 2 zeros to fill the remaining bytes
+                unsigned char zeros[2] = {0};
+                fwrite(zeros, 1, 2, props_outfile);
+
+                props_index += 4; // Move to next props entry
+                pal_index += 4;   // Move to next palette entry
+            } else {
+                // Write 4 zeros if no more props/palette data available
+                unsigned char zeros[4] = {0};
+                fwrite(zeros, 1, 4, props_outfile);
+            }
         }
     } else {
         printf("Failed to find all required data lines\n");
-        remove(output_path);
+        remove(bin_output_path);
+        remove(props_output_path);
         fclose(infile);
-        fclose(outfile);
+        fclose(tiles_outfile);
+        fclose(props_outfile);
         return 0;
     }
 
-    // Clean up
     free(id_data.data);
     free(props_data.data);
+    free(pal_data.data);
     fclose(infile);
-    fclose(outfile);
+    fclose(tiles_outfile);
+    fclose(props_outfile);
 
     return 1;
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("Usage: %s <input_mtt2_file> <output_meta_file>\n", argv[0]);
-        printf("Example: %s tiles.mtt2 tiles.meta\n", argv[0]);
+    if (argc != 4) {
+        printf("Usage: %s <input_mtt2_file> <output_bin_file> <output_props_file>\n", argv[0]);
+        printf("Example: %s tiles.mtt2 tiles.bin tiles.props\n", argv[0]);
         return 1;
     }
 
-    if (process_file(argv[1], argv[2])) {
-        printf("Successfully processed %s and saved to %s\n", argv[1], argv[2]);
+    if (process_file(argv[1], argv[2], argv[3])) {
+        printf("Successfully processed %s and saved to %s and %s\n", argv[1], argv[2], argv[3]);
         return 0;
     } else {
         return 1;

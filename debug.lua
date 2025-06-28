@@ -167,7 +167,7 @@ function onFrame()
 --     drawPointFromHex(0x0028, 0x0000FF, false) -- Player X/Y
 --     drawPointFromHex(0x0067, 0xFF0000, false) -- Collision X1/Y1
 --     drawPointFromHex(0x0069, 0xFF0000) -- Collision X2/Y2
-    printMemoryValue(12, 0, "Collision: $%02X:$%02X / $%02X:$%02X", { 0x0067, 0x0068, 0x0069, 0x006A, })
+--     printMemoryValue(12, 0, "Collision: $%02X:$%02X / $%02X:$%02X", { 0x0067, 0x0068, 0x0069, 0x006A, })
 --     highlightTile(0x0069, 0xFF00FF, false)
 --     highlightTile(0x006A, 0xFF00FF, false)
 --     highlightTile(0x006B, 0xFF00FF, false)

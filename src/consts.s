@@ -175,16 +175,19 @@ MOD_64  = %00111111   ; $3F
 MOD_128 = %01111111   ; $7F
 
 ; --------------------------------------
+; Directions
+DIRECTION_UP     = 1 << 3
+DIRECTION_RIGHT  = 1 << 2
+DIRECTION_DOWN   = 1 << 1
+DIRECTION_LEFT   = 1 << 0
+
+; --------------------------------------
 ; Actor constants
 ACTOR_STATE_DEFAULT          = %11110000
 ACTOR_TOTAL_BYTES            = 8
 ACTOR_STATE_ACTIVATED        = 1 << 7
 ACTOR_STATE_ANIMATED         = 1 << 6
 ACTOR_STATE_COLLISION        = 1 << 5
-ACTOR_STATE_DIRECTION_UP     = 1 << 3
-ACTOR_STATE_DIRECTION_RIGHT  = 1 << 2
-ACTOR_STATE_DIRECTION_DOWN   = 1 << 1
-ACTOR_STATE_DIRECTION_LEFT   = 1 << 0
 
 ; Actor struct
 ACTOR_DATA_PTR_LO     = 0
@@ -200,9 +203,6 @@ ACTOR_CALLBACK_HI     = 7
 COLLISION_SOLID       = 1 << 0
 COLLISION_DANGEROUS   = 1 << 1
 COLLISION_ESCAPE      = 1 << 6
-
-; Metatiles
-METATILE_2X2_PROP     = 4
 
 ; Level
 LEVEL_OFFSET          = $2080

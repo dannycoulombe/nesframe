@@ -25,6 +25,10 @@
   Wait2ndVBlank:                        ; Wait for the second VBlank from the PPU
   bit PPU_STATUS                        ; Perform a bit-wise check with the PPU_STATUS port
   bpl Wait2ndVBlank                     ; Loop until bit-7 (sign bit) is 1 (inside VBlank)
+
+  ; Reset execution state
+  sta execution_state
+  sta warping_direction
 .endmacro
 
 .macro Clear_RAM

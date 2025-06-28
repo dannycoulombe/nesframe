@@ -4,15 +4,15 @@ build:
 
 build_scripts:
 	cc -o bin/generate_metatiles src/scripts/generate_metatiles.c
-	cc -o bin/compress_maps src/scripts/compress_maps.c
+	cc -o bin/generate_maps src/scripts/generate_maps.c -lcjson
 
 generate_metatiles:
-	./bin/generate_metatiles src/nexxt/tiles.mtt2 src/data/tiles.2x2
+	./bin/generate_metatiles src/assets/nexxt/tiles.mtt2 src/data/metatiles.bin src/data/metatiles.prop
 
-compress_maps:
-	./bin/compress_maps src/maps src/data/tiles.2x2
+generate_maps:
+	./bin/generate_maps src/assets/tiled/level*.json src/maps src/objects
 
-build_run_scripts: build_scripts generate_metatiles compress_maps
+build_run_scripts: build_scripts generate_metatiles generate_maps
 
 clean:
 	rm dist/*.o dist/*.nes

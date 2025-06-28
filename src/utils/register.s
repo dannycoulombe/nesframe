@@ -1,19 +1,17 @@
 .macro Register_Push_All
-  pha
   txa
   pha
   tya
   pha
-  php
+;  php
 .endmacro
 
 .macro Register_Pull_All
-  plp
+;  plp
   pla
   tay
   pla
   tax
-  pla
 .endmacro
 
 .macro Register_Push_XY
@@ -21,11 +19,11 @@
   pha
   tya
   pha
-  php
+;  php
 .endmacro
 
 .macro Register_Pull_XY
-  plp
+;  plp
   pla
   tay
   pla

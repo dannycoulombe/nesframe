@@ -1,0 +1,240 @@
+{
+    "automappingRulesFile": "",
+    "commands": [
+    ],
+    "compatibilityVersion": 1100,
+    "extensionsPath": "extensions",
+    "folders": [
+        "."
+    ],
+    "properties": [
+    ],
+    "propertyTypes": [
+        {
+            "color": "#ffffaa00",
+            "drawFill": true,
+            "id": 2,
+            "members": [
+                {
+                    "name": "treasure",
+                    "propertyType": "treasures",
+                    "type": "int",
+                    "value": 0
+                }
+            ],
+            "name": "chest",
+            "type": "class",
+            "useAs": [
+                "property",
+                "object",
+                "project"
+            ]
+        },
+        {
+            "id": 14,
+            "name": "collision",
+            "storageType": "int",
+            "type": "enum",
+            "values": [
+                "Solid"
+            ],
+            "valuesAsFlags": true
+        },
+        {
+            "color": "#ff55aaff",
+            "drawFill": true,
+            "id": 4,
+            "members": [
+            ],
+            "name": "door",
+            "type": "class",
+            "useAs": [
+                "object",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 10,
+            "members": [
+                {
+                    "name": "health",
+                    "type": "int",
+                    "value": 1
+                },
+                {
+                    "name": "strength",
+                    "type": "int",
+                    "value": 1
+                }
+            ],
+            "name": "enemy",
+            "type": "class",
+            "useAs": [
+                "property",
+                "map",
+                "layer",
+                "object",
+                "tile",
+                "tileset",
+                "wangcolor",
+                "wangset",
+                "project"
+            ]
+        },
+        {
+            "id": 12,
+            "name": "flag",
+            "storageType": "int",
+            "type": "enum",
+            "values": [
+                "Enabled",
+                "Activated"
+            ],
+            "valuesAsFlags": true
+        },
+        {
+            "id": 7,
+            "name": "metasprite",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "TorchA",
+                "RoundRock",
+                "MushroomA"
+            ],
+            "valuesAsFlags": true
+        },
+        {
+            "id": 8,
+            "name": "metatile",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "asdasd"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "id": 15,
+            "name": "palette",
+            "storageType": "int",
+            "type": "enum",
+            "values": [
+                "palette_1",
+                "palette_2",
+                "palette_3",
+                "palette_4"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "color": "#ffff0000",
+            "drawFill": true,
+            "id": 6,
+            "members": [
+                {
+                    "name": "delay",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "interval",
+                    "type": "int",
+                    "value": 0
+                }
+            ],
+            "name": "spikes",
+            "type": "class",
+            "useAs": [
+                "map",
+                "layer",
+                "object",
+                "tile",
+                "tileset",
+                "wangcolor",
+                "wangset",
+                "project"
+            ]
+        },
+        {
+            "color": "#ff55ffff",
+            "drawFill": true,
+            "id": 5,
+            "members": [
+                {
+                    "name": "metatile",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "wrap",
+                    "type": "object",
+                    "value": 0
+                }
+            ],
+            "name": "stairs",
+            "type": "class",
+            "useAs": [
+                "object",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 13,
+            "members": [
+                {
+                    "name": "collision",
+                    "propertyType": "collision",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "palette",
+                    "propertyType": "palette",
+                    "type": "int",
+                    "value": 0
+                }
+            ],
+            "name": "tile_property",
+            "type": "class",
+            "useAs": [
+                "property",
+                "tile",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffaa0000",
+            "drawFill": true,
+            "id": 1,
+            "members": [
+                {
+                    "name": "metasprite",
+                    "type": "string",
+                    "value": "TorchA"
+                }
+            ],
+            "name": "torch",
+            "type": "class",
+            "useAs": [
+                "object",
+                "project"
+            ]
+        },
+        {
+            "id": 3,
+            "name": "treasures",
+            "storageType": "int",
+            "type": "enum",
+            "values": [
+                "Cane",
+                "Key"
+            ],
+            "valuesAsFlags": false
+        }
+    ]
+}

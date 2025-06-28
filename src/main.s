@@ -14,7 +14,8 @@
 
   ; General parameters
   debug:                  .byte 0       ; Used for debugging purposes
-  temp:                   .res 8,0      ; Whatever...
+  temp:                   .byte 0       ; Whatever...
+  array_temp:             .res 8,0      ; Keep array data in memory
   ptr:                    .word 0       ; An indirect pointer to be used anywhere
   ptr2:                   .word 0       ; An second indirect pointer to be used anywhere
 
@@ -27,42 +28,47 @@
   last_buttons:           .byte 0       ; Last button states (RLDU SSBA)
   pressed_buttons:        .byte 0       ; Newly pressed buttons (RLDU SSBA)
 
+  ; Player
+  player_coll_off_x:      .byte 0       ; Player collision offset X
+  player_coll_off_y:      .byte 0       ; Player collision offset Y
+  player_ori_dir:         .byte 0       ; Player original direction
+
   ; Sprites/Metasprites
   oam_ptr:                .word 0       ; Current OAM pointer
   sprite_ptr:             .word 0       ; Current sprite pointer
-  metasprite_x:           .byte 0
-  metasprite_y:           .byte 0
-  metasprite_delta_x:     .byte 0
-  metasprite_delta_y:     .byte 0
-  metasprite_direction:   .byte 0
+  metasprite_x:           .byte 0       ; Current X position
+  metasprite_y:           .byte 0       ; Current Y position
+  metasprite_delta_x:     .byte 0       ; Current delta X
+  metasprite_delta_y:     .byte 0       ; Current delta Y
+  metasprite_direction:   .byte 0       ; Current direction (4 first bytes)
 
   ; Scene
-  scroll_x:               .byte 0       ; Scroll X position
-  scroll_y:               .byte 0       ; Scroll Y position
-  scene_nametable_label:  .word 0       ; Scene nametable address (0 if none)
+  scene_map_ptr_jt:       .word 0       ; Scene nametable address (0 if none)
   scene_init_label:       .word 0       ; Scene frame address to be executed (0 if none)
   scene_frame_addr:       .word 0       ; Scene frame address to be executed (0 if none)
   scene_nmi_addr:         .word 0       ; Scene NMI address to be executed (0 if none)
+  nametable_idx:          .byte 0       ; Index of current nametable
+  scroll_x:               .byte 0       ; Scroll X position
+  scroll_y:               .byte 0       ; Scroll Y position
+  warping_direction:      .byte 0       ; Currently warping to direction?
+
+  ; Collision detection
+  collision_check_x:      .byte 0       ; Check X position
+  collision_check_y:      .byte 0       ; Check Y position
+  collision_tl_tile_idx:  .byte 0       ; Check top-left tile index
+  collision_tr_tile_idx:  .byte 0       ; Check top-right tile index
+  collision_bl_tile_idx:  .byte 0       ; Check bottom-left tile index
+  collision_br_tile_idx:  .byte 0       ; Check bottom-right tile index
+
+  ; Hooks
+  init_hooks:             .res 2 + (4 * 2), 0 ; Jump table of things to execute every frame
+  frame_hooks:            .res 2 + (4 * 2), 0 ; Jump table of things to execute every frame
+  nmi_hooks:              .res 2 + (4 * 2), 0 ; Jump table of things to execute every NMI
 
   ; Actors
   actor_array:            .res 8 * ACTOR_TOTAL_BYTES, 0
-  actor_array_size:       .byte 0       ; Inner amount of actors (not total size of array)
   actor_index:            .byte 0       ; Current actor index
   actor_ptr:              .word 0       ; Current actor pointer
-
-  ; Collision detection
-  collision_check_x:      .byte 0       ; Current collision check X position
-  collision_check_y:      .byte 0       ; Current collision check Y position
-  collision_tl_tile_idx:  .byte 0       ; Current collision check top-left tile index
-  collision_tr_tile_idx:  .byte 0       ; Current collision check top-right tile index
-  collision_bl_tile_idx:  .byte 0       ; Current collision check bottom-left tile index
-  collision_br_tile_idx:  .byte 0       ; Current collision check bottom-right tile index
-
-  ; Hooks
-  frame_hooks:            .res 8 * 2, 0 ; Jump table of things to execute every frame
-  frame_hooks_size:       .byte 0       ; How many items currently in this jump table?
-  nmi_hooks:              .res 8 * 2, 0 ; Jump table of things to execute every NMI
-  nmi_hooks_size:         .byte 0       ; How many items currently in this jump table?
 
 ; --------------------------------------
 ; RAM (0100-07FF)
@@ -70,7 +76,11 @@
 ;      0200-02FF (256 bytes): OAM (Sprite) memory
 ;      0300-07FF (1280 bytes): General purpose RAM
 .segment "RAM"
-  current_stage:          .byte 0       ; Current stage
+  player_health:          .byte 0       ; Player health
+  player_hearths:         .byte 0       ; Player total hearts
+  current_level:          .byte 0       ; Current level
+  total_keys:             .byte 0       ; Total amount of keys
+  total_pebbles:          .byte 0,0     ; Total amount of pebbles (max 999)
 
 ; --------------------------------------
 ; Main code
@@ -78,30 +88,10 @@
 .segment "CODE"
 
   ; Declarations, utils, tools, etc.
-  .include "utils/array.s"
-  .include "utils/hooks.s"
-  .include "utils/debug.s"
-  .include "utils/general.s"
-  .include "utils/reset.s"
-  .include "utils/register.s"
-  .include "utils/ppu.s"
-  .include "utils/scroll.s"
-  .include "utils/sound.s"
-  .include "utils/addr.s"
-  .include "utils/metasprite.s"
-  .include "utils/actors.s"
-  .include "utils/collision.s"
-  .include "utils/controllers.s"
-  .include "actors/player.s"
-  .include "actors/round-rock.s"
-  .include "actors/torch.s"
-
-  ; Skip directly to reset
-  jmp RESET
-
-  ; Code and data to be referenced later on
-  MetaspriteData: .include "data/metasprite.s"
-  Level1Data: .include "maps/level1/level1.s"
+  .include "utils/index.s"
+  .include "objects/index.s"
+  .include "actors/index.s"
+  .include "logic/index.s"
 
   ; Initialize the NES
   RESET:
@@ -109,33 +99,24 @@
     ; Reset and wait for 2 VBlanks
     Reset_NES
 
-    ; Reset execution state
-    sta execution_state
-
     ; Safe to clear everything now
     PPU_Clear_Nametable $2000, #TILE_EMPTY, #0
     PPU_Clear_Nametable $2400, #TILE_EMPTY, #0
-    ;PPU_Clear_Background_Palette #COLOR_BLACK
-    ;PPU_Clear_Sprite_Palette #COLOR_BLACK
 
-    ; Change background color by applying light
-    ; blue to the first palette index
-;    PPU_Write $3F00, #COLOR_BLACK
+    ; Initialize array definitions
+    Array_Init init_hooks, #2
+    Array_Init frame_hooks, #2
+    Array_Init nmi_hooks, #2
 
-    ; First scene is level 1
-;    Hook_Add frame_hooks, Stage_Level1_Init
-    Addr_Set scene_init_label, Stage_Level1_Init, 1
+    ; Ready to initialize
+    jsr InitializeGameVars
+    jsr PPU::DisableRendering           ; Disable rendering (this code contains too many cycles)
+    Hook_Add init_hooks, Stage_Level1_Init
+    Hook_Run init_hooks
 
-  BeforeSceneInit:
-    PPU_Disable_Rendering               ; Disable rendering (this code contains too many cycles)
-    jmp (scene_init_label)
-
-  AfterSceneInit:
-
-    ; Enables NMI, background and sprites rendering
-    PPU_Enable_Rendering
-
-    ; Enable sound effects
+    ; Enables NMI, background, sprites rendering
+    ; and sound effects
+    jsr PPU::EnableRendering
     jsr Sound::Enable
 
     ; Main game loop
@@ -154,19 +135,17 @@
       jsr Controller::Read
 
       ; Convert actors to sprites
-      Actor_Run_Callback
-      Actor_Push_To_OAM
+      jsr Actors::RunCallback
+      jsr Actors::PushToOAM
 
-      ; Jump to scene frame code if available
-;      Hook_Run nmi_hooks
-      Addr_BNE_Jump scene_frame_addr
+      ; Execute frame hooks
+      Hook_Run frame_hooks
 
-      AfterSceneFrame:
-        ; CPU cycle completed
-        lda #%00000011                  ; Remove frame bit (bit #2)
-        sta execution_state
+      ; CPU cycle completed
+      lda #%00000011                    ; Remove frame bit (bit #2)
+      sta execution_state
 
-        jmp Forever                     ; Infinite loop
+      jmp Forever                       ; Infinite loop
 
 ; --------------------------------------
 ; Operations like updating scroll position
@@ -195,24 +174,22 @@ NMI:                                    ; Maximum of ~2273 cycles
   sta execution_state
 
   ; Apply current scroll position
-  Scroll_Set_Position scroll_x, scroll_y
+  jsr Scroll::UpdatePosition
 
-  ; Jump to scene initialization if available
-  Addr_BNE_Jump scene_nmi_addr
+  ; Run NMI hooks
+  Hook_Run nmi_hooks
 
-  AfterSceneNMI:
+  ; Trigger OAM DMA                     ; 512 CPU cycles to transfer all sprite data
+  lda #$02                              ; Page number (high-byte $0200)
+  sta PPU_OAM_DMA                       ; Trigger
 
-    ; Trigger OAM DMA                   ; 512 CPU cycles to transfer all sprite data
-    lda #$02                            ; Page number (high-byte $0200)
-    sta PPU_OAM_DMA                     ; Trigger
+  ; NMI execution completed
+  lda execution_state
+  and #%11111100                        ; Reset NMI and IRQ bit to 0 (ready to be executed again)
+  sta execution_state
 
-    ; NMI execution completed
-    lda execution_state
-    and #%11111100                      ; Reset NMI and IRQ bit to 0 (ready to be executed again)
-    sta execution_state
-
-    Register_Pull_All
-    rti                                 ; Return from NMI
+  Register_Pull_All
+  rti                                   ; Return from NMI
 
 ; --------------------------------------
 ; Lower priority than NMI, always executed
@@ -224,7 +201,12 @@ IRQ:
 
 ; --------------------------------------
 ; Additional data
-Metatiles2x2Data: .incbin "data/tiles.2x2"
+MetaspritesData: .include "data/metasprites.s"
+Metatiles2x2Data: .incbin "data/metatiles.bin"
+Metatiles2x2Prop: .incbin "data/metatiles.prop"
+Default_BG_Pal: .incbin "data/background.pal"
+Default_Sprite_Pal: .incbin "data/sprite.pal"
+Level1Data: .include "maps/level1/level1.s"
 
 ; --------------------------------------
 ; Sprites data

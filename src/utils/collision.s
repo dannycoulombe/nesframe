@@ -229,16 +229,24 @@
   @Collision_SpritePushback_GetTileProp:
     sec
     sbc #32
-    tay
+    pha
 
-    ; Get metatile index (x8 bytes)
+    ; Point to the correct nametable
+    lda nametable_idx
+    asl
+    tay
     lda (mapData), y
-    asl
-    asl
-    asl
+    sta ptr
+    iny
+    lda (mapData), y
+    sta ptr+1
+
+    pla
+    tay
+    lda (ptr), y
     tay
 
-    lda Metatiles2x2Data+METATILE_2X2_PROP, y
+    lda Metatiles2x2Prop, y
 
     rts
 

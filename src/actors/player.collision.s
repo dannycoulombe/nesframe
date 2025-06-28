@@ -1,7 +1,7 @@
 PlayerCollision:
 
   ; Map variables names
-  mapData = scene_nametable_label
+  mapData = scene_map_ptr_jt
   xPos = metasprite_x
   yPos = metasprite_y
   deltaX = metasprite_delta_x
@@ -17,25 +17,25 @@ PlayerCollision:
   tax
 
   ; Prepare vertical collision check
-  and #ACTOR_STATE_DIRECTION_UP
+  and #DIRECTION_UP
   beq :+
     dec deltaY
     jmp :++
   :
   txa
-  and #ACTOR_STATE_DIRECTION_DOWN
+  and #DIRECTION_DOWN
   beq :+
     inc deltaY
   :
 
   ; Prepare horizontal collision check
   txa
-  and #ACTOR_STATE_DIRECTION_LEFT
+  and #DIRECTION_LEFT
   beq :+
     dec deltaX
   :
   txa
-  and #ACTOR_STATE_DIRECTION_RIGHT
+  and #DIRECTION_RIGHT
   beq :+
     inc deltaX
   :
