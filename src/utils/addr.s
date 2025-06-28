@@ -17,6 +17,15 @@
   .endif
 .endmacro
 
+.macro SetPtrFromTable ptr, table
+  ldy #1
+  lda #>table
+  sta (ptr),y
+  dey
+  lda #<table
+  sta (ptr),y
+.endmacro
+
 ; Set an indirect 2 bytes address
 ; Parameters:
 ; pointer - Address

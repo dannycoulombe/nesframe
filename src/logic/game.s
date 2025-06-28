@@ -8,4 +8,7 @@ InitializeGameVars:
   lda #0
   sta total_keys
 
+  PPU_LoadPalette Default_BG_Pal, $3F00, #16
+  PPU_LoadPalette Default_Sprite_Pal, $3F10, #16
+
   rts

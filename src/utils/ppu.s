@@ -132,7 +132,7 @@
 .endmacro
 
 ; Load a screen of 2x2 metatiles into the PPU
-.macro PPU_Load_2x2_Screen fromPPUAddress, totalRows, mapTable, paletteLabel
+.macro PPU_Load_2x2_Screen fromPPUAddress, totalRows, mapTable
 
   PPU_SetMapPtr ptr, mapTable
   PPU_Set_Addr fromPPUAddress           ; Set PPU to given address
@@ -194,12 +194,6 @@
     jmp @loop2x2FirstRow
 
   @loop2x2End:
-
-  ; Load background attributes
-  PPU_LoadAttributes mapTable
-
-  ; Load background palette
-  PPU_LoadPalette paletteLabel, $3F00, #16
 .endmacro
 
 .macro PPU_LoadHeader

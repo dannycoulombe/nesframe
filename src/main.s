@@ -50,7 +50,7 @@
   nametable_idx:          .byte 0       ; Index of current nametable
   scroll_x:               .byte 0       ; Scroll X position
   scroll_y:               .byte 0       ; Scroll Y position
-  warping_direction:      .byte 0       ; Currently warping to direction?
+  scrolling_direction:    .byte 0       ; Currently scrolling to direction?
 
   ; Collision detection
   collision_check_x:      .byte 0       ; Check X position
@@ -111,7 +111,7 @@
     ; Ready to initialize
     jsr InitializeGameVars
     jsr PPU::DisableRendering           ; Disable rendering (this code contains too many cycles)
-    Hook_Add init_hooks, Stage_Level1_Init
+    Hook_Add init_hooks, Level1_Init
     Hook_Run init_hooks
 
     ; Enables NMI, background, sprites rendering
@@ -206,7 +206,7 @@ Metatiles2x2Data: .incbin "data/metatiles.bin"
 Metatiles2x2Prop: .incbin "data/metatiles.prop"
 Default_BG_Pal: .incbin "data/background.pal"
 Default_Sprite_Pal: .incbin "data/sprite.pal"
-Level1Data: .include "maps/level1/level1.s"
+Level1Data: .include "maps/level1.s"
 
 ; --------------------------------------
 ; Sprites data

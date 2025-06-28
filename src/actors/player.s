@@ -1,8 +1,8 @@
 PlayerCallback:
 
   ; Check warping
-  jsr WarpingCheck
-  lda warping_direction
+  jsr ScrollingCheck
+  lda scrolling_direction
   beq :+
     rts
   :

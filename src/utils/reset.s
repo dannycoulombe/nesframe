@@ -28,7 +28,7 @@
 
   ; Reset execution state
   sta execution_state
-  sta warping_direction
+  sta scrolling_direction
 .endmacro
 
 .macro Clear_RAM

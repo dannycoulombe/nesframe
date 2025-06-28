@@ -13,3 +13,5 @@
 .include "collision.s"
 .include "controllers.s"
 .include "text.s"
+.include "object.s"
+.include "maps.s"
