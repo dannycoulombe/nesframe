@@ -10,32 +10,32 @@
   sta array+1
 .endmacro
 
-.macro Array_Add array, bytes
-  count = array+0
-  itemSize = array+1
+.macro Array_Add array, bytes, indirect
+  ;arrayCount = array+0
+  ;itemSize = array+1
 
   ; Set initial array position
-  lda count                             ; Load current array size
-  DYN_MUL_A itemSize                    ; Multiply by item size
-  clc
-  adc array+2
-  sta array+2                           ; Update array position
-  lda array+3
-  adc #0
-  sta array+3
+  lda array+0 ; count                   ; Load current array size
+  DYN_MUL_A array+1                     ; Multiply by item size
+  tax
 
   ; Push all bytes at the end of array
   ldy #0                                ; Start looping bytes
   @Array_Add_Loop:
-    lda bytes, y                        ; Load byte in register A
-    sta array+2, y                      ; Store byte at array index + byte index
+    .ifnblank indirect
+      lda (bytes), y                    ; Load byte in register A
+    .else
+      lda bytes, y                      ; Load byte in register A
+    .endif
+    sta array+2, x                      ; Store byte at array index + byte index
     iny
+    inx
     tya
-    cmp itemSize
+    cmp array+1 ; itemSize
     bne @Array_Add_Loop
 
   ; Item added, now increment array size
-  inc count                             ; Increment array size
+  inc array+0                           ; Increment array size
 .endmacro
 
 .macro Array_Remove array, index

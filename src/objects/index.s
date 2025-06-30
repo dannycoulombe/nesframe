@@ -4,12 +4,12 @@
 .include "stairs.s"
 .include "spikes.s"
 
-ObjectInitTable:
-  .word TorchObject_Init
-  .word ChestObject_Init
-  .word DoorObject_Init
-  .word StairsObject_Init
-  .word SpikesObject_Init
+ObjectMountedTable:
+  .word TorchObject_Mounted
+  .word ChestObject_Mounted
+  .word DoorObject_Mounted
+  .word StairsObject_Mounted
+  .word SpikesObject_Mounted
 
 ObjectFrameTable:
   .word TorchObject_Frame
@@ -25,9 +25,23 @@ ObjectNMITable:
   .word StairsObject_NMI
   .word SpikesObject_NMI
 
+ObjectInteractionTable:
+  .word TorchObject_Interaction
+  .word ChestObject_Interaction
+  .word DoorObject_Interaction
+  .word StairsObject_Interaction
+  .word SpikesObject_Interaction
+
 ObjectCollisionTable:
   .word TorchObject_Collision
   .word ChestObject_Collision
   .word DoorObject_Collision
   .word StairsObject_Collision
   .word SpikesObject_Collision
+
+ObjectDestroyedTable:
+  .word TorchObject_Destroyed
+  .word ChestObject_Destroyed
+  .word DoorObject_Destroyed
+  .word StairsObject_Destroyed
+  .word SpikesObject_Destroyed

@@ -1,15 +1,65 @@
 LifeTxt: .byte "LIFE", 0
-LevelTxt: .byte "LEVEL", 0
+MagicTxt: .byte "MAGIC", 0
 
 PrintLifeText:
   PrintText $2022, LifeTxt
+  rts
+
+PrintMagicText:
+  PrintText $2042, MagicTxt
+  rts
+
+; Full: D7
+; Half: D8
+; Empty: D9
+PrintMagicBars:
+  PPU_Set_Addr $2048
+
+  ldx player_magic_slot
+
+  ; Print full hearts
+  ; Divide health by 2 (one full heart)
+  lda player_magic
+  lsr
+  tay
+  :
+    lda #$D7
+    sta PPU_DATA
+    dex
+    dey
+    tya
+    bne :-
+
+  ; Print half heart
+  ; Keep remaining value of division (half heart?)
+  lda player_magic
+  and #%00000001
+  tay
+  beq :+
+    dex
+    lda #$D8
+    sta PPU_DATA
+  :
+
+  ; Print empty heart(s)
+  txa
+  beq :++
+  tay
+  :
+    lda #$D9
+    sta PPU_DATA
+    dey
+    tya
+    bne :-
+  :
+
   rts
 
 ; Full: C0
 ; Half: C1
 ; Empty: C2
 PrintHearts:
-  PPU_Set_Addr $2027
+  PPU_Set_Addr $2028
 
   ldx player_hearths
 
@@ -113,9 +163,8 @@ SetAttributes:
   ; Life/Hearts
   lda #%00000000
   sta PPU_DATA
-  lda #%01000100
   sta PPU_DATA
-  lda #%01010101
+  lda #%00000101
   sta PPU_DATA
   sta PPU_DATA
 
@@ -130,6 +179,8 @@ SetAttributes:
   rts
 
 PrintHeader:
+  jsr PrintMagicText
+  jsr PrintMagicBars
   jsr PrintLifeText
   jsr PrintHearts
   jsr PrintKeys

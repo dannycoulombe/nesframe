@@ -117,19 +117,6 @@
             "valuesAsFlags": false
         },
         {
-            "id": 15,
-            "name": "palette",
-            "storageType": "int",
-            "type": "enum",
-            "values": [
-                "palette_1",
-                "palette_2",
-                "palette_3",
-                "palette_4"
-            ],
-            "valuesAsFlags": false
-        },
-        {
             "color": "#ffff0000",
             "drawFill": true,
             "id": 6,
@@ -189,12 +176,6 @@
                 {
                     "name": "collision",
                     "propertyType": "collision",
-                    "type": "int",
-                    "value": 0
-                },
-                {
-                    "name": "palette",
-                    "propertyType": "palette",
                     "type": "int",
                     "value": 0
                 }

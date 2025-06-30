@@ -8,35 +8,25 @@
 
     rts
 
-  ; Play a fall sound effect
-  Fall:
-    lda #%10111111                      ; Duty 10 (50%), constant volume, full volume
-    sta PULSE1_CONTROL
+  FallingSpike:
+    lda #%00100000         ; volume envelope decay
+    sta APU_NOISE_VOL
 
-    lda #%10000100                      ; Falling bomb effect
-    sta PULSE1_SWEEP
+    lda #%00000101         ; random mode, period index 5 (~mid)
+    sta APU_NOISE_LO
 
-    lda #%11110000
-    sta PULSE1_LOW
-
-    lda #%00001000
-    sta PULSE1_HIGH
-
+    lda #$10               ; short duration
+    sta APU_NOISE_LEN
     rts
 
-  ; Play a rising sound effect
-  Rise:
-    lda #%10111111                      ; Duty 10 (50%), constant volume, full volume
-    sta PULSE1_CONTROL
+  RisingSpike:
+    lda #%00110000         ; constant volume envelope
+    sta APU_NOISE_VOL
 
-    lda #%10001100                      ; Rising effect
-    sta PULSE1_SWEEP
+    lda #%10000001         ; loop noise, low period (~buzzier)
+    sta APU_NOISE_LO
 
-    lda #%11110000
-    sta PULSE1_LOW
-
-    lda #%00001000
-    sta PULSE1_HIGH
-
+    lda #$20               ; longer duration
+    sta APU_NOISE_LEN
     rts
 .endscope

@@ -1,4 +1,6 @@
-﻿local romPath = "/home/dcoulombe/dev/nesframe/dist/game.nes"
+﻿local romPath = emu.getRomInfo()["path"]
+local romDir = emu.getRomInfo().path:match("^(.*)[/\\]")
+local dbgPath = romDir .. "/game.dbg"
 local lastContent = nil
 local lastCycles = 0
 local reloadCount = 0
@@ -9,6 +11,39 @@ local mustWait = false
 local BIT_SIZE = 8     -- Size of each bit square in pixels
 local BIT_SPACING = 2  -- Space between bits
 
+local address = 252  -- Change this to the address you want to watch
+local history = {}
+local max_entries = 10
+local screen_width = 256
+local font_height = 8
+local first_write_skipped = false
+
+function getDbgSymbolValue(variableName)
+    local file = io.open(dbgPath, "r")
+    if not file then
+        error("Could not open file: " .. dbgPath)
+    end
+
+    for line in file:lines() do
+        if line:match('name="' .. variableName .. '"') then
+            local val = line:match("val=([%w]+)")
+            file:close()
+            if val then
+                return tonumber(val)
+            end
+        end
+    end
+
+    file:close()
+    return nil -- not found
+end
+
+local objMemoryAddr = getDbgSymbolValue("object_memory") + 13
+local collisionBrTileAddr = getDbgSymbolValue("collision_br_tile_idx")
+local collisionBlTileAddr = getDbgSymbolValue("collision_bl_tile_idx")
+local collisionTrTileAddr = getDbgSymbolValue("collision_tr_tile_idx")
+local collisionTrTileAddr = getDbgSymbolValue("collision_tl_tile_idx")
+local playerOriDir = getDbgSymbolValue("player_ori_dir")
 
 -- Get initial content
 local function getFileContent(path)
@@ -81,29 +116,6 @@ function highlightTile(address, color, showLabel)
     end
 end
 
-function highlightTlBrTile(tlAddress, brAddress, color, showLabel)
-    local tlIndex = emu.read(tlAddress, emu.memType.nesDebug)
-    local tlX, tlY = tileIndexToCoords(tlIndex, 16)
-    local brIndex = emu.read(brAddress, emu.memType.nesDebug)
-    local brX, brY = tileIndexToCoords(brIndex, 16)
-
-    tlX = tlX * 16
-    tlY = tlY * 16
-    brX = brX * 16
-    brY = brY * 16
-
-    emu.log(brX)
-
-    if tlX > 0 and brX > 0 then
-      emu.drawRectangle(tlX, tlY, (brX - tlX) + 16, (brY - tlY) + 16, color, false, false, 0.5)
-
-      -- Draw title
-      if showLabel then
-        emu.drawString(brX , brY - 10, string.format("%s", index), 0xFFFFFF, 0xFF000000)
-      end
-    end
-end
-
 function displayBits(address, xPos, yPos, includeNumbers, includeTitle)
     local value = emu.read(address, emu.memType.nesDebug)
 
@@ -162,17 +174,16 @@ end
 function onFrame()
   frameCount = frameCount + 1
   if mustWait ~= true then
-    printLog(15, 230)
-    displayBits(0x0026, 170, 230, false) -- Player state
+    displayBits(objMemoryAddr, 170, 230, false) -- Obj memory
+--     displayBits(playerOriDirAddr, 170, 220, false) -- Player state
 --     drawPointFromHex(0x0028, 0x0000FF, false) -- Player X/Y
 --     drawPointFromHex(0x0067, 0xFF0000, false) -- Collision X1/Y1
 --     drawPointFromHex(0x0069, 0xFF0000) -- Collision X2/Y2
---     printMemoryValue(12, 0, "Collision: $%02X:$%02X / $%02X:$%02X", { 0x0067, 0x0068, 0x0069, 0x006A, })
---     highlightTile(0x0069, 0xFF00FF, false)
---     highlightTile(0x006A, 0xFF00FF, false)
---     highlightTile(0x006B, 0xFF00FF, false)
---     highlightTile(0x006C, 0xFF00FF, false)
---     highlightTlBrTile(0x0069, 0x006A, 0xFF00FF, false)
+--     highlightTile(collisionBrTileAddr, 0xFF00FF, false)
+--     highlightTile(collisionBlTileAddr, 0xFF00FF, false)
+--     highlightTile(collisionTrTileAddr, 0xFF00FF, false)
+--     highlightTile(collisionTrTileAddr, 0xFF00FF, false)
+    onDrawCallback()
   end
   if frameCount >= 60 then
     if mustWait ~= true then
@@ -184,5 +195,22 @@ function onFrame()
   end
 end
 
+function onWriteCallback(addr, value)
+    if not first_write_skipped then
+        first_write_skipped = true
+        return
+    end
+    table.insert(history, string.format("(#%01d) $%02X:$%02X", #history + 1, addr, value))
+end
+-- Draw the values on screen
+function onDrawCallback()
+    local start_index = math.max(1, #history - max_entries + 1)
+    for i = start_index, #history do
+        local text = history[i]
+        local y = 235 - ((#history - i + 1) * font_height)
+        emu.drawString(10, y, text, 0xFFFFFF, 0xCC000000)
+    end
+end
+
+emu.addMemoryCallback(onWriteCallback, emu.callbackType.write, address, address, emu.cpuType.nes, emu.memType.nesMemory)
 emu.addEventCallback(onFrame, emu.eventType.paint)
--- emu.addEventCallback(onFrame, emu.eventType.endFrame)

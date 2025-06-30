@@ -159,6 +159,9 @@ DMC_LENGTH     = $4013                  ; Sample length
 ; Status and Frame Counter
 APU_STATUS     = $4015                  ; Channel enable and status
 APU_FRAME      = $4017                  ; Frame counter control
+APU_NOISE_VOL     = $400C
+APU_NOISE_LO      = $400E
+APU_NOISE_LEN     = $400F
 
 ; --------------------------------------
 ; Mesen debug

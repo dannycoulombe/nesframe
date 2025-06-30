@@ -17,13 +17,59 @@
   .endif
 .endmacro
 
-.macro SetPtrFromTable ptr, table
+.macro SetIndPtrFromTable ptr, table
   ldy #1
   lda #>table
   sta (ptr),y
   dey
   lda #<table
   sta (ptr),y
+.endmacro
+
+.macro MovePtrToNextYBytes ptr, amount
+  .ifnblank amount
+  lda amount
+  .else
+  tya
+  .endif
+  clc
+  adc ptr
+  sta ptr
+  lda ptr+1
+  adc #0
+  sta ptr+1
+.endmacro
+
+; If index blank, use register Y
+.macro SetDeepIndPtrFromTable ptr, table, index
+  lda #<table
+  sta tablePtr
+  lda #>table
+  sta tablePtr+1
+
+  ; Multiply index by 2
+  .ifnblank index
+  lda index
+  .else
+  tya
+  .endif
+  asl
+  tay
+
+  lda (tablePtr), y
+  sta ptr
+  iny
+  lda (tablePtr), y
+  sta ptr+1
+.endmacro
+
+.macro SetAbsPtrFromTable ptr, table
+  ldy #1
+  lda #>table
+  sta ptr,y
+  dey
+  lda #<table
+  sta ptr,y
 .endmacro
 
 ; Set an indirect 2 bytes address

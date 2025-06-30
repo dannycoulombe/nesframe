@@ -342,3 +342,11 @@
     sta PPU_MASK
   .endproc
 .endscope
+
+.macro LDA_GetPPUAddrFromTileIdx tileIdx
+
+.endmacro
+
+.macro PPU_UpdateMetatile tileIdx, metatile
+
+.endmacro

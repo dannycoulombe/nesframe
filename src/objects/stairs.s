@@ -1,4 +1,4 @@
-StairsObject_Init:
+StairsObject_Mounted:
   rts
 
 StairsObject_Frame:
@@ -7,5 +7,11 @@ StairsObject_Frame:
 StairsObject_NMI:
   rts
 
+StairsObject_Interaction:
+  rts
+
 StairsObject_Collision:
+  rts
+
+StairsObject_Destroyed:
   rts

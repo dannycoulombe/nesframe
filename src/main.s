@@ -14,10 +14,12 @@
 
   ; General parameters
   debug:                  .byte 0       ; Used for debugging purposes
-  temp:                   .byte 0       ; Whatever...
+  temp:                   .res 4,0      ; Whatever...
   array_temp:             .res 8,0      ; Keep array data in memory
   ptr:                    .word 0       ; An indirect pointer to be used anywhere
   ptr2:                   .word 0       ; An second indirect pointer to be used anywhere
+  ptr3:                   .word 0       ; An third indirect pointer to be used anywhere
+  tablePtr:               .word 0       ; Temporary jump table pointer
 
   ; Functions
   params_bytes:           .res 4,0      ; Bytes to be used as temporary parameters
@@ -61,7 +63,6 @@
   collision_br_tile_idx:  .byte 0       ; Check bottom-right tile index
 
   ; Hooks
-  init_hooks:             .res 2 + (4 * 2), 0 ; Jump table of things to execute every frame
   frame_hooks:            .res 2 + (4 * 2), 0 ; Jump table of things to execute every frame
   nmi_hooks:              .res 2 + (4 * 2), 0 ; Jump table of things to execute every NMI
 
@@ -70,15 +71,30 @@
   actor_index:            .byte 0       ; Current actor index
   actor_ptr:              .word 0       ; Current actor pointer
 
+  ; Objects
+  object_ptr:             .word 0       ; Current object pointer
+  object_ptr_index:       .byte 0       ; Current pointer index (index * 8 bytes)
+  object_size:            .byte 0       ; Total amount of objects in array
+  object_memory:          .res 8*4,0    ; 4 bytes per object
+  object_memory_index:    .byte 0       ; Current memory index (index * 4 bytes)
+
 ; --------------------------------------
 ; RAM (0100-07FF)
 ;      0100-01FF (256 bytes): Stack
 ;      0200-02FF (256 bytes): OAM (Sprite) memory
 ;      0300-07FF (1280 bytes): General purpose RAM
 .segment "RAM"
+
+  ; Location
+  current_level:          .byte 0       ; Current level
+
+  ; Player
   player_health:          .byte 0       ; Player health
   player_hearths:         .byte 0       ; Player total hearts
-  current_level:          .byte 0       ; Current level
+  player_magic_slot:      .byte 0       ; Player total magic slots
+  player_magic:           .byte 0       ; Player magic
+
+  ; Inventory
   total_keys:             .byte 0       ; Total amount of keys
   total_pebbles:          .byte 0,0     ; Total amount of pebbles (max 999)
 
@@ -104,15 +120,14 @@
     PPU_Clear_Nametable $2400, #TILE_EMPTY, #0
 
     ; Initialize array definitions
-    Array_Init init_hooks, #2
     Array_Init frame_hooks, #2
     Array_Init nmi_hooks, #2
 
     ; Ready to initialize
-    jsr InitializeGameVars
     jsr PPU::DisableRendering           ; Disable rendering (this code contains too many cycles)
-    Hook_Add init_hooks, Level1_Init
-    Hook_Run init_hooks
+    jsr InitializeGame
+    PPU_LoadPalette Default_BG_Pal, $3F00, #16
+    PPU_LoadPalette Default_Sprite_Pal, $3F10, #16
 
     ; Enables NMI, background, sprites rendering
     ; and sound effects
@@ -140,6 +155,7 @@
 
       ; Execute frame hooks
       Hook_Run frame_hooks
+      jsr RunObjectsFrameCallback
 
       ; CPU cycle completed
       lda #%00000011                    ; Remove frame bit (bit #2)
@@ -173,11 +189,12 @@ NMI:                                    ; Maximum of ~2273 cycles
   ora #%00000010                        ; Set NMI execution bit to 1
   sta execution_state
 
-  ; Apply current scroll position
-  jsr Scroll::UpdatePosition
-
   ; Run NMI hooks
   Hook_Run nmi_hooks
+  jsr RunObjectsNMICallback
+
+  ; Apply current scroll position
+  jsr Scroll::UpdatePosition
 
   ; Trigger OAM DMA                     ; 512 CPU cycles to transfer all sprite data
   lda #$02                              ; Page number (high-byte $0200)

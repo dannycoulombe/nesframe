@@ -15,3 +15,4 @@
 .include "text.s"
 .include "object.s"
 .include "maps.s"
+.include "metatile.s"

@@ -5,23 +5,27 @@
 ; frame.
 ; Parameters:
 ; dataLabel - Metadata label data
+; callback - Function called on each frame
 ; xPos - Position on the X axis
 ; yPos - Position on the Y axis
-; callback - Function called on each frame
-; state - State of the actor
-.macro Actor_Add dataLabel, xPos, yPos, callback, state
+.macro Actor_Add dataLabel, callback, xPos, yPos
   Push_ParamsBytes 3
 
   Set_ParamLabel dataLabel, 0
   Set_ParamLabel callback, 1
-  Set_ParamByte xPos, 0
-  Set_ParamByte yPos, 1
 
-  .ifnblank state
-    Set_ParamByte state, 2
+  .ifnblank xPos
+    Set_ParamByte xPos, 0
   .else
-    Set_ParamByte #ACTOR_STATE_ACTIVATED | ACTOR_STATE_ANIMATED, 2
+    stx params_bytes+0
   .endif
+  .ifnblank yPos
+    Set_ParamByte yPos, 1
+  .else
+    sty params_bytes+1
+  .endif
+
+  Set_ParamByte #ACTOR_STATE_ACTIVATED | ACTOR_STATE_ANIMATED, 2
 
   jsr Actor_Add
 

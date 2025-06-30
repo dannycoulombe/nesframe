@@ -165,11 +165,15 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                         int pos_x = x->valueint;
                         int pos_y = y->valueint;
 
-                        bytes[2] = pos_x % 255;
-                        bytes[3] = pos_y % 240;
+                        bytes[2] = pos_x % 256;
+                        bytes[3] = pos_y % 208 + 32;
+
+                        // Calculate tile index of the nametable (same as data_index calculation)
+                        int tile_index = pos_y + (pos_x / 16);
+                        bytes[4] = tile_index;
 
                         // Calculate index for the file
-                        int index = (pos_x / 255) + ((pos_y / 240) * 4);
+                        int index = (pos_x / 256) + ((pos_y / 208) * 4);
                         
                         // Open the appropriate index file
                         char obj_file[MAX_PATH];
@@ -177,15 +181,15 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                         FILE* obj_out = fopen(obj_file, "ab");  // append mode to handle multiple objects in same index
 
                         if (obj_out) {
-                            // Custom properties - now with 4 bytes instead of 3
+                            // Custom properties - now with 3 bytes instead of 4
                             cJSON* properties = cJSON_GetObjectItem(obj, "properties");
                             if (properties && cJSON_IsArray(properties)) {
                                 int prop_count = cJSON_GetArraySize(properties);
-                                for (int j = 0; j < 4 && j < prop_count; j++) {
+                                for (int j = 0; j < 3 && j < prop_count; j++) {
                                     cJSON* prop = cJSON_GetArrayItem(properties, j);
                                     cJSON* value = cJSON_GetObjectItem(prop, "value");
                                     if (value) {
-                                        bytes[4 + j] = value->valueint;
+                                        bytes[5 + j] = value->valueint;
                                     }
                                 }
                             }
@@ -196,6 +200,61 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     }
                 }
 
+                // Third pass: handle objects with gid property (tile overrides)
+                for (int i = 0; i < obj_count; i++) {
+                    cJSON* obj = cJSON_GetArrayItem(objects, i);
+                    cJSON* gid = cJSON_GetObjectItem(obj, "gid");
+                    
+                    if (gid && cJSON_IsNumber(gid)) {
+                        // Get position
+                        cJSON* x = cJSON_GetObjectItem(obj, "x");
+                        cJSON* y = cJSON_GetObjectItem(obj, "y");
+                        
+                        if (x && y) {
+                            int pos_x = x->valueint;
+                            int pos_y = y->valueint;
+                            
+                            // Calculate chunk index
+                            int chunk_index = (pos_x / 256) + ((pos_y / 208) * 4);
+                            
+                            // Calculate data index within the chunk
+                            int data_index = pos_y + (pos_x / 16);
+                            
+                            // Find the corresponding chunk file and modify it
+                            char chunk_file[MAX_PATH];
+                            snprintf(chunk_file, MAX_PATH, "%s/%s_%d.2x2", output_dir, base_name, chunk_index);
+                            
+                            // Read existing chunk data
+                            FILE* chunk_in = fopen(chunk_file, "rb");
+                            if (chunk_in) {
+                                // Get file size
+                                fseek(chunk_in, 0, SEEK_END);
+                                long file_size = ftell(chunk_in);
+                                fseek(chunk_in, 0, SEEK_SET);
+                                
+                                // Read all data
+                                unsigned char* chunk_data = malloc(file_size);
+                                fread(chunk_data, 1, file_size, chunk_in);
+                                fclose(chunk_in);
+                                
+                                // Modify the specific data index if within bounds
+                                if (data_index < file_size) {
+                                    chunk_data[data_index] = ((unsigned char)(gid->valueint - 1)) * 4;
+                                    
+                                    // Write back to file
+                                    FILE* chunk_out = fopen(chunk_file, "wb");
+                                    if (chunk_out) {
+                                        fwrite(chunk_data, 1, file_size, chunk_out);
+                                        fclose(chunk_out);
+                                    }
+                                }
+                                
+                                free(chunk_data);
+                            }
+                        }
+                    }
+                }
+                
                 // After writing the .obj file and before the cleanup of typeIndex...
                 // After writing all object files, add this code to generate index.s
                 // Generate index.s in output directory
@@ -229,7 +288,7 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     // Calculate object amounts per nametable
                     fprintf(index_out, "; --------------------------------------\n");
                     fprintf(index_out, "; Total amount of objects per nametable\n");
-                    fprintf(index_out, "%s_ObjAmount:\n", capitalized_name);
+                    fprintf(index_out, "%s_ObjAmountTable:\n", capitalized_name);
                     
                     // Count objects per nametable
                     unsigned char obj_amounts[8] = {0};
@@ -240,7 +299,7 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                         if (x && y) {
                             int pos_x = x->valueint;
                             int pos_y = y->valueint;
-                            int index = (pos_x / 255) + ((pos_y / 240) * 4);
+                            int index = (pos_x / 256) + ((pos_y / 208) * 4);
                             if (index >= 0 && index < 8) {
                                 obj_amounts[index]++;
                             }
@@ -288,13 +347,13 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     }
                     fprintf(asm_out, "\n");
 
-                    // Write ObjectInitMap jump table
-                    fprintf(asm_out, "ObjectInitTable:\n");
+                    // Write ObjectMountedMap jump table
+                    fprintf(asm_out, "ObjectMountedTable:\n");
                     for (int i = 0; i < typeIndex.count; i++) {
                         char* type = typeIndex.types[i];
                         char capitalizedType[MAX_PATH];
                         snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
-                        fprintf(asm_out, "  .word %sObject_Init\n", capitalizedType);
+                        fprintf(asm_out, "  .word %sObject_Mounted\n", capitalizedType);
                     }
                     fprintf(asm_out, "\n");
 
@@ -318,13 +377,33 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     }
                     fprintf(asm_out, "\n");
 
-                    // Write ObjectFrameMap jump table
+                    // Write ObjectInteractionMap jump table
+                    fprintf(asm_out, "ObjectInteractionTable:\n");
+                    for (int i = 0; i < typeIndex.count; i++) {
+                        char* type = typeIndex.types[i];
+                        char capitalizedType[MAX_PATH];
+                        snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                        fprintf(asm_out, "  .word %sObject_Interaction\n", capitalizedType);
+                    }
+                    fprintf(asm_out, "\n");
+
+                    // Write ObjectCollisionMap jump table
                     fprintf(asm_out, "ObjectCollisionTable:\n");
                     for (int i = 0; i < typeIndex.count; i++) {
                         char* type = typeIndex.types[i];
                         char capitalizedType[MAX_PATH];
                         snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
                         fprintf(asm_out, "  .word %sObject_Collision\n", capitalizedType);
+                    }
+                    fprintf(asm_out, "\n");
+
+                    // Write ObjectDetroyedMap jump table
+                    fprintf(asm_out, "ObjectDestroyedTable:\n");
+                    for (int i = 0; i < typeIndex.count; i++) {
+                        char* type = typeIndex.types[i];
+                        char capitalizedType[MAX_PATH];
+                        snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                        fprintf(asm_out, "  .word %sObject_Destroyed\n", capitalizedType);
                     }
                     
                     fclose(asm_out);
@@ -346,10 +425,12 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                             if (handler_out) {
                                 char capitalizedType[MAX_PATH];
                                 snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
-                                fprintf(handler_out, "%sObject_Init:\n  rts\n\n", capitalizedType);
+                                fprintf(handler_out, "%sObject_Mounted:\n  rts\n\n", capitalizedType);
                                 fprintf(handler_out, "%sObject_Frame:\n  rts\n\n", capitalizedType);
                                 fprintf(handler_out, "%sObject_NMI:\n  rts\n\n", capitalizedType);
-                                fprintf(handler_out, "%sObject_Collision:\n  rts\n", capitalizedType);
+                                fprintf(handler_out, "%sObject_Interaction:\n  rts\n\n", capitalizedType);
+                                fprintf(handler_out, "%sObject_Collision:\n  rts\n\n", capitalizedType);
+                                fprintf(handler_out, "%sObject_Destroyed:\n  rts\n", capitalizedType);
                                 fclose(handler_out);
                             }
                         }

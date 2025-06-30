@@ -12,7 +12,10 @@ generate_metatiles:
 generate_maps:
 	./bin/generate_maps src/assets/tiled/level*.json src/maps src/objects
 
-build_run_scripts: build_scripts generate_metatiles generate_maps
+export_maps:
+	/opt/Tiled.AppImage --export-map json src/assets/tiled/level1.tmx src/assets/tiled/level1.json
+
+build_run_scripts: export_maps build_scripts generate_metatiles generate_maps
 
 clean:
 	rm dist/*.o dist/*.nes

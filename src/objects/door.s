@@ -1,4 +1,4 @@
-DoorObject_Init:
+DoorObject_Mounted:
   rts
 
 DoorObject_Frame:
@@ -7,5 +7,11 @@ DoorObject_Frame:
 DoorObject_NMI:
   rts
 
+DoorObject_Interaction:
+  rts
+
 DoorObject_Collision:
+  rts
+
+DoorObject_Destroyed:
   rts
