@@ -1,0 +1,2 @@
+Torch_OnDamage:
+  rts
