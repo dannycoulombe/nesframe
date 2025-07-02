@@ -11,4 +11,14 @@
   PPU_Load_2x2_Screen LEVEL_OFFSET, #13, mapTbl
   PPU_LoadAttributes mapTbl
   ApplyObjectsToNametable objTbl, objAmountTbl
+
+  ; Cache map pointer
+  lda nametable_idx
+  asl
+  tay
+  lda (scene_map_ptr_jt), y
+  sta map_ptr
+  iny
+  lda (scene_map_ptr_jt), y
+  sta map_ptr+1
 .endmacro

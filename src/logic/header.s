@@ -22,6 +22,7 @@ PrintMagicBars:
   lda player_magic
   lsr
   tay
+  beq :++
   :
     lda #$D7
     sta PPU_DATA
@@ -29,6 +30,7 @@ PrintMagicBars:
     dey
     tya
     bne :-
+  :
 
   ; Print half heart
   ; Keep remaining value of division (half heart?)
@@ -68,6 +70,7 @@ PrintHearts:
   lda player_health
   lsr
   tay
+  beq :++
   :
     lda #$C0
     sta PPU_DATA
@@ -75,6 +78,7 @@ PrintHearts:
     dey
     tya
     bne :-
+  :
 
   ; Print half heart
   ; Keep remaining value of division (half heart?)
@@ -190,4 +194,14 @@ PrintHeader:
   jsr PrintPebbles
   jsr PrintPebblesNumber
   jsr SetAttributes
+  rts
+
+HeaderNMICallback:
+
+  lda header_state
+  and #HEADER_STATE_HEARTHS
+  beq :+
+    jsr PrintHearts
+  :
+
   rts

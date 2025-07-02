@@ -146,4 +146,25 @@ Cane:
 	.byte <- 4,  0,$31,2
 	.byte 0
 
+GnomeDiesStart:
+	.byte   6
+	.byte <- 2,<- 4,$17,3|OAM_FLIP_H
+	.byte <- 6,<- 4,$17,3
+	.byte <- 8,<- 8,$00,0
+	.byte    0,<- 8,$01,0
+	.byte <- 8,   0,$14,0
+	.byte    0,   0,$14,0|OAM_FLIP_H
+	.byte 0
+
+GnomeDiesEnd:
+  .byte   4
+  .byte <- 8,  13,$02,0|OAM_FLIP_V
+  .byte    0,  13,$03,0|OAM_FLIP_V
+  .byte <- 8,   5,$12,0|OAM_FLIP_V
+  .byte    0,   5,$12,0|OAM_FLIP_H|OAM_FLIP_V
+	.byte 0
+
+
+
+
 

@@ -186,21 +186,28 @@ DIRECTION_LEFT   = 1 << 0
 
 ; --------------------------------------
 ; Actor constants
-ACTOR_STATE_DEFAULT          = %11110000
-ACTOR_TOTAL_BYTES            = 8
-ACTOR_STATE_ACTIVATED        = 1 << 7
+ACTOR_TOTAL_BYTES            = 16
+ACTOR_STATE_DEFAULT          = %11000000
+ACTOR_STATE_VISIBLE          = 1 << 7
 ACTOR_STATE_ANIMATED         = 1 << 6
-ACTOR_STATE_COLLISION        = 1 << 5
+ACTOR_STATE_DAMAGE           = 1 << 5
 
 ; Actor struct
 ACTOR_DATA_PTR_LO     = 0
 ACTOR_DATA_PTR_HI     = 1
-ACTOR_STATE           = 2               ; EA-- ---- (E: Enabled?, A: Animate?, C: Collision?)
+ACTOR_STATE           = 2               ; VAD- ---- (E: Enabled?, A: Animate?, D: Damage?)
 ACTOR_COUNTER         = 3
 ACTOR_X               = 4
 ACTOR_Y               = 5
 ACTOR_CALLBACK_LO     = 6
 ACTOR_CALLBACK_HI     = 7
+ACTOR_HEALTH          = 8
+ACTOR_INVULN_TIMER    = 9
+ACTOR_CUSTOM_1        = 10
+ACTOR_CUSTOM_2        = 11
+ACTOR_CUSTOM_3        = 12
+ACTOR_CUSTOM_4        = 13
+ACTOR_CUSTOM_5        = 14
 
 ; Collision
 COLLISION_SOLID       = 1 << 0
@@ -209,3 +216,17 @@ COLLISION_ESCAPE      = 1 << 6
 
 ; Level
 LEVEL_OFFSET          = $2080
+
+; Header
+; (Km HMBA): K=Key, m=Money, H:Hearts, M:Magic, B:ItemB, A:ItemA
+HEADER_STATE_KEYS    = 1 << 5
+HEADER_STATE_MONEY   = 1 << 4
+HEADER_STATE_HEARTHS = 1 << 3
+HEADER_STATE_MAGIC   = 1 << 2
+HEADER_STATE_ITEMB   = 1 << 1
+HEADER_STATE_ITEMA   = 1 << 0
+
+; Transition
+TRANSITION_TYPE_NOP         = 0
+TRANSITION_TYPE_FADEIN      = 1
+TRANSITION_TYPE_FADEOUT     = 2

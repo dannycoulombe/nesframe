@@ -185,6 +185,12 @@
                  "height":0,
                  "id":19,
                  "name":"Torch",
+                 "properties":[
+                        {
+                         "name":"metasprite",
+                         "type":"string",
+                         "value":"TorchA"
+                        }],
                  "rotation":0,
                  "type":"torch",
                  "visible":true,
@@ -196,6 +202,12 @@
                  "height":0,
                  "id":20,
                  "name":"Torch",
+                 "properties":[
+                        {
+                         "name":"metasprite",
+                         "type":"string",
+                         "value":"TorchA"
+                        }],
                  "rotation":0,
                  "type":"torch",
                  "visible":true,
@@ -207,6 +219,12 @@
                  "height":0,
                  "id":21,
                  "name":"Torch",
+                 "properties":[
+                        {
+                         "name":"metasprite",
+                         "type":"string",
+                         "value":"TorchA"
+                        }],
                  "rotation":0,
                  "type":"torch",
                  "visible":true,
@@ -218,6 +236,12 @@
                  "height":0,
                  "id":22,
                  "name":"Torch",
+                 "properties":[
+                        {
+                         "name":"metasprite",
+                         "type":"string",
+                         "value":"TorchA"
+                        }],
                  "rotation":0,
                  "type":"torch",
                  "visible":true,
@@ -229,6 +253,12 @@
                  "height":0,
                  "id":23,
                  "name":"Torch",
+                 "properties":[
+                        {
+                         "name":"metasprite",
+                         "type":"string",
+                         "value":"TorchA"
+                        }],
                  "rotation":0,
                  "type":"torch",
                  "visible":true,
@@ -240,6 +270,12 @@
                  "height":0,
                  "id":24,
                  "name":"Torch",
+                 "properties":[
+                        {
+                         "name":"metasprite",
+                         "type":"string",
+                         "value":"TorchA"
+                        }],
                  "rotation":0,
                  "type":"torch",
                  "visible":true,
@@ -251,6 +287,12 @@
                  "height":0,
                  "id":25,
                  "name":"Torch",
+                 "properties":[
+                        {
+                         "name":"metasprite",
+                         "type":"string",
+                         "value":"TorchA"
+                        }],
                  "rotation":0,
                  "type":"torch",
                  "visible":true,
@@ -262,6 +304,12 @@
                  "height":0,
                  "id":26,
                  "name":"Torch",
+                 "properties":[
+                        {
+                         "name":"metasprite",
+                         "type":"string",
+                         "value":"TorchA"
+                        }],
                  "rotation":0,
                  "type":"torch",
                  "visible":true,
@@ -274,6 +322,19 @@
                  "height":16,
                  "id":4,
                  "name":"Cane",
+                 "properties":[
+                        {
+                         "name":"collision",
+                         "propertytype":"collision",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"treasure",
+                         "propertytype":"treasures",
+                         "type":"int",
+                         "value":0
+                        }],
                  "rotation":0,
                  "type":"chest",
                  "visible":true,
@@ -305,6 +366,11 @@
                  "id":6,
                  "name":"Stairs",
                  "properties":[
+                        {
+                         "name":"metatile",
+                         "type":"int",
+                         "value":0
+                        }, 
                         {
                          "name":"wrap",
                          "type":"object",
@@ -347,6 +413,11 @@
                  "name":"Spike",
                  "properties":[
                         {
+                         "name":"delay",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
                          "name":"interval",
                          "type":"int",
                          "value":180
@@ -364,6 +435,11 @@
                  "id":10,
                  "name":"Stairs",
                  "properties":[
+                        {
+                         "name":"metatile",
+                         "type":"int",
+                         "value":0
+                        }, 
                         {
                          "name":"wrap",
                          "type":"object",
@@ -383,6 +459,11 @@
                  "name":"Stairs",
                  "properties":[
                         {
+                         "name":"metatile",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
                          "name":"wrap",
                          "type":"object",
                          "value":12
@@ -400,6 +481,11 @@
                  "id":12,
                  "name":"Stairs",
                  "properties":[
+                        {
+                         "name":"metatile",
+                         "type":"int",
+                         "value":0
+                        }, 
                         {
                          "name":"wrap",
                          "type":"object",
@@ -420,7 +506,14 @@
                  "name":"Key",
                  "properties":[
                         {
+                         "name":"collision",
+                         "propertytype":"collision",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
                          "name":"treasure",
+                         "propertytype":"treasures",
                          "type":"int",
                          "value":1
                         }],
@@ -527,12 +620,30 @@
                  "height":0,
                  "id":29,
                  "name":"Torch",
+                 "properties":[
+                        {
+                         "name":"metasprite",
+                         "type":"string",
+                         "value":"TorchA"
+                        }],
                  "rotation":0,
                  "type":"torch",
                  "visible":true,
                  "width":0,
                  "x":184,
                  "y":136
+                }, 
+                {
+                 "gid":37,
+                 "height":16,
+                 "id":32,
+                 "name":"",
+                 "rotation":0,
+                 "type":"tile_property",
+                 "visible":true,
+                 "width":16,
+                 "x":960,
+                 "y":64
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -541,7 +652,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":32,
+ "nextobjectid":36,
  "orientation":"orthogonal",
  "renderorder":"left-up",
  "tiledversion":"1.11.2",

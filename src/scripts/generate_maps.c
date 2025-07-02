@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include <cjson/cJSON.h>
 #include <glob.h>
+#include <stdint.h>
+#include <tgmath.h>
 #include <unistd.h>  // for access()
 
 #define MAX_PATH 256
@@ -161,42 +163,58 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     // Position X and Y
                     cJSON* x = cJSON_GetObjectItem(obj, "x");
                     cJSON* y = cJSON_GetObjectItem(obj, "y");
+                    int index = 0;
                     if (x && y) {
-                        int pos_x = x->valueint;
-                        int pos_y = y->valueint;
+                        int map_width = 256;
+                        int map_height = 208;
+                        int abs_pos_x = x->valueint;
+                        int abs_pos_y = y->valueint;
+                        int rel_pos_x = x->valueint % map_width;
+                        int rel_pos_y = y->valueint % map_height;
+                        int rel_nam_pos_y = y->valueint % map_height + 32;
 
-                        bytes[2] = pos_x % 256;
-                        bytes[3] = pos_y % 208 + 32;
-
-                        // Calculate tile index of the nametable (same as data_index calculation)
-                        int tile_index = pos_y + (pos_x / 16);
-                        bytes[4] = tile_index;
+                        bytes[2] = rel_pos_x;
+                        bytes[3] = rel_nam_pos_y;
 
                         // Calculate index for the file
-                        int index = (pos_x / 256) + ((pos_y / 208) * 4);
-                        
-                        // Open the appropriate index file
-                        char obj_file[MAX_PATH];
-                        snprintf(obj_file, MAX_PATH, "%s/%s_%d.obj", output_dir, base_name, index);
-                        FILE* obj_out = fopen(obj_file, "ab");  // append mode to handle multiple objects in same index
+                        index = (abs_pos_x / map_width) + ((abs_pos_y / map_height) * 4);
 
-                        if (obj_out) {
-                            // Custom properties - now with 3 bytes instead of 4
-                            cJSON* properties = cJSON_GetObjectItem(obj, "properties");
-                            if (properties && cJSON_IsArray(properties)) {
-                                int prop_count = cJSON_GetArraySize(properties);
-                                for (int j = 0; j < 3 && j < prop_count; j++) {
-                                    cJSON* prop = cJSON_GetArrayItem(properties, j);
-                                    cJSON* value = cJSON_GetObjectItem(prop, "value");
-                                    if (value) {
-                                        bytes[5 + j] = value->valueint;
-                                    }
-                                }
-                            }
+                        // Calculate metatile index of the nametable (same as data_index calculation)
+                        int metatile_index = rel_nam_pos_y + (rel_pos_x / 16);
+                        bytes[4] = metatile_index;
 
-                            fwrite(bytes, 1, 8, obj_out);
-                            fclose(obj_out);
+                        // If metatile, override X/Y position with PPU_ADDR
+                        cJSON* gid = cJSON_GetObjectItem(obj, "gid");
+                        if (gid) {
+                            int rows = floor(metatile_index / 16);
+                            int columns = metatile_index - (rows * 16);
+                            int metatileAddr = ((rows * 16 * 4) + (columns * 2));
+                            uint16_t addr = 0x2000 + metatileAddr;
+                            bytes[3] = (addr >> 8) & 0xFF;
+                            bytes[2] = addr & 0xFF;
                         }
+                    }
+
+                    // Custom properties (3 bytes)
+                    cJSON* properties = cJSON_GetObjectItem(obj, "properties");
+                    if (properties && cJSON_IsArray(properties)) {
+                        int prop_count = cJSON_GetArraySize(properties);
+                        for (int j = 0; j < 3 && j < prop_count; j++) {
+                            cJSON* prop = cJSON_GetArrayItem(properties, j);
+                            cJSON* value = cJSON_GetObjectItem(prop, "value");
+                            if (value) {
+                                bytes[5 + j] = value->valueint;
+                            }
+                        }
+                    }
+
+                    // Save to object file
+                    char obj_file[MAX_PATH];
+                    snprintf(obj_file, MAX_PATH, "%s/%s_%d.obj", output_dir, base_name, index);
+                    FILE* obj_out = fopen(obj_file, "ab");  // append mode to handle multiple objects in same index
+                    if (obj_out) {
+                        fwrite(bytes, 1, 8, obj_out);
+                        fclose(obj_out);
                     }
                 }
 

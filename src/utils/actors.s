@@ -25,7 +25,7 @@
     sty params_bytes+1
   .endif
 
-  Set_ParamByte #ACTOR_STATE_ACTIVATED | ACTOR_STATE_ANIMATED, 2
+  Set_ParamByte #ACTOR_STATE_VISIBLE | ACTOR_STATE_ANIMATED, 2
 
   jsr Actor_Add
 
@@ -33,7 +33,7 @@
 .endmacro
 .proc Actor_Add
 
-  ACTOR_TOTAL_BYTES = 8                  ; Needed because is a proc
+  ACTOR_TOTAL_BYTES = 16                  ; Needed because is a proc
 
   ; Map parameters to constants
   dataLabel = params_labels
@@ -42,8 +42,8 @@
   state = params_bytes+2
   callback = params_labels+2
 
-  ; Calculate Y index (actor_index * actor total bytes)
-  lda actor_index
+  ; Calculate Y index (actor_size * actor total bytes)
+  lda actor_size
   MUL_A ACTOR_TOTAL_BYTES
   tay
 
@@ -73,7 +73,7 @@
   lda callback+1                        ; Callback pointer high
   sta actor_array + ACTOR_CALLBACK_HI, y
 
-  inc actor_index
+  inc actor_size
 
   rts
 .endproc
@@ -103,6 +103,16 @@
   sta (actor_ptr),y
 .endmacro
 
+.macro SetCurrentActorIdx index
+  lda index
+  clc
+  adc #<actor_array
+  sta actor_ptr
+  lda #>actor_array
+  adc #0
+  sta actor_ptr+1
+.endmacro
+
 .macro CurActor_SetMetasprite label
   Addr_SetPointer actor_ptr+ACTOR_DATA_PTR_LO, label, 1
 .endmacro
@@ -118,19 +128,42 @@
     ActorRunCallbackLoop:
       ; Multiple index by actor total bytes
       txa
-      MUL_A 8 ; ACTOR_TOTAL_BYTES
+      sta actor_index                   ; First, keep actor index
+      MUL_A 16 ; ACTOR_TOTAL_BYTES
       tay
 
       ; Move current actor pointer by ACTOR_TOTAL_BYTES amount
       clc
       adc #<actor_array
       sta actor_ptr
+      lda #>actor_array
+      adc #0
+      sta actor_ptr+1
 
       ; Prepare actor callback pointer
       lda actor_array+ACTOR_CALLBACK_LO,y
       sta ptr
       lda actor_array+ACTOR_CALLBACK_HI,y
       sta ptr+1
+
+      ; Compute actor metatile
+      ldy #ACTOR_Y
+      lda (actor_ptr), y
+      and #%11110000
+      sta metasprite_metatile_idx
+      ldy #ACTOR_X
+      lda (actor_ptr), y
+      and #%11110000
+      lsr
+      lsr
+      lsr
+      lsr
+      clc
+      adc metasprite_metatile_idx
+      sta metasprite_metatile_idx
+
+      ; Check damage countdown
+      jsr ActorDamageCountdown
 
       ; Set current actor index and jump to actor's callback
       txa
@@ -142,7 +175,7 @@
       ; Increase counter
       inx
       txa
-      cmp actor_index
+      cmp actor_size
       bne ActorRunCallbackLoop
 
       rts
@@ -160,13 +193,14 @@
     actorIndex = params_bytes+2
 
     ldx #0                              ; Actor index (up to 8)
+    stx actor_index
     ldy #0                              ; Pointer address (index * actor total bytes)
     @ActorPushToOAMLoop:
       tya
       sta actorIndex
 
       lda actor_array + ACTOR_STATE, y  ; Get actor state
-      and #ACTOR_STATE_ACTIVATED
+      and #ACTOR_STATE_VISIBLE
       bne :+
         jmp @ActorPushToOAMSkip         ; Skip if not active
       :
@@ -263,11 +297,12 @@
 
       ; Get next actor index (index * actor total bytes)
       inx
+      stx actor_index
       txa
-      MUL_A 8 ; ACTOR_TOTAL_BYTES
+      MUL_A 16 ; ACTOR_TOTAL_BYTES
       tay
 
-      cpx actor_index
+      cpx actor_size
       beq :+
         jmp @ActorPushToOAMLoop
       :
@@ -277,3 +312,58 @@
     rts
   .endproc
 .endscope
+
+; REG_A = damage
+.proc HurtCurrentActor
+
+  ; Check if actor damaged
+  tax
+  ldy #ACTOR_STATE
+  lda (actor_ptr), y
+  and #ACTOR_STATE_DAMAGE
+  bne @else
+
+    ; Flag actor as damaged
+    lda (actor_ptr), y
+    ora #ACTOR_STATE_DAMAGE
+    sta (actor_ptr), y
+
+    ; Set invulnerability timer
+    ldy #ACTOR_INVULN_TIMER
+    lda (actor_ptr), y
+    lda #90
+    sta (actor_ptr), y
+
+    ; Decrease actor's health
+    stx temp
+    ldy #ACTOR_HEALTH
+    lda (actor_ptr), y
+    sec
+    sbc temp
+    sta (actor_ptr), y
+
+    ; JSR to current actor damage callback
+    JSR_TableIndex ActorDamageTable, actor_index
+  @else:
+  rts
+.endproc
+.proc ActorDamageCountdown
+  ldy #ACTOR_STATE
+  lda (actor_ptr), y
+  and #ACTOR_STATE_DAMAGE
+  beq @notDamaged
+
+    ldy #ACTOR_INVULN_TIMER
+    lda (actor_ptr), y
+    sec
+    sbc #1
+    sta (actor_ptr), y
+    bne @notZeroYet
+      ldy #ACTOR_STATE
+      lda (actor_ptr), y
+      and #<~ACTOR_STATE_DAMAGE
+      sta (actor_ptr), y
+    @notZeroYet:
+  @notDamaged:
+  rts
+.endproc

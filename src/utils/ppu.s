@@ -1,14 +1,21 @@
 ; Set the PPU_ADDR to write to
 ; Parameters:
 ; addr - The PPU memory address to write to
-.macro PPU_Set_Addr addr, latch
+.macro PPU_Set_Addr addr, latch, fromVar
   .ifblank latch
-  bit PPU_STATUS                        ; Reset PPU_ADDR latch
+    bit PPU_STATUS                      ; Reset PPU_ADDR latch
   .endif
-  lda #>addr                            ; Load high byte of address
-  sta PPU_ADDR                          ; $2006
-  lda #<addr                            ; Load low byte of address
-  sta PPU_ADDR                          ; $2006
+  .ifblank fromVar
+    lda #>addr                          ; Load high byte of address
+    sta PPU_ADDR                        ; $2006
+    lda #<addr                          ; Load low byte of address
+    sta PPU_ADDR                        ; $2006
+  .else
+    lda addr+1                          ; Load high byte of address
+    sta PPU_ADDR                        ; $2006
+    lda addr                            ; Load low byte of address
+    sta PPU_ADDR                        ; $2006
+  .endif
 .endmacro
 
 ; Macro to write a single byte to PPU memory

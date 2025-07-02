@@ -1,6 +1,6 @@
 .macro Hook_Add array, bytes
   Addr_Set ptr, bytes, 1
-  Array_Add array, ptr
+  Array_Add array, ptr, 1
 .endmacro
 
 .macro Hook_Remove array, index

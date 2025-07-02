@@ -26,7 +26,7 @@
     jsr @Collision_SpritePushback_GetTileIdx
     sta collision_tl_tile_idx
 
-    ; Check top-right tile
+    ; Get top-right tile
     lda collision_check_x
     clc
     adc width
@@ -42,7 +42,7 @@
     jsr @Collision_SpritePushback_GetTileIdx
     sta collision_br_tile_idx
 
-    ; Check bottom-left tile
+    ; Get bottom-left tile
     lda collision_check_x
     sec
     sbc width
@@ -229,25 +229,10 @@
   @Collision_SpritePushback_GetTileProp:
     sec
     sbc #32
-    pha
-
-    ; Point to the correct nametable
-    lda nametable_idx
-    asl
     tay
-    lda (mapData), y
-    sta ptr
-    iny
-    lda (mapData), y
-    sta ptr+1
-
-    pla
+    lda (map_ptr), y
     tay
-    lda (ptr), y
-    tay
-
     lda Metatiles2x2Prop, y
-
     rts
 
   ; ------------------------------------

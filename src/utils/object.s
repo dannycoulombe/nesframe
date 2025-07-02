@@ -3,9 +3,13 @@ objAmountPtr = ptr2
 objMountedPtr = ptr3
 objFramePtr = ptr3
 objNMIPtr = ptr3
+objCollisionPtr = ptr3
 
 OBJ_X = 2
 OBJ_Y = 3
+OBJ_TILE_IDX = 4
+OBJ_PPU_ADDR_LO = 2
+OBJ_PPU_ADDR_HI = 3
 
 ; Read all objects from nametable index
 .macro ApplyObjectsToNametable objTbl, objAmountTbl
@@ -93,19 +97,22 @@ RunObjectsFrameCallback:
     bne @RunObjectsFrameCallback_Loop
   rts
 
-RunObjectsNMICallback:
+.proc RunObjectsNMICallback
   ldx object_size
   lda #0
   sta object_ptr_index
   sta object_memory_index
-  @RunObjectsNMICallback_Loop:
+  @loop:
     txa
     pha
 
+    ; Set object pointer
     ldy object_ptr_index
     lda (object_ptr), y
     tay
     SetDeepIndPtrFromTable objNMIPtr, ObjectNMITable
+
+    ; JSR to object callback function
     IndirectJSR objNMIPtr
 
     ; Move object pointer index to next 8 bytes
@@ -123,8 +130,56 @@ RunObjectsNMICallback:
     pla
     tax
     dex
-    bne @RunObjectsNMICallback_Loop
+    bne @loop
   rts
+.endproc
+
+; Should be ran from current actor context
+.proc RunObjectActorCollision
+  ldx object_size
+  lda #0
+  sta object_ptr_index
+  sta object_memory_index
+  @loop:
+    txa
+    pha
+
+    ; Set object pointer
+    ldy object_ptr_index
+    lda (object_ptr), y
+    tay
+    SetDeepIndPtrFromTable objCollisionPtr, ObjectCollisionTable
+
+    ; If object collides with actor,
+    ; JSR to object callback function
+    lda object_ptr_index
+    clc
+    adc #OBJ_TILE_IDX
+    tay
+    lda (object_ptr), y
+    cmp metasprite_metatile_idx
+    bne @skipJsr
+      IndirectJSR objCollisionPtr
+    @skipJsr:
+
+    ; Move object pointer index to next 8 bytes
+    lda object_ptr_index
+    clc
+    adc #8
+    sta object_ptr_index
+
+    ; Move object memory index to next 4 bytes
+    lda object_memory_index
+    clc
+    adc #4
+    sta object_memory_index
+
+    pla
+    tax
+    dex
+    bne @loop
+  rts
+.endproc
 
 .macro LDA_ObjData index
   SetObjDataY index

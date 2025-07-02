@@ -9,6 +9,8 @@
 ; 256 bytes total available
 .segment "ZEROPAGE"
 
+  frame_count:            .byte 0       ; A global frame count
+
   ; State management
   execution_state:        .byte 0       ; Execution in progress? ---- -FNI (F: Frame, N: NMI, I: IRQ)
 
@@ -19,7 +21,7 @@
   ptr:                    .word 0       ; An indirect pointer to be used anywhere
   ptr2:                   .word 0       ; An second indirect pointer to be used anywhere
   ptr3:                   .word 0       ; An third indirect pointer to be used anywhere
-  tablePtr:               .word 0       ; Temporary jump table pointer
+  table_ptr:              .word 0       ; Temporary jump table pointer
 
   ; Functions
   params_bytes:           .res 4,0      ; Bytes to be used as temporary parameters
@@ -30,19 +32,21 @@
   last_buttons:           .byte 0       ; Last button states (RLDU SSBA)
   pressed_buttons:        .byte 0       ; Newly pressed buttons (RLDU SSBA)
 
+  ; States
+  header_state:           .byte 0       ; (Km HMBA): K=Key, m=Money, H:Hearts, M:Magic, B:ItemB, A:ItemA
+
   ; Player
   player_coll_off_x:      .byte 0       ; Player collision offset X
   player_coll_off_y:      .byte 0       ; Player collision offset Y
   player_ori_dir:         .byte 0       ; Player original direction
 
   ; Sprites/Metasprites
-  oam_ptr:                .word 0       ; Current OAM pointer
-  sprite_ptr:             .word 0       ; Current sprite pointer
   metasprite_x:           .byte 0       ; Current X position
   metasprite_y:           .byte 0       ; Current Y position
   metasprite_delta_x:     .byte 0       ; Current delta X
   metasprite_delta_y:     .byte 0       ; Current delta Y
-  metasprite_direction:   .byte 0       ; Current direction (4 first bytes)
+  metasprite_metatile_idx:.byte 0       ; Current metatile index
+  metasprite_direction:   .byte 0       ; Current direction (4 first bits)
 
   ; Scene
   scene_map_ptr_jt:       .word 0       ; Scene nametable address (0 if none)
@@ -63,20 +67,21 @@
   collision_br_tile_idx:  .byte 0       ; Check bottom-right tile index
 
   ; Hooks
-  frame_hooks:            .res 2 + (4 * 2), 0 ; Jump table of things to execute every frame
-  nmi_hooks:              .res 2 + (4 * 2), 0 ; Jump table of things to execute every NMI
+  frame_hooks:            .res 2 + (1 * 2), 0 ; Jump table of things to execute every frame
+  nmi_hooks:              .res 2 + (1 * 2), 0 ; Jump table of things to execute every NMI
 
   ; Actors
-  actor_array:            .res 8 * ACTOR_TOTAL_BYTES, 0
-  actor_index:            .byte 0       ; Current actor index
   actor_ptr:              .word 0       ; Current actor pointer
 
   ; Objects
   object_ptr:             .word 0       ; Current object pointer
   object_ptr_index:       .byte 0       ; Current pointer index (index * 8 bytes)
-  object_size:            .byte 0       ; Total amount of objects in array
-  object_memory:          .res 8*4,0    ; 4 bytes per object
-  object_memory_index:    .byte 0       ; Current memory index (index * 4 bytes)
+
+  ; Pointers
+  oam_ptr:                .word 0       ; Current OAM pointer
+  sprite_ptr:             .word 0       ; Current sprite pointer
+  map_ptr:                .word 0
+  transition_callback:    .word 0
 
 ; --------------------------------------
 ; RAM (0100-07FF)
@@ -98,6 +103,20 @@
   total_keys:             .byte 0       ; Total amount of keys
   total_pebbles:          .byte 0,0     ; Total amount of pebbles (max 999)
 
+  ; Actors structure
+  actor_array:            .res 8 * ACTOR_TOTAL_BYTES, 0
+  actor_size:             .byte 0       ; Actor array size
+  actor_index:            .byte 0       ; Current actor index
+
+  ; Objects structure
+  object_size:            .byte 0       ; Total amount of objects in array
+  object_memory:          .res 8*4,0    ; 4 bytes per object
+  object_memory_index:    .byte 0       ; Current memory index (index * 4 bytes)
+
+  ; Transition
+  transition_type:         .byte 0
+  transition_type_index:   .byte 0
+
 ; --------------------------------------
 ; Main code
 ; You can use a maximum of ~20'000 cycles
@@ -106,8 +125,8 @@
   ; Declarations, utils, tools, etc.
   .include "utils/index.s"
   .include "objects/index.s"
-  .include "actors/index.s"
   .include "logic/index.s"
+  .include "actors/index.s"
 
   ; Initialize the NES
   RESET:
@@ -126,11 +145,12 @@
     ; Ready to initialize
     jsr PPU::DisableRendering           ; Disable rendering (this code contains too many cycles)
     jsr InitializeGame
-    PPU_LoadPalette Default_BG_Pal, $3F00, #16
-    PPU_LoadPalette Default_Sprite_Pal, $3F10, #16
+    PPU_LoadPalette DefaultBGPal, $3F00, #16
+    PPU_LoadPalette DefaultSpritePal, $3F10, #16
 
     ; Enables NMI, background, sprites rendering
     ; and sound effects
+    lda #5
     jsr PPU::EnableRendering
     jsr Sound::Enable
 
@@ -192,6 +212,8 @@ NMI:                                    ; Maximum of ~2273 cycles
   ; Run NMI hooks
   Hook_Run nmi_hooks
   jsr RunObjectsNMICallback
+  jsr HeaderNMICallback
+  jsr CheckTransition
 
   ; Apply current scroll position
   jsr Scroll::UpdatePosition
@@ -204,6 +226,9 @@ NMI:                                    ; Maximum of ~2273 cycles
   lda execution_state
   and #%11111100                        ; Reset NMI and IRQ bit to 0 (ready to be executed again)
   sta execution_state
+
+  ; Increase global frame count
+  inc frame_count
 
   Register_Pull_All
   rti                                   ; Return from NMI
@@ -221,8 +246,12 @@ IRQ:
 MetaspritesData: .include "data/metasprites.s"
 Metatiles2x2Data: .incbin "data/metatiles.bin"
 Metatiles2x2Prop: .incbin "data/metatiles.prop"
-Default_BG_Pal: .incbin "data/background.pal"
-Default_Sprite_Pal: .incbin "data/sprite.pal"
+DefaultBGPal: .incbin "data/background.pal"
+BgPalDim1: .incbin "data/background-dim1.pal"
+BgPalDim2: .incbin "data/background-dim2.pal"
+DefaultSpritePal: .incbin "data/sprite.pal"
+BlackPal: .byte $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
+          .byte $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
 Level1Data: .include "maps/level1.s"
 
 ; --------------------------------------

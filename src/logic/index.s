@@ -1,3 +1,5 @@
 .include "game.s"
 .include "header.s"
 .include "scrolling.s"
+.include "transition.s"
+.include "collision.s"

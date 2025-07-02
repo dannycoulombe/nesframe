@@ -18,38 +18,50 @@ SpikesObject_Mounted:
 
   rts
 
-SpikesObject_Frame:
+.proc SpikesObject_Frame
 
   ; Jump to matching sub-routine if flag match count
-  BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, :+++
+  BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
     JSR_ObjMemEqualsVal SpikesObject_Lower, SPIKE_MEM_COUNTER, #60
-    jmp :+++
-  :
+    jmp @end
+  @else:
     JSR_ObjMemEqualsData SpikesObject_Raise, SPIKE_MEM_COUNTER, #SPIKE_DATA_INTERVAL
-  :
+  @end:
 
   ; Increment counter
   INC_ObjMem SPIKE_MEM_COUNTER
 
   rts
+.endproc
 
-SpikesObject_NMI:
+.proc SpikesObject_NMI
 
   ; Switch between lower and raised if state changed
-  BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_STATE_CHANGED, :++++
+  BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_STATE_CHANGED, @end
     ObjMemSetBit SPIKE_MEM_FLAG, SPIKE_MEM_FLAG_STATE_CHANGED, 0
-    BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, :++
-      SetMetatile $2ACC, #SPIKE_METATILE_RAISED
+
+    LDA_ObjData #OBJ_PPU_ADDR_LO
+    sta temp
+    LDA_ObjData #OBJ_PPU_ADDR_HI
+    sta temp+1
+
+    BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
+      SetMetatile temp, #SPIKE_METATILE_RAISED, 0, 1
       rts
-    :
-      SetMetatile $2ACC, #SPIKE_METATILE_LOWER
-  :
+    @else:
+      SetMetatile temp, #SPIKE_METATILE_LOWER, 0, 1
+  @end:
   rts
+.endproc
 
 SpikesObject_Interaction:
   rts
 
 SpikesObject_Collision:
+  BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
+    lda #1
+    jsr HurtCurrentActor
+  @else:
   rts
 
 SpikesObject_Destroyed:
@@ -59,7 +71,7 @@ SpikesObject_Destroyed:
 ; Actions
 SpikesObject_Raise:
 
-  jsr Sound::RisingSpike
+  jsr Sound::Spikes
 
   lda #0
   STA_ObjMem SPIKE_MEM_COUNTER
@@ -69,7 +81,7 @@ SpikesObject_Raise:
 
 SpikesObject_Lower:
 
-  jsr Sound::FallingSpike
+  jsr Sound::Spikes
 
   lda #0
   STA_ObjMem SPIKE_MEM_COUNTER

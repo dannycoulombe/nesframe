@@ -32,21 +32,11 @@
 
   ; Calculating Y offset
   ldy #1
-;  lda scroll_y
-;  cmp #$10
-;  bcc :+
-;    LogInc
-;    lda metasprite_y
-;    sec
-;    sbc #$0C
-;    jmp :++
-;  :
-    lda metasprite_y
-;  :
-    clc
-    adc (ptr),y
-    sec
-    sbc scroll_y
+  lda metasprite_y
+  clc
+  adc (ptr),y
+  sec
+  sbc scroll_y
 
   ; Push Y offset to OAM
   ldy #0
@@ -59,10 +49,18 @@
   sta (oam_ptr),y
 
   ; Set attributes
-  ldy #3
-  lda (ptr),y
-  ldy #2
-  sta (oam_ptr),y
+  ldy #ACTOR_STATE
+  lda (actor_ptr), y
+  and #ACTOR_STATE_DAMAGE
+  bne @flashing
+    ldy #3
+    lda (ptr),y
+    ldy #2
+    sta (oam_ptr),y
+    jmp @endFlashing
+  @flashing:
+LogA
+  @endFlashing:
 
   ; Prepare pointer for next tile
   lda ptr

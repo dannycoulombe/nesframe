@@ -41,25 +41,29 @@
 .endmacro
 
 ; If index blank, use register Y
-.macro SetDeepIndPtrFromTable ptr, table, index
+.macro SetDeepIndPtrFromTable ptr, table, index, singleByte
   lda #<table
-  sta tablePtr
+  sta table_ptr
   lda #>table
-  sta tablePtr+1
+  sta table_ptr+1
 
-  ; Multiply index by 2
+  ; Get index from variable or Y
   .ifnblank index
   lda index
   .else
   tya
   .endif
-  asl
+
+  ; Multiply index by 2
+  .ifblank singleByte
+    asl
+  .endif
   tay
 
-  lda (tablePtr), y
+  lda (table_ptr), y
   sta ptr
   iny
-  lda (tablePtr), y
+  lda (table_ptr), y
   sta ptr+1
 .endmacro
 
@@ -80,7 +84,7 @@
 .macro Addr_SetPointer addr, value, immediate
   tya
   pha
-  .if immediate
+  .ifnblank immediate
     ldy #1
     lda #>value
     sta (addr),y
@@ -164,3 +168,13 @@
   pla
 .endmacro
 
+; Y = index if not provided
+.macro JSR_TableIndex table, index
+  .ifblank index
+    tay
+  .else
+    ldy index
+  .endif
+  SetDeepIndPtrFromTable ptr, table
+  IndirectJSR ptr
+.endmacro

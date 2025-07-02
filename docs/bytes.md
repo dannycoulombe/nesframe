@@ -7,7 +7,7 @@ level*.obj
   - solid
 - x position OR PPU_ADDR low-byte if metatile
 - y position OR PPU_ADDR high-byte if metatile
-- tile index (important for collision detection)
+- metatile index (important for collision detection)
 - custom prop 1 (check in Tiled)
 - custom prop 2 (check in Tiled)
 - custom prop 3 (check in Tiled)

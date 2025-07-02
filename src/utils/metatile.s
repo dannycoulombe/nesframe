@@ -1,6 +1,6 @@
-.macro SetMetatile addr, metatile, palette
+.macro SetMetatile addr, metatile, palette, fromVar
 
-  PPU_Set_Addr addr, 1
+  PPU_Set_Addr addr, 0, fromVar
 
   ldx metatile
   lda Metatiles2x2Data, x
@@ -9,7 +9,15 @@
   lda Metatiles2x2Data, x
   sta PPU_DATA
 
-  PPU_Set_Addr (addr + $20), 1
+  .ifblank fromVar
+    PPU_Set_Addr (addr + $20), 0, fromVar
+  .else
+    lda addr
+    clc
+    adc #$20
+    sta addr
+    PPU_Set_Addr addr, 0, fromVar
+  .endif
 
   inx
   lda Metatiles2x2Data, x

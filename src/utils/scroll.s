@@ -8,5 +8,6 @@
     sta PPU_SCROLL                      ; Set X scroll
     lda scroll_y
     sta PPU_SCROLL                      ; Set Y scroll
+    rts
   .endproc
 .endscope

@@ -1,5 +1,5 @@
 InitializeGame:
-  lda #9
+  lda #1
   sta player_health
   lda #8
   sta player_hearths
