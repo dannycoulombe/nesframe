@@ -4,3 +4,5 @@ bin
 maps/*/.obj
 build
 .vscode
+assets/famitracker/*.txt
+assets/famitracker/*.nsf
