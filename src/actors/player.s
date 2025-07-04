@@ -62,6 +62,7 @@ PlayerDies:
   CurActor_SetMetasprite GnomeDiesStart
   ForEachActor Player_HideOtherActors
   DoTransition #TRANSITION_TYPE_FADEOUT, PlayerIsDead
+  jsr Music::Stop
   rts
 
 Player_OnDamage:

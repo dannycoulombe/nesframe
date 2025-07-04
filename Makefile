@@ -26,6 +26,7 @@ generate_sfx:
 generate_music:
 	wine /opt/famitone5/text2data/text2vol5.exe ./src/assets/famitracker/music.txt -ca65 -ntsc
 	mv ./src/assets/famitracker/music.s ./src/data/music.s
+	rm ./src/assets/famitracker/music.txt
 
 build_run_scripts: export_maps build_scripts generate_metatiles generate_maps generate_palettes
 

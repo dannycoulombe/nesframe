@@ -12,7 +12,6 @@ music_music_data:
 @instruments:
 	.word @env1,@env0,@env0,@env0
 	.word @env2,@env0,@env0,@env0
-	.word @env3,@env0,@env0,@env4
 
 @samples:
 @env0:
@@ -21,10 +20,6 @@ music_music_data:
 	.byte $ce,$cf,$00,$01
 @env2:
 	.byte $cf,$ca,$c5,$c0,$00,$03
-@env3:
-	.byte $cf,$ce,$cd,$cc,$cb,$ca,$c9,$c8,$00,$07
-@env4:
-	.byte $c2,$00,$00
 
 
 ; Tetris
@@ -32,21 +27,21 @@ music_music_data:
 	.byte $fb,$01
 @song0ch0loop:
 @ref0:
-	.byte $84,$2c,$b5,$27,$99,$28,$99
+	.byte $ef
 @ref1:
-	.byte $2a,$b5,$28,$99,$27,$99
+	.byte $ef
 @ref2:
-	.byte $25,$b5,$25,$99,$28,$99
+	.byte $ef
 @ref3:
-	.byte $2c,$b5,$2a,$99,$28,$99
+	.byte $ef
 @ref4:
-	.byte $27,$b5,$27,$99,$28,$99
+	.byte $ef
 @ref5:
-	.byte $2a,$b5,$2c,$b5
+	.byte $ef
 @ref6:
-	.byte $28,$b5,$25,$b5
+	.byte $ef
 @ref7:
-	.byte $25,$b5,$00,$b5
+	.byte $ef
 	.byte $fd
 	.word @song0ch0loop
 
@@ -54,17 +49,17 @@ music_music_data:
 @song0ch1:
 @song0ch1loop:
 @ref8:
-	.byte $78,$b7,$84,$24,$99,$00,$99
+	.byte $ef
 @ref9:
-	.byte $b7,$25,$99,$24,$99
+	.byte $ef
 @ref10:
-	.byte $20,$b5,$00,$b5
+	.byte $ef
 @ref11:
 	.byte $ef
 @ref12:
-	.byte $24,$b5,$24,$99,$25,$99
+	.byte $ef
 @ref13:
-	.byte $27,$b5,$00,$b5
+	.byte $ef
 @ref14:
 	.byte $ef
 @ref15:
