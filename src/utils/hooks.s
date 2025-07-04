@@ -1,34 +1,47 @@
-.macro Hook_Add array, bytes
-  Addr_Set ptr, bytes, 1
-  Array_Add array, ptr, 1
+.macro AddHook array, label
+  Array_AddLabel array, label
 .endmacro
 
-.macro Hook_Remove array, index
+.macro RemoveHook array, index
   Array_Remove array, index
 .endmacro
 
-.macro Hook_Run array
+.macro ClearHooks array, total
+  ldy #0
+  lda #0
+  ldx total
+  :
+    sta array, y
+    iny
+    dex
+    bne :-
+.endmacro
 
-  Addr_Set ptr, array+2, 0
+.macro RunHooks array
+
+  lda array+2
+  sta indirect_jsr_ptr
+  lda array+3
+  sta indirect_jsr_ptr+1
 
   lda array
-  beq @Hook_Run_End
+  beq Hook_Run_End
 
   ldy #0
-  @Hook_Run_Loop:
+  Hook_Run_Loop:
 
     ; Run hook
     tya
     pha
-    IndirectJSR ptr
+    jsr IndirectJSR
     pla
     tay
 
     ; Fetch next pointer position
-    inc ptr
-    inc ptr
+    inc indirect_jsr_ptr
+    inc indirect_jsr_ptr
     iny
     cpy array
-    bne @Hook_Run_Loop
-  @Hook_Run_End:
+    bne Hook_Run_Loop
+  Hook_Run_End:
 .endmacro

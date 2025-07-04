@@ -1,4 +1,4 @@
-.macro Register_Push_All
+.macro Register_PushAll
   txa
   pha
   tya
@@ -6,7 +6,7 @@
 ;  php
 .endmacro
 
-.macro Register_Pull_All
+.macro Register_PullAll
 ;  plp
   pla
   tay

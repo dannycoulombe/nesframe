@@ -19,13 +19,21 @@ generate_palettes:
 export_maps:
 	/opt/Tiled.AppImage --export-map json src/assets/tiled/level1.tmx src/assets/tiled/level1.json
 
+generate_sfx:
+	wine /opt/famitone5/nsf2data/nsf2data5.exe ./src/assets/famitracker/sfx.nsf -ca65 -ntsc
+	mv ./src/assets/famitracker/sfx.s ./src/data/sfx.s
+
+generate_music:
+	wine /opt/famitone5/text2data/text2vol5.exe ./src/assets/famitracker/music.txt -ca65 -ntsc
+	mv ./src/assets/famitracker/music.s ./src/data/music.s
+
 build_run_scripts: export_maps build_scripts generate_metatiles generate_maps generate_palettes
 
 clean:
 	rm dist/*.o dist/*.nes
 
 fceux: build
-	fceux game.nes
+	fceux dist/game.nes
 
 mesen: build
 	/home/dcoulombe/dev/Mesen2/bin/linux-x64/Release/linux-x64/publish/Mesen dist/game.nes

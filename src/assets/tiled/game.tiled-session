@@ -14,10 +14,10 @@
         },
         "level1.tmx": {
             "scale": 2,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 207.25,
-                "y": 199.75
+                "x": 183.25,
+                "y": 193.25
             }
         }
     },

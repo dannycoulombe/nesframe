@@ -1,4 +1,4 @@
-.macro Collision_SpritePushback mapData, xPos, yPos, offsetX, offsetY, width, height, deltaX, deltaY
+.macro Collision_SpritePushback mapData, xPos, yPos, width, height, deltaX, deltaY
 
   ; Perform collision check
   jsr @Collision_SpritePushback_DoVertical
@@ -9,12 +9,15 @@
   ; Initialize positions
   @Collision_SpritePushback_InitPos:
     lda yPos
-    clc
-    adc offsetY
     sta collision_check_y
+
+    lda width
+    lsr
+    sta temp
     lda xPos
-    clc
-    adc offsetX
+    sec
+    sbc temp
+    sbc #1
     sta collision_check_x
     rts
 
@@ -23,7 +26,7 @@
   @Collision_SpritePushback_UpdateTileIndexes:
 
     ; Get top-left tile
-    jsr @Collision_SpritePushback_GetTileIdx
+    jsr Collision_SpritePushback_GetTileIdx
     sta collision_tl_tile_idx
 
     ; Get top-right tile
@@ -31,7 +34,7 @@
     clc
     adc width
     sta collision_check_x
-    jsr @Collision_SpritePushback_GetTileIdx
+    jsr Collision_SpritePushback_GetTileIdx
     sta collision_tr_tile_idx
 
     ; Get bottom-right tile
@@ -39,7 +42,7 @@
     clc
     adc height
     sta collision_check_y
-    jsr @Collision_SpritePushback_GetTileIdx
+    jsr Collision_SpritePushback_GetTileIdx
     sta collision_br_tile_idx
 
     ; Get bottom-left tile
@@ -47,7 +50,7 @@
     sec
     sbc width
     sta collision_check_x
-    jsr @Collision_SpritePushback_GetTileIdx
+    jsr Collision_SpritePushback_GetTileIdx
     sta collision_bl_tile_idx
 
     rts
@@ -115,8 +118,6 @@
       @Collision_SpritePushback_DoVerticalCollisionUp:
         lda collision_check_y
         and #%11111000
-        sec
-        sbc offsetY
         sta yPos
         rts
 
@@ -124,7 +125,9 @@
         lda yPos
         and #%11111000
         clc
-        adc #7
+        adc height
+        sec
+        sbc #1
         sta yPos
         rts
 
@@ -189,40 +192,10 @@
         rts
 
       @Collision_SpritePushback_DoHorizontalCollisionLeft:
-        lda xPos
-        and #%11111000
-        sta xPos
         rts
 
       @Collision_SpritePushback_DoHorizontalCollisionRight:
-        lda collision_check_x
-        and #%11111000
-        clc
-        adc #8
-        sta xPos
         rts
-
-  ; ------------------------------------
-  ; Get tile index from collision coordinates
-  @Collision_SpritePushback_GetTileIdx:
-
-    ; Compute Y Pos
-    lda collision_check_y               ; Get Y coordinate
-    and #%11110000
-    sta temp
-
-    ; Compute X pos
-    lda collision_check_x               ; Get X coordinate
-    and #%11110000
-    lsr
-    lsr
-    lsr
-    lsr
-    clc
-    adc temp                            ; Add Y*8 to X to get final offset
-    sta temp
-
-    rts
 
   ; ------------------------------------
   ; Get tile properties
@@ -240,3 +213,25 @@
   @Collision_SpritePushback_End:
 
 .endmacro
+
+; ------------------------------------
+; Get tile index from collision coordinates
+Collision_SpritePushback_GetTileIdx:
+
+  ; Compute Y Pos
+  lda collision_check_y               ; Get Y coordinate
+  and #%11110000
+  sta temp
+
+  ; Compute X pos
+  lda collision_check_x               ; Get X coordinate
+  and #%11110000
+  lsr
+  lsr
+  lsr
+  lsr
+  clc
+  adc temp                            ; Add Y*8 to X to get final offset
+  sta temp
+
+  rts

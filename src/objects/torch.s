@@ -11,6 +11,9 @@ TorchObject_ActorFrame:
 TorchObject_Frame:
   rts
 
+TorchObject_NMIOnce:
+  rts
+
 TorchObject_NMI:
   rts
 

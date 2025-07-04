@@ -1,5 +1,7 @@
+.segment "RODATA"
 DeadTxt: .byte "YOU DIED", 0
 
+.segment "CODE"
 PlayerCallback:
 
   ; Check scrolling
@@ -25,14 +27,40 @@ PlayerCallback:
   rts
 
 PlayerIsDead:
+
+  ; Change metasprite to dead one
+  jsr Sound::PlayerDead
   SetCurrentActorIdx #0
   CurActor_SetMetasprite GnomeDiesEnd
-  jsr Sound::PlayerDead
-  PrintText $218C, DeadTxt
+
+  ; Update death screen
+  jsr PPU::ClearNametable
+  OnceDuringNMI PlayerIsDeadNMI
+
+  rts
+
+PlayerIsDeadNMI:
+  PPU_LoadPalette DefaultBGPal, $3F00, #16
+  PrintText $21CC, DeadTxt
+  rts
+
+Player_HideOtherActors:
+  lda actor_index
+  beq :+
+    ldy #ACTOR_STATE
+    lda (actor_ptr), y
+    tax
+    and #ACTOR_STATE_VISIBLE
+    beq :+
+      txa
+      and #<~ACTOR_STATE_VISIBLE
+      sta (actor_ptr), y
+  :
   rts
 
 PlayerDies:
   CurActor_SetMetasprite GnomeDiesStart
+  ForEachActor Player_HideOtherActors
   DoTransition #TRANSITION_TYPE_FADEOUT, PlayerIsDead
   rts
 

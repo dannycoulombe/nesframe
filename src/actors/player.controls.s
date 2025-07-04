@@ -1,5 +1,8 @@
 PlayerReadControls:
 
+  ; ------------------------------------
+  ; Movements
+
   ; Keep position in memory
   ldy #ACTOR_Y
   lda (actor_ptr), y
@@ -62,14 +65,10 @@ PlayerReadControls:
 
     lda player_ori_dir
     beq :+
-      CurActor_SetStateBit %00001111, 0
       Pointer_SetVal actor_ptr, #0, #ACTOR_COUNTER
-
-      lda #0
-      sta player_ori_dir
     :
 
-    jmp PlayerReadControlsEnd
+    jmp PlayerReadControlsMovementEnd
   PlayerReadControlsStillnessEnd:
 
   ; Up
@@ -208,4 +207,76 @@ PlayerReadControls:
     Pointer_IncVal actor_ptr, #ACTOR_COUNTER
   :
 
+  PlayerReadControlsMovementEnd:
+
+  ; ------------------------------------
+  ; Interactions
+  lda pressed_buttons
+  tax
+  and #BUTTON_A
+  beq PlayerReadControlsInteractionEnd
+
+    ; Get player direction
+    lda player_ori_dir
+    tax
+
+    ; Up
+    cmp #DIRECTION_UP
+    bne :+
+      lda metasprite_y
+      sec
+      sbc #1
+      sta collision_check_y
+      lda metasprite_x
+      sta collision_check_x
+      jsr Collision_SpritePushback_GetTileIdx
+      jmp PlayerReadControlsInteractionDo
+    :
+
+    ; Down
+    cmp #DIRECTION_DOWN
+    bne :+
+      lda metasprite_y
+      clc
+      adc #5
+      sta collision_check_y
+      lda metasprite_x
+      sta collision_check_x
+      jmp PlayerReadControlsInteractionDo
+    :
+
+    ; Down
+    cmp #DIRECTION_LEFT
+    bne :+
+      lda metasprite_x
+      sec
+      sbc #9
+      sta collision_check_x
+      lda metasprite_y
+      sta collision_check_y
+      jmp PlayerReadControlsInteractionDo
+    :
+
+    ; Right
+    cmp #DIRECTION_RIGHT
+    bne :+
+      lda metasprite_x
+      clc
+      adc #8
+      sta collision_check_x
+      lda metasprite_y
+      sta collision_check_y
+      jmp PlayerReadControlsInteractionDo
+    :
+
+    jmp PlayerReadControlsInteractionEnd
+
+  PlayerReadControlsInteractionDo:
+    jsr Collision_SpritePushback_GetTileIdx
+    sta interaction_tile_idx
+    jsr InteractWithTileIdx
+
+  PlayerReadControlsInteractionEnd:
+
   PlayerReadControlsEnd:
+  rts

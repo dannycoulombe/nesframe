@@ -38,6 +38,23 @@
   inc array+0                           ; Increment array size
 .endmacro
 
+.macro Array_AddLabel array, label
+
+  ; Set initial array position
+  lda array+0 ; count                   ; Load current array size
+  DYN_MUL_A array+1                     ; Multiply by item size
+  tax
+
+  ; Push all bytes at the end of array
+  lda #<label                           ; Load byte in register A
+  sta array+2, x                        ; Store byte at array index + byte index
+  lda #>label                           ; Load byte in register A
+  sta array+3, x                        ; Store byte at array index + byte index
+
+  ; Item added, now increment array size
+  inc array+0                           ; Increment array size
+.endmacro
+
 .macro Array_Remove array, index
   Array_SetPosition array, index
   Array_RotateLeft array, count

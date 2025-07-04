@@ -1,49 +1,33 @@
+SOUND_PLAYER_HURT = 0
+SOUND_PLAYER_DEAD = 1
+SOUND_PLAYER_STAIRS = 2
+SOUND_PLAYER_SPIKES = 3
+SOUND_OPEN_CHEST = 4
+
 .scope Sound
 
-  ; Enable sound effects
-  Enable:
-    lda APU_STATUS
-    ora #%00001111                      ; Enable pulse channel 1
-    sta APU_STATUS
+  PlayerHurt:
+    lda SOUND_PLAYER_HURT
+    ldx #FT_SFX_CH1
+    jsr FamiToneSfxPlay
     rts
 
   PlayerDead:
-    lda #%00000100      ; constant volume = 4, envelope off
-    sta $400C
-
-    lda #%00011110      ; white noise, lowest period ($0E)
-    sta $400E
-
-    lda #$08            ; ultra-short
-    sta $400F
-    rts
-
-  PlayerHurt:
-
-    ; Duty cycle = 50%, constant volume = 1, volume = 10
-    lda #%01001010     ; $4A
-    sta $4000          ; Pulse 1 volume/envelope
-
-    ; Sweep: enabled, down, shift = 2 (fades down pitch)
-    lda #%10001010     ; $8A
-    sta $4001          ; Pulse sweep
-
-    ; Timer low byte (sets pitch)
-    lda #$E0
-    sta $4002
-
-    ; Timer high + length (short duration)
-    lda #%00001000
-    sta $4003
+    lda SOUND_PLAYER_DEAD
+    ldx #FT_SFX_CH1
+    jsr FamiToneSfxPlay
     rts
 
   ; Play spikes sound effect
   Spikes:
-    lda #1
-    sta APU_NOISE_VOL
-    lda #0
-    sta APU_NOISE_LO
-    lda #$8F
-    sta APU_NOISE_LEN
+    lda SOUND_PLAYER_SPIKES
+    ldx #FT_SFX_CH0
+    jsr FamiToneSfxPlay
+    rts
+
+  OpenChest:
+    lda SOUND_OPEN_CHEST
+    ldx #FT_SFX_CH1
+    jsr FamiToneSfxPlay
     rts
 .endscope

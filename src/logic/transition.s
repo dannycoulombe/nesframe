@@ -30,6 +30,7 @@ EndTransition:
   :
 
   IndirectJSR transition_callback
+
   rts
 
 .scope Transition

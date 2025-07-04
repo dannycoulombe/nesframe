@@ -4,6 +4,9 @@ StairsObject_Mounted:
 StairsObject_Frame:
   rts
 
+StairsObject_NMIOnce:
+  rts
+
 StairsObject_NMI:
   rts
 

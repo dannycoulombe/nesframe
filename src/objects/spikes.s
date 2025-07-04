@@ -1,10 +1,7 @@
 SPIKE_DATA_DELAY = 5
 SPIKE_DATA_INTERVAL = 6
-SPIKE_MEM_COUNTER = 0
-SPIKE_MEM_FLAG = 1
+SPIKE_MEM_COUNTER = 1
 SPIKE_MEM_FLAG_RAISED = 1 << 0
-SPIKE_MEM_FLAG_STATE_CHANGED = 1 << 7
-
 SPIKE_METATILE_RAISED = $8C
 SPIKE_METATILE_LOWER = $60
 
@@ -21,7 +18,7 @@ SpikesObject_Mounted:
 .proc SpikesObject_Frame
 
   ; Jump to matching sub-routine if flag match count
-  BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
+  BNE_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
     JSR_ObjMemEqualsVal SpikesObject_Lower, SPIKE_MEM_COUNTER, #60
     jmp @end
   @else:
@@ -34,23 +31,38 @@ SpikesObject_Mounted:
   rts
 .endproc
 
-.proc SpikesObject_NMI
+SpikesObject_NMI:
+  ; Switch between lower and raised if state changed
+  ;BNE_ObjFlagSet SPIKE_MEM_FLAG, #OBJ_MEM_FLAG_STATE_CHANGED, @end
+  ;  ObjMemSetBit SPIKE_MEM_FLAG, OBJ_MEM_FLAG_STATE_CHANGED, 0
+;
+  ;  LDA_ObjData #OBJ_PPU_ADDR_LO
+  ;  sta temp
+  ;  LDA_ObjData #OBJ_PPU_ADDR_HI
+  ;  sta temp+1
+;
+  ;  BNE_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
+  ;    SetMetatile temp, #SPIKE_METATILE_RAISED, 0, 1
+  ;    rts
+  ;  @else:
+  ;    SetMetatile temp, #SPIKE_METATILE_LOWER, 0, 1
+  ;@end:
+  rts
+
+.proc SpikesObject_NMIOnce
 
   ; Switch between lower and raised if state changed
-  BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_STATE_CHANGED, @end
-    ObjMemSetBit SPIKE_MEM_FLAG, SPIKE_MEM_FLAG_STATE_CHANGED, 0
+  LDA_ObjData #OBJ_PPU_ADDR_LO
+  sta temp
+  LDA_ObjData #OBJ_PPU_ADDR_HI
+  sta temp+1
 
-    LDA_ObjData #OBJ_PPU_ADDR_LO
-    sta temp
-    LDA_ObjData #OBJ_PPU_ADDR_HI
-    sta temp+1
+  BNE_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
+    SetMetatile temp, #SPIKE_METATILE_RAISED, 0, 1
+    rts
+  @else:
+    SetMetatile temp, #SPIKE_METATILE_LOWER, 0, 1
 
-    BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
-      SetMetatile temp, #SPIKE_METATILE_RAISED, 0, 1
-      rts
-    @else:
-      SetMetatile temp, #SPIKE_METATILE_LOWER, 0, 1
-  @end:
   rts
 .endproc
 
@@ -58,7 +70,7 @@ SpikesObject_Interaction:
   rts
 
 SpikesObject_Collision:
-  BEQ_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
+  BNE_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
     lda #1
     jsr HurtCurrentActor
   @else:
@@ -72,19 +84,21 @@ SpikesObject_Destroyed:
 SpikesObject_Raise:
 
   jsr Sound::Spikes
+  jsr RunObjNMIOnce
 
   lda #0
   STA_ObjMem SPIKE_MEM_COUNTER
-  ObjMemSetBit SPIKE_MEM_FLAG, SPIKE_MEM_FLAG_STATE_CHANGED, 1
   ObjMemSetBit SPIKE_MEM_FLAG, SPIKE_MEM_FLAG_RAISED, 1
+
   rts
 
 SpikesObject_Lower:
 
   jsr Sound::Spikes
+  jsr RunObjNMIOnce
 
   lda #0
   STA_ObjMem SPIKE_MEM_COUNTER
-  ObjMemSetBit SPIKE_MEM_FLAG, SPIKE_MEM_FLAG_STATE_CHANGED, 1
   ObjMemSetBit SPIKE_MEM_FLAG, SPIKE_MEM_FLAG_RAISED, 0
+
   rts

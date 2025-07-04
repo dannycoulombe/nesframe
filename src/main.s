@@ -58,6 +58,9 @@
   scroll_y:               .byte 0       ; Scroll Y position
   scrolling_direction:    .byte 0       ; Currently scrolling to direction?
 
+  ; Interaction
+  interaction_tile_idx:   .byte 0
+
   ; Collision detection
   collision_check_x:      .byte 0       ; Check X position
   collision_check_y:      .byte 0       ; Check Y position
@@ -67,8 +70,7 @@
   collision_br_tile_idx:  .byte 0       ; Check bottom-right tile index
 
   ; Hooks
-  frame_hooks:            .res 2 + (1 * 2), 0 ; Jump table of things to execute every frame
-  nmi_hooks:              .res 2 + (1 * 2), 0 ; Jump table of things to execute every NMI
+  nmi_once_hooks:         .res 2 + (4 * 2), 0 ; Jump table of things to execute once during NMI
 
   ; Actors
   actor_ptr:              .word 0       ; Current actor pointer
@@ -78,6 +80,7 @@
   object_ptr_index:       .byte 0       ; Current pointer index (index * 8 bytes)
 
   ; Pointers
+  indirect_jsr_ptr:       .word 0
   oam_ptr:                .word 0       ; Current OAM pointer
   sprite_ptr:             .word 0       ; Current sprite pointer
   map_ptr:                .word 0
@@ -119,11 +122,12 @@
 
 ; --------------------------------------
 ; Main code
-; You can use a maximum of ~20'000 cycles
+; You can use a maximum of ~27'000 cycles
 .segment "CODE"
 
   ; Declarations, utils, tools, etc.
   .include "utils/index.s"
+  .include "lib/index.s"
   .include "objects/index.s"
   .include "logic/index.s"
   .include "actors/index.s"
@@ -134,25 +138,21 @@
     ; Reset and wait for 2 VBlanks
     Reset_NES
 
-    ; Safe to clear everything now
-    PPU_Clear_Nametable $2000, #TILE_EMPTY, #0
-    PPU_Clear_Nametable $2400, #TILE_EMPTY, #0
-
     ; Initialize array definitions
-    Array_Init frame_hooks, #2
-    Array_Init nmi_hooks, #2
+    Array_Init nmi_once_hooks, #2
+
+    ; Enable audio
+    jsr Audio::EnableMusic
+    jsr Audio::EnableSFX
 
     ; Ready to initialize
     jsr PPU::DisableRendering           ; Disable rendering (this code contains too many cycles)
-    jsr InitializeGame
     PPU_LoadPalette DefaultBGPal, $3F00, #16
     PPU_LoadPalette DefaultSpritePal, $3F10, #16
+    jsr InitializeGame
 
     ; Enables NMI, background, sprites rendering
-    ; and sound effects
-    lda #5
     jsr PPU::EnableRendering
-    jsr Sound::Enable
 
     ; Main game loop
     Forever:
@@ -174,8 +174,10 @@
       jsr Actors::PushToOAM
 
       ; Execute frame hooks
-      Hook_Run frame_hooks
-      jsr RunObjectsFrameCallback
+      lda player_health
+      beq AfterFrame
+        jsr RunObjectsFrameCallback
+      AfterFrame:
 
       ; CPU cycle completed
       lda #%00000011                    ; Remove frame bit (bit #2)
@@ -193,14 +195,14 @@
 ; as it renders the screen.
 NMI:                                    ; Maximum of ~2273 cycles
 
-  Register_Push_All
+  Register_PushAll
 
   ; Do not execute if previous NMI code was not completed
   ; to prevent a too many cycles issue
   lda execution_state
   and #%00000010                        ; Check if NMI was running or not?
   bne :+                                ; NMI was not running, continue with the script
-    Register_Pull_All
+    Register_PullAll
     rti
   :
 
@@ -210,7 +212,8 @@ NMI:                                    ; Maximum of ~2273 cycles
   sta execution_state
 
   ; Run NMI hooks
-  Hook_Run nmi_hooks
+  RunHooks nmi_once_hooks
+  ClearHooks nmi_once_hooks, #10
   jsr RunObjectsNMICallback
   jsr HeaderNMICallback
   jsr CheckTransition
@@ -222,15 +225,19 @@ NMI:                                    ; Maximum of ~2273 cycles
   lda #$02                              ; Page number (high-byte $0200)
   sta PPU_OAM_DMA                       ; Trigger
 
+  ; Update famitone
+  jsr FamiToneUpdate
+
+  ; Increase global frame count
+  inc frame_count
+
   ; NMI execution completed
   lda execution_state
   and #%11111100                        ; Reset NMI and IRQ bit to 0 (ready to be executed again)
   sta execution_state
 
-  ; Increase global frame count
-  inc frame_count
+  Register_PullAll
 
-  Register_Pull_All
   rti                                   ; Return from NMI
 
 ; --------------------------------------
@@ -242,7 +249,10 @@ IRQ:
   rti
 
 ; --------------------------------------
-; Additional data
+; Read-only data
+.segment "RODATA"
+MusicData: .include "data/music.s"
+SFXData: .include "data/sfx.s"
 MetaspritesData: .include "data/metasprites.s"
 Metatiles2x2Data: .incbin "data/metatiles.bin"
 Metatiles2x2Prop: .incbin "data/metatiles.prop"

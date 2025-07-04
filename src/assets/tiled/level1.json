@@ -182,159 +182,10 @@
          "name":"actors",
          "objects":[
                 {
-                 "height":0,
-                 "id":19,
-                 "name":"Torch",
-                 "properties":[
-                        {
-                         "name":"metasprite",
-                         "type":"string",
-                         "value":"TorchA"
-                        }],
-                 "rotation":0,
-                 "type":"torch",
-                 "visible":true,
-                 "width":0,
-                 "x":328,
-                 "y":152
-                }, 
-                {
-                 "height":0,
-                 "id":20,
-                 "name":"Torch",
-                 "properties":[
-                        {
-                         "name":"metasprite",
-                         "type":"string",
-                         "value":"TorchA"
-                        }],
-                 "rotation":0,
-                 "type":"torch",
-                 "visible":true,
-                 "width":0,
-                 "x":568,
-                 "y":24
-                }, 
-                {
-                 "height":0,
-                 "id":21,
-                 "name":"Torch",
-                 "properties":[
-                        {
-                         "name":"metasprite",
-                         "type":"string",
-                         "value":"TorchA"
-                        }],
-                 "rotation":0,
-                 "type":"torch",
-                 "visible":true,
-                 "width":0,
-                 "x":712,
-                 "y":24
-                }, 
-                {
-                 "height":0,
-                 "id":22,
-                 "name":"Torch",
-                 "properties":[
-                        {
-                         "name":"metasprite",
-                         "type":"string",
-                         "value":"TorchA"
-                        }],
-                 "rotation":0,
-                 "type":"torch",
-                 "visible":true,
-                 "width":0,
-                 "x":696,
-                 "y":264
-                }, 
-                {
-                 "height":0,
-                 "id":23,
-                 "name":"Torch",
-                 "properties":[
-                        {
-                         "name":"metasprite",
-                         "type":"string",
-                         "value":"TorchA"
-                        }],
-                 "rotation":0,
-                 "type":"torch",
-                 "visible":true,
-                 "width":0,
-                 "x":584,
-                 "y":264
-                }, 
-                {
-                 "height":0,
-                 "id":24,
-                 "name":"Torch",
-                 "properties":[
-                        {
-                         "name":"metasprite",
-                         "type":"string",
-                         "value":"TorchA"
-                        }],
-                 "rotation":0,
-                 "type":"torch",
-                 "visible":true,
-                 "width":0,
-                 "x":456,
-                 "y":232
-                }, 
-                {
-                 "height":0,
-                 "id":25,
-                 "name":"Torch",
-                 "properties":[
-                        {
-                         "name":"metasprite",
-                         "type":"string",
-                         "value":"TorchA"
-                        }],
-                 "rotation":0,
-                 "type":"torch",
-                 "visible":true,
-                 "width":0,
-                 "x":344,
-                 "y":232
-                }, 
-                {
-                 "height":0,
-                 "id":26,
-                 "name":"Torch",
-                 "properties":[
-                        {
-                         "name":"metasprite",
-                         "type":"string",
-                         "value":"TorchA"
-                        }],
-                 "rotation":0,
-                 "type":"torch",
-                 "visible":true,
-                 "width":0,
-                 "x":104,
-                 "y":232
-                }, 
-                {
                  "gid":24,
                  "height":16,
                  "id":4,
                  "name":"Cane",
-                 "properties":[
-                        {
-                         "name":"collision",
-                         "propertytype":"collision",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"treasure",
-                         "propertytype":"treasures",
-                         "type":"int",
-                         "value":0
-                        }],
                  "rotation":0,
                  "type":"chest",
                  "visible":true,
@@ -367,11 +218,6 @@
                  "name":"Stairs",
                  "properties":[
                         {
-                         "name":"metatile",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
                          "name":"wrap",
                          "type":"object",
                          "value":10
@@ -403,29 +249,6 @@
                  "type":"spikes",
                  "visible":true,
                  "width":16,
-                 "x":96,
-                 "y":144
-                }, 
-                {
-                 "gid":25,
-                 "height":16,
-                 "id":9,
-                 "name":"Spike",
-                 "properties":[
-                        {
-                         "name":"delay",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"interval",
-                         "type":"int",
-                         "value":180
-                        }],
-                 "rotation":0,
-                 "type":"spikes",
-                 "visible":true,
-                 "width":16,
                  "x":112,
                  "y":144
                 }, 
@@ -435,11 +258,6 @@
                  "id":10,
                  "name":"Stairs",
                  "properties":[
-                        {
-                         "name":"metatile",
-                         "type":"int",
-                         "value":0
-                        }, 
                         {
                          "name":"wrap",
                          "type":"object",
@@ -459,11 +277,6 @@
                  "name":"Stairs",
                  "properties":[
                         {
-                         "name":"metatile",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
                          "name":"wrap",
                          "type":"object",
                          "value":12
@@ -482,11 +295,6 @@
                  "name":"Stairs",
                  "properties":[
                         {
-                         "name":"metatile",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
                          "name":"wrap",
                          "type":"object",
                          "value":11
@@ -497,8 +305,7 @@
                  "width":16,
                  "x":192,
                  "y":320
-                },
-            
+                }, 
                 {
                  "gid":24,
                  "height":16,
@@ -506,14 +313,7 @@
                  "name":"Key",
                  "properties":[
                         {
-                         "name":"collision",
-                         "propertytype":"collision",
-                         "type":"int",
-                         "value":1
-                        }, 
-                        {
                          "name":"treasure",
-                         "propertytype":"treasures",
                          "type":"int",
                          "value":1
                         }],
@@ -617,33 +417,39 @@
                  "y":352
                 }, 
                 {
-                 "height":0,
-                 "id":29,
-                 "name":"Torch",
-                 "properties":[
-                        {
-                         "name":"metasprite",
-                         "type":"string",
-                         "value":"TorchA"
-                        }],
-                 "rotation":0,
-                 "type":"torch",
-                 "visible":true,
-                 "width":0,
-                 "x":184,
-                 "y":136
-                }, 
-                {
                  "gid":37,
                  "height":16,
                  "id":32,
                  "name":"",
                  "rotation":0,
-                 "type":"tile_property",
+                 "type":"",
                  "visible":true,
                  "width":16,
                  "x":960,
                  "y":64
+                }, 
+                {
+                 "gid":25,
+                 "height":16,
+                 "id":36,
+                 "name":"Spikes",
+                 "properties":[
+                        {
+                         "name":"delay",
+                         "type":"int",
+                         "value":0
+                        }, 
+                        {
+                         "name":"interval",
+                         "type":"int",
+                         "value":180
+                        }],
+                 "rotation":0,
+                 "type":"spikes",
+                 "visible":true,
+                 "width":16,
+                 "x":96,
+                 "y":144
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -652,7 +458,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":36,
+ "nextobjectid":38,
  "orientation":"orthogonal",
  "renderorder":"left-up",
  "tiledversion":"1.11.2",

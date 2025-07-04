@@ -157,16 +157,16 @@
   tay
 .endmacro
 
-.macro IndirectJSR ptr
-  lda #>:+
-  pha
-  lda #<:+
-  pha
-  jmp (ptr)
-  pla
-  :
-  pla
+.macro IndirectJSR label
+  lda label
+  sta indirect_jsr_ptr
+  lda label+1
+  sta indirect_jsr_ptr+1
+  jsr IndirectJSR
 .endmacro
+.proc IndirectJSR
+  jmp (indirect_jsr_ptr)
+.endproc
 
 ; Y = index if not provided
 .macro JSR_TableIndex table, index
@@ -175,6 +175,6 @@
   .else
     ldy index
   .endif
-  SetDeepIndPtrFromTable ptr, table
-  IndirectJSR ptr
+  SetDeepIndPtrFromTable indirect_jsr_ptr, table
+  jsr IndirectJSR
 .endmacro

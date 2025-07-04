@@ -174,7 +174,7 @@ end
 function onFrame()
   frameCount = frameCount + 1
   if mustWait ~= true then
-    displayBits(objMemoryAddr, 170, 230, false) -- Obj memory
+--     displayBits(objMemoryAddr, 170, 230, false) -- Obj memory
 --     displayBits(playerOriDirAddr, 170, 220, false) -- Player state
 --     drawPointFromHex(0x0028, 0x0000FF, false) -- Player X/Y
 --     drawPointFromHex(0x0067, 0xFF0000, false) -- Collision X1/Y1

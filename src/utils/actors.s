@@ -78,6 +78,43 @@
   rts
 .endproc
 
+.macro ForEachActor callback
+  Addr_Set indirect_jsr_ptr, callback, 1
+  jsr ForEachActor
+.endmacro
+.proc ForEachActor
+  lda actor_array
+  ldx #0                                ; Actor index counter
+  ForEachActorLoop:
+
+    ; Multiple index by actor total bytes
+    txa
+    sta actor_index                     ; First, keep actor index
+    MUL_A 16 ; ACTOR_TOTAL_BYTES
+    tay
+
+    ; Move current actor pointer by ACTOR_TOTAL_BYTES amount
+    clc
+    adc #<actor_array
+    sta actor_ptr
+    lda #>actor_array
+    adc #0
+    sta actor_ptr+1
+
+    ; Run callback function
+    Register_PushAll
+    jsr IndirectJSR
+    Register_PullAll
+
+    ; Increase counter
+    inx
+    txa
+    cmp actor_size
+    bne ForEachActorLoop
+
+  rts
+.endproc
+
 .macro CurActor_SetStateOr value
   ldy #ACTOR_STATE
   lda (actor_ptr),y
@@ -142,9 +179,9 @@
 
       ; Prepare actor callback pointer
       lda actor_array+ACTOR_CALLBACK_LO,y
-      sta ptr
+      sta indirect_jsr_ptr
       lda actor_array+ACTOR_CALLBACK_HI,y
-      sta ptr+1
+      sta indirect_jsr_ptr+1
 
       ; Compute actor metatile
       ldy #ACTOR_Y
@@ -168,7 +205,7 @@
       ; Set current actor index and jump to actor's callback
       txa
       pha
-      IndirectJSR ptr
+      jsr IndirectJSR
       pla
       tax
 
@@ -306,6 +343,16 @@
       beq :+
         jmp @ActorPushToOAMLoop
       :
+
+    ; Clear rest of OAM
+    ldy #0
+    ldx oam_ptr
+    lda #$FF
+    :
+      sta (oam_ptr), y
+      iny
+      inx
+      bne :-
 
     Pull_ParamsBytes 3
 

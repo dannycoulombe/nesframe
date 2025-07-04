@@ -202,7 +202,7 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                         for (int j = 0; j < 3 && j < prop_count; j++) {
                             cJSON* prop = cJSON_GetArrayItem(properties, j);
                             cJSON* value = cJSON_GetObjectItem(prop, "value");
-                            if (value) {
+                            if (value >= 0) {
                                 bytes[5 + j] = value->valueint;
                             }
                         }
@@ -360,8 +360,10 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     // Write object includes
                     for (int i = 0; i < typeIndex.count; i++) {
                         char* type = typeIndex.types[i];
-                        fprintf(asm_out, ".include \"%s%s.s\"\n",
-                            toupper(type[0]) == type[0] ? "" : "", type);
+                        if (*type) {
+                            fprintf(asm_out, ".include \"%s%s.s\"\n",
+                                toupper(type[0]) == type[0] ? "" : "", type);
+                        }
                     }
                     fprintf(asm_out, "\n");
 
@@ -369,9 +371,11 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     fprintf(asm_out, "ObjectMountedTable:\n");
                     for (int i = 0; i < typeIndex.count; i++) {
                         char* type = typeIndex.types[i];
-                        char capitalizedType[MAX_PATH];
-                        snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
-                        fprintf(asm_out, "  .word %sObject_Mounted\n", capitalizedType);
+                        if (*type != '\0') {
+                            char capitalizedType[MAX_PATH];
+                            snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                            fprintf(asm_out, "  .word %sObject_Mounted\n", capitalizedType);
+                        }
                     }
                     fprintf(asm_out, "\n");
 
@@ -379,9 +383,11 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     fprintf(asm_out, "ObjectFrameTable:\n");
                     for (int i = 0; i < typeIndex.count; i++) {
                         char* type = typeIndex.types[i];
-                        char capitalizedType[MAX_PATH];
-                        snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
-                        fprintf(asm_out, "  .word %sObject_Frame\n", capitalizedType);
+                        if (*type != '\0') {
+                            char capitalizedType[MAX_PATH];
+                            snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                            fprintf(asm_out, "  .word %sObject_Frame\n", capitalizedType);
+                        }
                     }
                     fprintf(asm_out, "\n");
 
@@ -389,9 +395,23 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     fprintf(asm_out, "ObjectNMITable:\n");
                     for (int i = 0; i < typeIndex.count; i++) {
                         char* type = typeIndex.types[i];
-                        char capitalizedType[MAX_PATH];
-                        snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
-                        fprintf(asm_out, "  .word %sObject_NMI\n", capitalizedType);
+                        if (*type != '\0') {
+                            char capitalizedType[MAX_PATH];
+                            snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                            fprintf(asm_out, "  .word %sObject_NMI\n", capitalizedType);
+                        }
+                    }
+                    fprintf(asm_out, "\n");
+
+                    // Write ObjectNMIOnceMap jump table
+                    fprintf(asm_out, "ObjectNMIOnceTable:\n");
+                    for (int i = 0; i < typeIndex.count; i++) {
+                        char* type = typeIndex.types[i];
+                        if (*type != '\0') {
+                            char capitalizedType[MAX_PATH];
+                            snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                            fprintf(asm_out, "  .word %sObject_NMIOnce\n", capitalizedType);
+                        }
                     }
                     fprintf(asm_out, "\n");
 
@@ -399,9 +419,11 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     fprintf(asm_out, "ObjectInteractionTable:\n");
                     for (int i = 0; i < typeIndex.count; i++) {
                         char* type = typeIndex.types[i];
-                        char capitalizedType[MAX_PATH];
-                        snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
-                        fprintf(asm_out, "  .word %sObject_Interaction\n", capitalizedType);
+                        if (*type != '\0') {
+                            char capitalizedType[MAX_PATH];
+                            snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                            fprintf(asm_out, "  .word %sObject_Interaction\n", capitalizedType);
+                        }
                     }
                     fprintf(asm_out, "\n");
 
@@ -409,9 +431,11 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     fprintf(asm_out, "ObjectCollisionTable:\n");
                     for (int i = 0; i < typeIndex.count; i++) {
                         char* type = typeIndex.types[i];
-                        char capitalizedType[MAX_PATH];
-                        snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
-                        fprintf(asm_out, "  .word %sObject_Collision\n", capitalizedType);
+                        if (*type != '\0') {
+                            char capitalizedType[MAX_PATH];
+                            snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                            fprintf(asm_out, "  .word %sObject_Collision\n", capitalizedType);
+                        }
                     }
                     fprintf(asm_out, "\n");
 
@@ -419,9 +443,11 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     fprintf(asm_out, "ObjectDestroyedTable:\n");
                     for (int i = 0; i < typeIndex.count; i++) {
                         char* type = typeIndex.types[i];
-                        char capitalizedType[MAX_PATH];
-                        snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
-                        fprintf(asm_out, "  .word %sObject_Destroyed\n", capitalizedType);
+                        if (*type != '\0') {
+                            char capitalizedType[MAX_PATH];
+                            snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                            fprintf(asm_out, "  .word %sObject_Destroyed\n", capitalizedType);
+                        }
                     }
                     
                     fclose(asm_out);
@@ -435,21 +461,24 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     for (int i = 0; i < typeIndex.count; i++) {
                         char handler_file[MAX_PATH];
                         char* type = typeIndex.types[i];
-                        snprintf(handler_file, MAX_PATH, "%s/%s.s", object_dir, type);
+                        if (*type != '\0') {
+                            snprintf(handler_file, MAX_PATH, "%s/%s.s", object_dir, type);
 
-                        // Check if file exists
-                        if (access(handler_file, F_OK) != 0) {
-                            FILE* handler_out = fopen(handler_file, "w");
-                            if (handler_out) {
-                                char capitalizedType[MAX_PATH];
-                                snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
-                                fprintf(handler_out, "%sObject_Mounted:\n  rts\n\n", capitalizedType);
-                                fprintf(handler_out, "%sObject_Frame:\n  rts\n\n", capitalizedType);
-                                fprintf(handler_out, "%sObject_NMI:\n  rts\n\n", capitalizedType);
-                                fprintf(handler_out, "%sObject_Interaction:\n  rts\n\n", capitalizedType);
-                                fprintf(handler_out, "%sObject_Collision:\n  rts\n\n", capitalizedType);
-                                fprintf(handler_out, "%sObject_Destroyed:\n  rts\n", capitalizedType);
-                                fclose(handler_out);
+                            // Check if file exists
+                            if (access(handler_file, F_OK) != 0) {
+                                FILE* handler_out = fopen(handler_file, "w");
+                                if (handler_out) {
+                                    char capitalizedType[MAX_PATH];
+                                    snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                                    fprintf(handler_out, "%sObject_Mounted:\n  rts\n\n", capitalizedType);
+                                    fprintf(handler_out, "%sObject_Frame:\n  rts\n\n", capitalizedType);
+                                    fprintf(handler_out, "%sObject_NMI:\n  rts\n\n", capitalizedType);
+                                    fprintf(handler_out, "%sObject_NMIOnce:\n  rts\n\n", capitalizedType);
+                                    fprintf(handler_out, "%sObject_Interaction:\n  rts\n\n", capitalizedType);
+                                    fprintf(handler_out, "%sObject_Collision:\n  rts\n\n", capitalizedType);
+                                    fprintf(handler_out, "%sObject_Destroyed:\n  rts\n", capitalizedType);
+                                    fclose(handler_out);
+                                }
                             }
                         }
                     }

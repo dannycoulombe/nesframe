@@ -46,62 +46,6 @@
   sta PPU_MASK                          ; Set PPU_MASK bits to render the background
 .endmacro
 
-; Clear PPU nametable address with a given value
-; Parameters:
-; addr - The namestable address
-; tileValue - The tile value to apply
-; attrValue - The attribute value to apply
-.macro PPU_Clear_Nametable addr, tileValue, attrValue
-  PPU_Set_Addr addr
-
-  ldy #4                                ; 4 loops of:
-
-  ; Clear tiles
-  lda tileValue
-:
-  ldx #$F0                              ; 240 tiles (4x = 960 bytes of tiles)
-:
-  sta PPU_DATA
-  dex
-  bne :-
-  dey
-  bne :--
-
-  ; Clear attributes
-  lda attrValue
-  ldx #$40                              ; 64 bytes of attributes
-:
-  sta PPU_DATA
-  dex
-  bne :-
-.endmacro
-
-; Clear PPU background palette with given value
-; Parameters:
-; value - The value to apply
-.macro PPU_Clear_Background_Palette value
-  PPU_Set_Addr $3F00
-  ldx #$A0                              ; 10 bytes
-  lda value
-:
-  sta PPU_DATA
-  dex
-  bne :-
-.endmacro
-
-; Clear PPU sprite palette with given value
-; Parameters:
-; value - The value to apply
-.macro PPU_Clear_Sprite_Palette value
-  PPU_Set_Addr $3F10
-  ldx #$A0                              ; 10 bytes
-  lda value
-:
-  sta PPU_DATA
-  dex
-  bne :-
-.endmacro
-
 ; Load a screen with all tiles and palettes into the PPU
 ; Parameters:
 ; label - Data label to load into the PPU
@@ -347,6 +291,24 @@
     lda #0
     sta PPU_CTRL
     sta PPU_MASK
+    rts
+  .endproc
+
+  .proc ClearNametable
+    jsr DisableRendering
+    PPU_Set_Addr $2000
+    ldx #0
+    ldy #0
+    lda #0
+    @loop:
+      sta PPU_DATA
+      iny
+      bne @loop
+      inx
+      cpx #4
+      bne @loop
+    jsr EnableRendering
+    rts
   .endproc
 .endscope
 

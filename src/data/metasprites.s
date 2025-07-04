@@ -1,117 +1,117 @@
 GnomeStillFront:
 	.byte   4
-	.byte <- 8,<- 8,$00,0
-	.byte   0,<- 8,$01,0
-	.byte <- 8,  0,$10,0
-	.byte   0,  0,$10,0|OAM_FLIP_H
+	.byte <- 8,<-12,$00,0
+	.byte    0,<-12,$01,0
+	.byte <- 8,<- 4,$10,0
+	.byte    0,<- 4,$10,0|OAM_FLIP_H
 	.byte 0
 
 GnomeWalkFrontA:
 	.byte   4
-	.byte <- 8,<- 8,$00,0
-	.byte   0,<- 8,$01,0
-	.byte <- 8,  0,$10,0
-	.byte   0,  0,$11,0
+	.byte <- 8,<-12,$00,0
+	.byte    0,<-12,$01,0
+	.byte <- 8,<- 4,$10,0
+	.byte    0,<- 4,$11,0
 	.byte 15
 
 GnomeWalkFrontB:
 	.byte   4
-	.byte <- 8,<- 8,$00,0
-	.byte   0,<- 8,$01,0
-	.byte   0,  0,$10,0|OAM_FLIP_H
-	.byte <- 8,  0,$11,0|OAM_FLIP_H
+	.byte <- 8,<-12,$00,0
+	.byte    0,<-12,$01,0
+	.byte <- 8,<- 4,$11,0|OAM_FLIP_H
+	.byte    0,<- 4,$10,0|OAM_FLIP_H
 	.byte 15 | FLAG_N
 	.word GnomeWalkFrontA
 
 GnomePushFront:
 	.byte   4
-	.byte <- 8,<- 7,$00,0
-	.byte   0,<- 7,$01,0
-	.byte <- 8,  1,$14,0
-	.byte   0,  1,$14,0|OAM_FLIP_H
+	.byte <- 8,<-11,$00,0
+	.byte    0,<-11,$01,0
+	.byte <- 8,<- 3,$14,0
+	.byte    0,<- 3,$14,0|OAM_FLIP_H
 	.byte 0
 
 GnomeStillBack:
 	.byte   4
-	.byte <- 8,<- 8,$02,0
-	.byte   0,<- 8,$03,0
-	.byte <- 8,  0,$12,0
-	.byte   0,  0,$12,0|OAM_FLIP_H
+	.byte <- 8,<-12,$02,0
+	.byte    0,<-12,$03,0
+	.byte <- 8,<- 4,$12,0
+	.byte    0,<- 4,$12,0|OAM_FLIP_H
 	.byte 0
 
 GnomeWalkBackA:
 	.byte   4
-	.byte <- 8,<- 8,$02,0
-	.byte   0,<- 8,$03,0
-	.byte <- 8,  0,$12,0
-	.byte   0,  0,$13,0
+	.byte <- 8,<-12,$02,0
+	.byte    0,<-12,$03,0
+	.byte <- 8,<- 4,$12,0
+	.byte    0,<- 4,$13,0
 	.byte 15
 
 GnomeWalkBackB:
 	.byte   4
-	.byte <- 8,<- 8,$02,0
-	.byte   0,<- 8,$03,0
-	.byte <- 8,  0,$13,0|OAM_FLIP_H
-	.byte   0,  0,$12,0|OAM_FLIP_H
+	.byte <- 8,<-12,$02,0
+	.byte    0,<-12,$03,0
+	.byte <- 8,<- 4,$13,0|OAM_FLIP_H
+	.byte    0,<- 4,$12,0|OAM_FLIP_H
 	.byte 15 | FLAG_N
 	.word GnomeWalkBackA
 
 GnomePushBack:
 	.byte   4
-	.byte <- 8,<- 7,$02,0
-	.byte   0,<- 7,$03,0
-	.byte <- 8,  0,$04,0
-	.byte   0,  0,$04,0|OAM_FLIP_H
+	.byte <- 8,<-11,$02,0
+	.byte    0,<-11,$03,0
+	.byte <- 8,<- 4,$04,0
+	.byte    0,<- 4,$04,0|OAM_FLIP_H
 	.byte 0
 
 GnomeStillRight:
 	.byte   4
-	.byte <- 8,<- 8,$05,0
-	.byte   0,<- 8,$06,0
-	.byte <- 8,  0,$15,0
-	.byte   0,  0,$16,0
+	.byte <- 8,<-12,$05,0
+	.byte    0,<-12,$06,0
+	.byte <- 8,<- 4,$15,0
+	.byte    0,<- 4,$16,0
 	.byte 15
 
 GnomeWalkRight:
 	.byte   4
-	.byte <- 8,<- 7,$05,0
-	.byte   0,<- 7,$06,0
-	.byte <- 8,  1,$07,0
-	.byte   0,  1,$08,0
+	.byte <- 8,<-11,$05,0
+	.byte    0,<-11,$06,0
+	.byte <- 8,<- 3,$07,0
+	.byte    0,<- 3,$08,0
 	.byte 15 | FLAG_N
 	.word GnomeStillRight
 
 GnomePushRight:
 	.byte   4
-	.byte <- 8,<- 7,$09,0
-	.byte   0,<- 7,$0a,0
-	.byte <- 8,  1,$19,0
-	.byte   0,  1,$1a,0
+	.byte <- 8,<-11,$09,0
+	.byte    0,<-11,$0a,0
+	.byte <- 8,<- 3,$19,0
+	.byte    0,<- 3,$1a,0
 	.byte 15
 
 GnomeStillLeft:
 	.byte   4
-	.byte   0,<- 8,$05,0|OAM_FLIP_H
-	.byte <- 8,<- 8,$06,0|OAM_FLIP_H
-	.byte   0,  0,$15,0|OAM_FLIP_H
-	.byte <- 8,  0,$16,0|OAM_FLIP_H
+	.byte <- 8,<-12,$06,0|OAM_FLIP_H
+	.byte    0,<-12,$05,0|OAM_FLIP_H
+	.byte <- 8,<- 4,$16,0|OAM_FLIP_H
+	.byte    0,<- 4,$15,0|OAM_FLIP_H
 	.byte 15
 
 GnomeWalkLeft:
 	.byte   4
-	.byte   0,<- 7,$05,0|OAM_FLIP_H
-	.byte <- 8,<- 7,$06,0|OAM_FLIP_H
-	.byte   0,  1,$07,0|OAM_FLIP_H
-	.byte <- 8,  1,$08,0|OAM_FLIP_H
+	.byte <- 8,<-11,$06,0|OAM_FLIP_H
+	.byte    0,<-11,$05,0|OAM_FLIP_H
+	.byte <- 8,<- 3,$08,0|OAM_FLIP_H
+	.byte    0,<- 3,$07,0|OAM_FLIP_H
 	.byte 15 | FLAG_N
 	.word GnomeStillLeft
 
 GnomePushLeft:
 	.byte   4
-	.byte   0,<- 7,$09,0|OAM_FLIP_H
-	.byte <- 8,<- 7,$0a,0|OAM_FLIP_H
-	.byte   0,  1,$19,0|OAM_FLIP_H
-	.byte <- 8,  1,$1a,0|OAM_FLIP_H
+	.byte <- 8,<-11,$0a,0|OAM_FLIP_H
+	.byte    0,<-11,$09,0|OAM_FLIP_H
+	.byte <- 8,<- 3,$1a,0|OAM_FLIP_H
+	.byte    0,<- 3,$19,0|OAM_FLIP_H
 	.byte 15
 
 RoundRock:
@@ -148,23 +148,18 @@ Cane:
 
 GnomeDiesStart:
 	.byte   6
-	.byte <- 2,<- 4,$17,3|OAM_FLIP_H
-	.byte <- 6,<- 4,$17,3
-	.byte <- 8,<- 8,$00,0
-	.byte    0,<- 8,$01,0
-	.byte <- 8,   0,$14,0
-	.byte    0,   0,$14,0|OAM_FLIP_H
+	.byte <- 2,<- 8,$17,3|OAM_FLIP_H
+	.byte <- 6,<- 8,$17,3
+	.byte <- 8,<-12,$00,0
+	.byte    0,<-12,$01,0
+	.byte <- 8,<- 4,$14,0
+	.byte    0,<- 4,$14,0|OAM_FLIP_H
 	.byte 0
 
 GnomeDiesEnd:
-  .byte   4
-  .byte <- 8,  13,$02,0|OAM_FLIP_V
-  .byte    0,  13,$03,0|OAM_FLIP_V
-  .byte <- 8,   5,$12,0|OAM_FLIP_V
-  .byte    0,   5,$12,0|OAM_FLIP_H|OAM_FLIP_V
+	.byte   4
+	.byte <- 8,   9,$02,0|OAM_FLIP_V
+	.byte    0,   9,$03,0|OAM_FLIP_V
+	.byte <- 8,   1,$12,0|OAM_FLIP_V
+	.byte    0,   1,$12,0|OAM_FLIP_H|OAM_FLIP_V
 	.byte 0
-
-
-
-
-

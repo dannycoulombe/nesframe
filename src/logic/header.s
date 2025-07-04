@@ -1,6 +1,8 @@
+.segment "RODATA"
 LifeTxt: .byte "LIFE", 0
 MagicTxt: .byte "MAGIC", 0
 
+.segment "CODE"
 PrintLifeText:
   PrintText $2022, LifeTxt
   rts
@@ -17,8 +19,8 @@ PrintMagicBars:
 
   ldx player_magic_slot
 
-  ; Print full hearts
-  ; Divide health by 2 (one full heart)
+  ; Print full bars
+  ; Divide magic by 2 (one full heart)
   lda player_magic
   lsr
   tay
@@ -32,8 +34,8 @@ PrintMagicBars:
     bne :-
   :
 
-  ; Print half heart
-  ; Keep remaining value of division (half heart?)
+  ; Print half bar
+  ; Keep remaining value of division (half bar?)
   lda player_magic
   and #%00000001
   tay
@@ -43,7 +45,7 @@ PrintMagicBars:
     sta PPU_DATA
   :
 
-  ; Print empty heart(s)
+  ; Print empty bars(s)
   txa
   beq :++
   tay
@@ -197,10 +199,12 @@ PrintHeader:
   rts
 
 HeaderNMICallback:
-
   lda header_state
   and #HEADER_STATE_HEARTHS
   beq :+
+    lda header_state
+    and #<~HEADER_STATE_HEARTHS
+    sta header_state
     jsr PrintHearts
   :
 

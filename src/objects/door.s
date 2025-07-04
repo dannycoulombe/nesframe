@@ -4,6 +4,9 @@ DoorObject_Mounted:
 DoorObject_Frame:
   rts
 
+DoorObject_NMIOnce:
+  rts
+
 DoorObject_NMI:
   rts
 

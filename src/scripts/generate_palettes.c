@@ -3,7 +3,7 @@
 #include <string.h>
 
 /*
- * Find all files ending with .pal and generate a dimmed
+ * Find all files ending with .;pal and generate a dimmed
  * version of all its color bytes.
  */
 int process_files(const char* dir_path) {
@@ -47,7 +47,7 @@ int process_files(const char* dir_path) {
                 // Dim all color bytes to output file
                 int b;
                 while ((b = fgetc(in)) != EOF) {
-                    b = b <= (0x10 * i) ? 0x0F : b - (0x10 * i);
+                    b = b <= (0x0F * i) ? 0x0F : b - (0x10 * i);
                     fputc(b, out);
                 }
 

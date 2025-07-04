@@ -25,13 +25,13 @@ Level1_ObjTable:
 ; --------------------------------------
 ; Total amount of objects per nametable
 Level1_ObjAmountTable:
-  .byte 6
-  .byte 2
-  .byte 2
+  .byte 5
   .byte 1
-  .byte 7
-  .byte 3
-  .byte 2
+  .byte 0
+  .byte 1
+  .byte 6
+  .byte 1
+  .byte 0
   .byte 0
 
 ; --------------------------------------

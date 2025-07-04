@@ -21,8 +21,8 @@ FLAG_N                = 1 << 7
 CONTROLLER_1          = $4016
 CONTROLLER_2          = $4017
 
-BUTTON_A              = 1 << 7
 BUTTON_B              = 1 << 6
+BUTTON_A              = 1 << 7
 BUTTON_SELECT         = 1 << 5
 BUTTON_START          = 1 << 4
 BUTTON_UP             = 1 << 3
@@ -34,7 +34,6 @@ BUTTON_DIRECTION_ALL  = %00001111
 ; --------------------------------------
 ; TILE
 TILE_EMPTY            = $00             ; An empty tile with nothing in it
-TILE_FULL             = $FA             ; A completely filled tile
 
 ; --------------------------------------
 ; NES Color Palette Constants
@@ -159,8 +158,8 @@ DMC_LENGTH     = $4013                  ; Sample length
 ; Status and Frame Counter
 APU_STATUS     = $4015                  ; Channel enable and status
 APU_FRAME      = $4017                  ; Frame counter control
-APU_NOISE_VOL     = $400C
-APU_NOISE_LO      = $400E
+;APU_NOISE_VOL     = $400C
+;APU_NOISE_LO      = $400E
 APU_NOISE_LEN     = $400F
 
 ; --------------------------------------
