@@ -1,3 +1,5 @@
+MUSIC_DUNGEON = 0
+
 .scope Music
 
   ; A = Music ID

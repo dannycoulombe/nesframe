@@ -20,7 +20,9 @@ InitializeGame:
   ; JUST A TEST
   Actor_Add Cane, NoOp, #152, #15
   Actor_Add TorchA, TorchCallback, #184, #15
-  lda #0
+
+  ; Play dungeon music
+  lda #MUSIC_DUNGEON
   jsr Music::Play
 
   rts
