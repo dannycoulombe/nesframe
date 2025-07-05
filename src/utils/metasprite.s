@@ -49,18 +49,10 @@
   sta (oam_ptr),y
 
   ; Set attributes
-  ldy #ACTOR_STATE
-  lda (actor_ptr), y
-  and #ACTOR_STATE_DAMAGE
-  bne @flashing
-    ldy #3
-    lda (ptr),y
-    ldy #2
-    sta (oam_ptr),y
-    jmp @endFlashing
-  @flashing:
-LogA
-  @endFlashing:
+  ldy #3
+  lda (ptr),y
+  ldy #2
+  sta (oam_ptr),y
 
   ; Prepare pointer for next tile
   lda ptr

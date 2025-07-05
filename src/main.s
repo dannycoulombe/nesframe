@@ -39,7 +39,6 @@
   player_coll_off_x:      .byte 0       ; Player collision offset X
   player_coll_off_y:      .byte 0       ; Player collision offset Y
   player_ori_dir:         .byte 0       ; Player original direction
-  player_ori_dir:         .byte 0       ; Player original direction (use for when holding multiple direction at once)
   player_dir:             .byte 0       ; Player current direction
 
   ; Sprites/Metasprites
@@ -253,6 +252,7 @@ IRQ:
 ; --------------------------------------
 ; Read-only data
 .segment "RODATA"
+Level1Data: .include "maps/level1.s"
 MusicData: .include "data/music.s"
 SFXData: .include "data/sfx.s"
 MetaspritesData: .include "data/metasprites.s"
@@ -264,7 +264,6 @@ BgPalDim2: .incbin "data/background-dim2.pal"
 DefaultSpritePal: .incbin "data/sprite.pal"
 BlackPal: .byte $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
           .byte $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
-Level1Data: .include "maps/level1.s"
 
 ; --------------------------------------
 ; Sprites data
