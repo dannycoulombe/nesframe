@@ -25,7 +25,7 @@ ChestObject_NMI:
 ChestObject_Interaction:
 
   ; Can only be opened when looking up
-  lda player_ori_dir
+  lda player_dir
   and #DIRECTION_UP
   beq :+
 

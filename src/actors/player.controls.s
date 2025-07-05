@@ -66,6 +66,8 @@ PlayerReadControls:
     lda player_ori_dir
     beq :+
       Pointer_SetVal actor_ptr, #0, #ACTOR_COUNTER
+      lda #0
+      sta player_ori_dir
     :
 
     jmp PlayerReadControlsMovementEnd
@@ -132,6 +134,7 @@ PlayerReadControls:
     bne :+
       lda #DIRECTION_UP
       sta player_ori_dir
+      sta player_dir
       CurActor_SetMetasprite GnomeWalkBackA
       jmp PlayerReadControlsSetMetaspriteEnd
     :
@@ -142,6 +145,7 @@ PlayerReadControls:
     bne :+
       lda #DIRECTION_DOWN
       sta player_ori_dir
+      sta player_dir
       CurActor_SetMetasprite GnomeWalkFrontA
       jmp PlayerReadControlsSetMetaspriteEnd
     :
@@ -153,6 +157,7 @@ PlayerReadControls:
       @PlayerReadControlsSetMetaspriteLeft:
       lda #DIRECTION_LEFT
       sta player_ori_dir
+      sta player_dir
       CurActor_SetMetasprite GnomeWalkLeft
       jmp PlayerReadControlsSetMetaspriteEnd
     :
@@ -164,6 +169,7 @@ PlayerReadControls:
       @PlayerReadControlsSetMetaspriteRight:
       lda #DIRECTION_RIGHT
       sta player_ori_dir
+      sta player_dir
       CurActor_SetMetasprite GnomeWalkRight
       jmp PlayerReadControlsSetMetaspriteEnd
     :
@@ -217,7 +223,7 @@ PlayerReadControls:
   beq PlayerReadControlsInteractionEnd
 
     ; Get player direction
-    lda player_ori_dir
+    lda player_dir
     tax
 
     ; Up
@@ -279,4 +285,5 @@ PlayerReadControls:
   PlayerReadControlsInteractionEnd:
 
   PlayerReadControlsEnd:
+
   rts

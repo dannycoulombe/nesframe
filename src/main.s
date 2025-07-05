@@ -39,6 +39,8 @@
   player_coll_off_x:      .byte 0       ; Player collision offset X
   player_coll_off_y:      .byte 0       ; Player collision offset Y
   player_ori_dir:         .byte 0       ; Player original direction
+  player_ori_dir:         .byte 0       ; Player original direction (use for when holding multiple direction at once)
+  player_dir:             .byte 0       ; Player current direction
 
   ; Sprites/Metasprites
   metasprite_x:           .byte 0       ; Current X position
