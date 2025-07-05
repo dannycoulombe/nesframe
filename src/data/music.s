@@ -7,128 +7,65 @@ music_music_data:
 	.byte 1
 	.word @instruments
 	.word @samples-3
-	.word @song0ch0,@song0ch1,@song0ch2,@song0ch3,@song0ch4,307,256 ; Tetris
+	.word @song0ch0,@song0ch1,@song0ch2,@song0ch3,@song0ch4,307,256 ; Dungeon
 
 @instruments:
 	.word @env1,@env0,@env0,@env0
-	.word @env2,@env0,@env0,@env0
 
 @samples:
 @env0:
 	.byte $c0,$00,$00
 @env1:
 	.byte $ce,$cf,$00,$01
-@env2:
-	.byte $cf,$ca,$c5,$c0,$00,$03
 
 
-; Tetris
+; Dungeon
 @song0ch0:
 	.byte $fb,$01
 @song0ch0loop:
 @ref0:
-	.byte $ef
+	.byte $80,$0e,$cd,$0d,$a5,$00,$f9,$cb
 @ref1:
-	.byte $ef
-@ref2:
-	.byte $ef
-@ref3:
-	.byte $ef
-@ref4:
-	.byte $ef
-@ref5:
-	.byte $ef
-@ref6:
-	.byte $ef
-@ref7:
-	.byte $ef
+	.byte $07,$cd,$06,$a5,$00,$f9,$cb
 	.byte $fd
 	.word @song0ch0loop
 
-; Tetris
+; Dungeon
 @song0ch1:
 @song0ch1loop:
-@ref8:
-	.byte $ef
-@ref9:
-	.byte $ef
-@ref10:
-	.byte $ef
-@ref11:
-	.byte $ef
-@ref12:
-	.byte $ef
-@ref13:
-	.byte $ef
-@ref14:
-	.byte $ef
-@ref15:
-	.byte $ef
+@ref2:
+	.byte $f9,$f9,$cb
+@ref3:
+	.byte $f9,$f9,$cb
 	.byte $fd
 	.word @song0ch1loop
 
-; Tetris
+; Dungeon
 @song0ch2:
 @song0ch2loop:
-@ref16:
-	.byte $80,$20,$99,$2c,$99,$20,$99,$2c,$99
-@ref17:
-	.byte $20,$99,$2c,$99,$20,$99,$2c,$99
-@ref18:
-	.byte $19,$99,$25,$99,$19,$99,$25,$99
-	.byte $ff,$08
-	.word @ref18
-@ref20:
-	.byte $18,$99,$24,$99,$18,$99,$24,$99
-	.byte $ff,$08
-	.word @ref20
-	.byte $ff,$08
-	.word @ref18
-	.byte $ff,$08
-	.word @ref18
+@ref4:
+	.byte $f9,$f9,$cb
+@ref5:
+	.byte $cf,$80,$1e,$a5,$00,$f9,$cb
 	.byte $fd
 	.word @song0ch2loop
 
-; Tetris
+; Dungeon
 @song0ch3:
 @song0ch3loop:
-@ref24:
-	.byte $82,$00,$99,$82,$0d,$99,$00,$99,$0d,$99
-@ref25:
-	.byte $00,$99,$0d,$8b,$0d,$8b,$00,$99,$0d,$99
-@ref26:
-	.byte $00,$99,$0d,$99,$00,$99,$0d,$99
-	.byte $ff,$0a
-	.word @ref25
-	.byte $ff,$08
-	.word @ref26
-	.byte $ff,$0a
-	.word @ref25
-	.byte $ff,$08
-	.word @ref26
-	.byte $ff,$0a
-	.word @ref25
+@ref6:
+	.byte $f9,$f9,$cb
+@ref7:
+	.byte $f9,$f9,$cb
 	.byte $fd
 	.word @song0ch3loop
 
-; Tetris
+; Dungeon
 @song0ch4:
 @song0ch4loop:
-@ref32:
-	.byte $ef
-@ref33:
-	.byte $ef
-@ref34:
-	.byte $ef
-@ref35:
-	.byte $ef
-@ref36:
-	.byte $ef
-@ref37:
-	.byte $ef
-@ref38:
-	.byte $ef
-@ref39:
-	.byte $ef
+@ref8:
+	.byte $f9,$f9,$cb
+@ref9:
+	.byte $f9,$f9,$cb
 	.byte $fd
 	.word @song0ch4loop
