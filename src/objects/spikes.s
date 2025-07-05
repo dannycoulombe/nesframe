@@ -94,7 +94,6 @@ SpikesObject_Raise:
 
 SpikesObject_Lower:
 
-  jsr Sound::Spikes
   jsr RunObjNMIOnce
 
   lda #0
