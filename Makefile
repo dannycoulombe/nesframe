@@ -19,14 +19,19 @@ generate_palettes:
 export_maps:
 	/opt/Tiled.AppImage --export-map json src/assets/tiled/level1.tmx src/assets/tiled/level1.json
 
-generate_sfx:
-	wine /opt/famitone5/nsf2data/nsf2data5.exe ./src/assets/famitracker/sfx.nsf -ca65 -ntsc
-	mv ./src/assets/famitracker/sfx.s ./src/data/sfx.s
-
 generate_music:
+	wine /opt/famitracker/Dn-FamiTracker.exe src/assets/famitracker/music.dnm -export src/assets/famitracker/music.txt
+	sed -i 's/# SEQUENCES block/# Macros/g' src/assets/famitracker/music.txt
+	sed -i 's/# INSTRUMENTS block/# Instruments/g' src/assets/famitracker/music.txt
 	wine /opt/famitone5/text2data/text2vol5.exe ./src/assets/famitracker/music.txt -ca65 -ntsc
 	mv ./src/assets/famitracker/music.s ./src/data/music.s
 	rm ./src/assets/famitracker/music.txt
+
+generate_sfx:
+	wine /opt/famitracker/Dn-FamiTracker.exe src/assets/famitracker/sfx.dnm -export src/assets/famitracker/sfx.nsf
+	wine /opt/famitone5/nsf2data/nsf2data5.exe ./src/assets/famitracker/sfx.nsf -ca65 -ntsc
+	mv ./src/assets/famitracker/sfx.s ./src/data/sfx.s
+	rm ./src/assets/famitracker/sfx.nsf
 
 build_run_scripts: export_maps build_scripts generate_metatiles generate_maps generate_palettes
 
@@ -40,4 +45,4 @@ mesen: build
 	/home/dcoulombe/dev/Mesen2/bin/linux-x64/Release/linux-x64/publish/Mesen dist/game.nes
 	#/opt/Mesen dist/game.nes
 
-complete: build_run_scripts mesen
+complete: build_run_scripts generate_music generate_sfx mesen
