@@ -1,7 +1,5 @@
-.segment "RODATA"
-DeadTxt: .byte "YOU DIED", 0
-
 .segment "CODE"
+
 PlayerCallback:
 
   ; Check scrolling
@@ -14,6 +12,7 @@ PlayerCallback:
   ; Is player still alive?
   lda player_health
   bne :+
+    jsr CheckIfPlayerIsSpinning
     jmp PlayerCallbackEnd
   :
 
@@ -26,10 +25,18 @@ PlayerCallback:
   PlayerCallbackEnd:
   rts
 
+CheckIfPlayerIsSpinning:
+  ldx delayed_index
+  lda delayed_item + DelayedItem::index, x
+  cmp #2
+  bne :+
+    Pointer_IncVal actor_ptr, #ACTOR_COUNTER
+  :
+  rts
+
 PlayerIsDead:
 
   ; Change metasprite to dead one
-  jsr Sound::PlayerDead
   SetCurrentActorIdx #0
   CurActor_SetMetasprite GnomeDiesEnd
 
@@ -44,24 +51,11 @@ PlayerIsDeadNMI:
   PrintText $21CC, DeadTxt
   rts
 
-Player_HideOtherActors:
-  lda actor_index
-  beq :+
-    ldy #ACTOR_STATE
-    lda (actor_ptr), y
-    tax
-    and #ACTOR_STATE_VISIBLE
-    beq :+
-      txa
-      and #<~ACTOR_STATE_VISIBLE
-      sta (actor_ptr), y
-  :
-  rts
-
 PlayerDies:
   CurActor_SetMetasprite GnomeDiesStart
   ForEachActor Player_HideOtherActors
-  DoTransition #TRANSITION_TYPE_FADEOUT, PlayerIsDead
+  StartDelayedTable PlayerRotateTbl
+  DoTransition #TRANSITION_TYPE_FADEOUT, NoOp
   jsr Music::Stop
   rts
 
@@ -92,3 +86,41 @@ Player_OnDamage:
   :
 
   rts
+
+Player_HideOtherActors:
+  lda actor_index
+  beq :+
+    jsr Actors::HideCurrent
+  :
+  rts
+
+PlayerSpinStart:
+  jsr Sound::PlayerDead
+  rts
+
+PlayerSpinContinue:
+  SetCurrentActorIdx #0
+  lda #0
+  sta actor_array + ACTOR_COUNTER, y
+  CurActor_SetMetasprite GnomeSpinLeft
+  rts
+
+PlayerSpinStop:
+  CurActor_SetMetasprite GnomeSpinFront
+  rts
+
+.segment "RODATA"
+DeadTxt: .byte "YOU DIED", 0
+
+PlayerRotateTbl:
+  .byte 60, DELAYED_FLAG_DEFAULT
+  .word PlayerSpinStart
+  .byte 5, DELAYED_FLAG_DEFAULT
+  .word PlayerSpinContinue
+  .byte (6 * (4 * 3)) - 6, DELAYED_FLAG_DEFAULT
+  .word PlayerSpinStop
+  .byte 55, DELAYED_FLAG_DEFAULT
+  .word PlayerIsDead
+  .byte 60
+  .word DeathScreen
+  .byte 0

@@ -3,3 +3,7 @@
 .include "scrolling.s"
 .include "transition.s"
 .include "collision.s"
+.include "controller.s"
+.include "dialog.s"
+.include "pause.s"
+.include "death.s"

@@ -7,9 +7,10 @@ music_music_data:
 	.byte 1
 	.word @instruments
 	.word @samples-3
-	.word @song0ch0,@song0ch1,@song0ch2,@song0ch3,@song0ch4,307,256 ; Dungeon
+	.word @song0ch0,@song0ch1,@song0ch2,@song0ch3,@song0ch4,307,256 ; New song
 
 @instruments:
+	.word @env1,@env0,@env0,@env0
 	.word @env1,@env0,@env0,@env0
 
 @samples:
@@ -19,53 +20,43 @@ music_music_data:
 	.byte $ce,$cf,$00,$01
 
 
-; Dungeon
+; New song
 @song0ch0:
-	.byte $fb,$01
+	.byte $fb,$10
 @song0ch0loop:
 @ref0:
-	.byte $80,$0e,$cd,$0d,$a5,$00,$f9,$cb
-@ref1:
-	.byte $07,$cd,$06,$a5,$00,$f9,$cb
+	.byte $80,$0e,$83,$0d,$00,$8d,$07,$83,$06,$00,$9f
 	.byte $fd
 	.word @song0ch0loop
 
-; Dungeon
+; New song
 @song0ch1:
 @song0ch1loop:
-@ref2:
-	.byte $f9,$f9,$cb
-@ref3:
-	.byte $f9,$f9,$cb
+@ref1:
+	.byte $c1
 	.byte $fd
 	.word @song0ch1loop
 
-; Dungeon
+; New song
 @song0ch2:
 @song0ch2loop:
-@ref4:
-	.byte $f9,$f9,$cb
-@ref5:
-	.byte $cf,$80,$1e,$a5,$00,$f9,$cb
+@ref2:
+	.byte $97,$82,$2d,$83,$2c,$00,$9f
 	.byte $fd
 	.word @song0ch2loop
 
-; Dungeon
+; New song
 @song0ch3:
 @song0ch3loop:
-@ref6:
-	.byte $f9,$f9,$cb
-@ref7:
-	.byte $f9,$f9,$cb
+@ref3:
+	.byte $c1
 	.byte $fd
 	.word @song0ch3loop
 
-; Dungeon
+; New song
 @song0ch4:
 @song0ch4loop:
-@ref8:
-	.byte $f9,$f9,$cb
-@ref9:
-	.byte $f9,$f9,$cb
+@ref4:
+	.byte $c1
 	.byte $fd
 	.word @song0ch4loop

@@ -1,0 +1,5 @@
+.segment "CODE"
+
+DeathScreen:
+
+  rts

@@ -287,8 +287,8 @@ zero_flag3 = FT_EXTRA+30 ;31 new variables
 POST_FT = FT_EXTRA+31
 LAST_FT = POST_FT-1
 
-.out .sprintf("last FT variable at %x", LAST_FT)
-.out .sprintf("safe to use at %x", POST_FT)
+;.out .sprintf("last FT variable at %x", LAST_FT)
+;.out .sprintf("safe to use at %x", POST_FT)
 
 
 ;------------------------------------------------------------------------------

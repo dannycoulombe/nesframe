@@ -1,3 +1,5 @@
+; --------------------------------------
+; Gnome
 GnomeStillFront:
 	.byte   4
 	.byte <- 8,<-12,$00,0
@@ -113,6 +115,46 @@ GnomePushLeft:
 	.byte <- 8,<- 3,$1a,0|OAM_FLIP_H
 	.byte    0,<- 3,$19,0|OAM_FLIP_H
 	.byte 15
+
+GnomeSpinLeft:
+	.byte   5
+	.byte <- 7,<- 8,$17,3|OAM_FLIP_H
+	.byte <- 8,<-12,$06,0|OAM_FLIP_H
+	.byte    0,<-12,$05,0|OAM_FLIP_H
+	.byte <- 8,<- 4,$16,0|OAM_FLIP_H
+	.byte    0,<- 4,$15,0|OAM_FLIP_H
+	.byte 6
+
+GnomeSpinBack:
+	.byte   4
+	.byte <- 8,<-12,$02,0
+	.byte    0,<-12,$03,0
+	.byte <- 8,<- 4,$12,0
+	.byte    0,<- 4,$12,0|OAM_FLIP_H
+	.byte 6
+
+GnomeSpinRight:
+  .byte   5
+  .byte <- 1,<- 8,$17,3
+  .byte    0,<-12,$06,0
+  .byte <- 8,<-12,$05,0
+  .byte    0,<- 4,$16,0
+  .byte <- 8,<- 4,$15,0
+	.byte 6
+
+GnomeSpinFront:
+	.byte   6
+	.byte <- 2,<- 8,$17,3|OAM_FLIP_H
+	.byte <- 6,<- 8,$17,3
+	.byte <- 8,<-12,$00,0
+	.byte    0,<-12,$01,0
+	.byte <- 8,<- 4,$10,0
+	.byte    0,<- 4,$10,0|OAM_FLIP_H
+	.byte 6 | FLAG_N
+	.word GnomeSpinLeft
+
+; --------------------------------------
+; Other
 
 RoundRock:
 	.byte   4

@@ -157,11 +157,24 @@
   tay
 .endmacro
 
-.macro IndirectJSR label
-  lda label
-  sta indirect_jsr_ptr
-  lda label+1
-  sta indirect_jsr_ptr+1
+.macro IndirectJSR label, yVal
+
+  .ifnblank yVal
+    ldx #0
+    lda (label, x)
+    ldy yVal
+    sta (indirect_jsr_ptr), y
+    ldx #1
+    lda (label, x)
+    iny
+    sta (indirect_jsr_ptr), y
+  .else
+    lda label
+    sta indirect_jsr_ptr
+    lda label+1
+    sta indirect_jsr_ptr+1
+  .endif
+
   jsr IndirectJSR
 .endmacro
 .proc IndirectJSR
@@ -177,4 +190,12 @@
   .endif
   SetDeepIndPtrFromTable indirect_jsr_ptr, table
   jsr IndirectJSR
+.endmacro
+
+.macro LdaPtrOffset ptr, index, offset
+  lda index
+  clc
+  adc offset
+  tay
+  lda (ptr), y
 .endmacro

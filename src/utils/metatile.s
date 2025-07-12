@@ -33,3 +33,21 @@
   ;.endif
 
 .endmacro
+
+.proc GetMetatileIdx
+
+  ; Compute Y Pos
+  tya
+  and #%11110000
+  sta temp
+
+  ; Compute X pos
+  txa
+  and #%11110000
+  lsr
+  lsr
+  lsr
+  lsr
+  clc
+  adc temp                              ; Add Y*8 to X to get final offset
+.endproc

@@ -32,21 +32,6 @@ SpikesObject_Mounted:
 .endproc
 
 SpikesObject_NMI:
-  ; Switch between lower and raised if state changed
-  ;BNE_ObjFlagSet SPIKE_MEM_FLAG, #OBJ_MEM_FLAG_STATE_CHANGED, @end
-  ;  ObjMemSetBit SPIKE_MEM_FLAG, OBJ_MEM_FLAG_STATE_CHANGED, 0
-;
-  ;  LDA_ObjData #OBJ_PPU_ADDR_LO
-  ;  sta temp
-  ;  LDA_ObjData #OBJ_PPU_ADDR_HI
-  ;  sta temp+1
-;
-  ;  BNE_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
-  ;    SetMetatile temp, #SPIKE_METATILE_RAISED, 0, 1
-  ;    rts
-  ;  @else:
-  ;    SetMetatile temp, #SPIKE_METATILE_LOWER, 0, 1
-  ;@end:
   rts
 
 .proc SpikesObject_NMIOnce

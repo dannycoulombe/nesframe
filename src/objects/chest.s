@@ -31,7 +31,7 @@ ChestObject_Interaction:
 
     BEQ_ObjFlagSet OBJ_MEM_FLAG, #CHEST_MEM_FLAG_OPENED, :+
       ObjMemSetBit OBJ_MEM_FLAG, CHEST_MEM_FLAG_OPENED, 1
-      jsr Sound::OpenChest
+      jsr Sound::OpenLock
       jsr RunObjNMIOnce
   :
 

@@ -2,7 +2,11 @@ SOUND_PLAYER_STAIRS = 0
 SOUND_PLAYER_HURT = 1
 SOUND_PLAYER_DYING = 2
 SOUND_PLAYER_SPIKES = 3
-SOUND_OPEN_CHEST = 4
+SOUND_OPEN_LOCK = 4
+SOUND_TREASURE = 5
+SOUND_TEXT = 6
+SOUND_PAUSE_IN = 7
+SOUND_PAUSE_OUT = 8
 
 .scope Sound
 
@@ -25,8 +29,26 @@ SOUND_OPEN_CHEST = 4
     jsr FamiToneSfxPlay
     rts
 
-  OpenChest:
-    lda #SOUND_OPEN_CHEST
+  OpenLock:
+    lda #SOUND_OPEN_LOCK
+    ldx #FT_SFX_CH0
+    jsr FamiToneSfxPlay
+    rts
+
+  TreasureFound:
+    lda #SOUND_TREASURE
+    ldx #FT_SFX_CH0
+    jsr FamiToneSfxPlay
+    rts
+
+  PauseIn:
+    lda #SOUND_PAUSE_IN
+    ldx #FT_SFX_CH0
+    jsr FamiToneSfxPlay
+    rts
+
+  PauseOut:
+    lda #SOUND_PAUSE_OUT
     ldx #FT_SFX_CH0
     jsr FamiToneSfxPlay
     rts

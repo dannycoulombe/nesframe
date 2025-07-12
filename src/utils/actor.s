@@ -156,6 +156,22 @@
 
 .scope Actors
 
+  .proc ShowCurrent
+    ldy #ACTOR_STATE
+    lda (actor_ptr), y
+    ora #ACTOR_STATE_VISIBLE
+    sta (actor_ptr), y
+    rts
+  .endproc
+
+  .proc HideCurrent
+    ldy #ACTOR_STATE
+    lda (actor_ptr), y
+    and #<~ACTOR_STATE_VISIBLE
+    sta (actor_ptr), y
+    rts
+  .endproc
+
   ; --------------------------------------
   ; Run actors callback functions
   .proc RunCallback

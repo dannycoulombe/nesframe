@@ -1,3 +1,5 @@
+.segment "CODE"
+
 ; Set the PPU_ADDR to write to
 ; Parameters:
 ; addr - The PPU memory address to write to
@@ -82,6 +84,57 @@
   sta ptr+1
 .endmacro
 
+; Use register x/y for positions
+.macro SetPPUAttrsAddrFromXY addr
+  lda #$23
+  sta addr+1
+  jsr GetPPUAttrsAddrFromXY
+  adc #$C0
+  sta addr
+  PPU_Set_Addr addr, 0, 1
+.endmacro
+.proc GetPPUAttrsAddrFromXY
+  txa
+  lsr           ; metatile_x / 2
+  sta temp       ; store x_part
+
+  tya
+  lsr           ; metatile_y / 2
+  asl           ; *2
+  asl           ; *4
+  asl           ; *8 (metatile_y / 2 * 8)
+  clc
+  adc temp       ; final attribute index
+
+  rts
+.endproc
+
+.macro PrintPPUMetatilesLine fromPPUAddress, totalColumns, mapTable
+  PPU_SetMapPtr ptr, mapTable
+  PPU_Set_Addr fromPPUAddress           ; Set PPU to given address
+
+  ldy totalColumns
+
+  jsr PrintPPUMetatilesLine
+.endmacro
+.proc PrintPPUMetatilesLine
+  lda (ptr),y                           ; Load byte at X index
+  tax
+
+  @loop:
+    lda Metatiles2x2Data, x
+    sta PPU_DATA
+    inx
+    lda Metatiles2x2Data, x
+    sta PPU_DATA
+    inx
+    dey
+    tya
+    bne @loop
+
+
+.endproc
+
 ; Load a screen of 2x2 metatiles into the PPU
 .macro PPU_Load_2x2_Screen fromPPUAddress, totalRows, mapTable
 
@@ -92,6 +145,9 @@
   sta temp
   ldy #0
 
+  jsr PPU_Load_2x2_Screen
+.endmacro
+.proc PPU_Load_2x2_Screen
   ; First row (under 16)
   @loop2x2FirstRow:
     lda (ptr),y                         ; Load byte at X index
@@ -145,11 +201,23 @@
     jmp @loop2x2FirstRow
 
   @loop2x2End:
-.endmacro
 
-.macro PPU_LoadHeader
+  rts
+.endproc
 
-.endmacro
+.proc ClearOAM
+  lda #$00
+  sta OAM_ADDR         ; Start at beginning of OAM ($00)
+
+  lda #$FF            ; Value to hide all sprites
+  ldx #$00
+@loop:
+  sta OAM_DATA
+  inx
+  bne @loop           ; 256 iterations (X wraps at 0)
+
+  rts
+.endproc
 
 ; Expensive in CPU, but hey.. saves a lot of bytes!
 ; If stage has 16 nametables, it's 48 bytes x 16 ~ 768 bytes
@@ -157,9 +225,11 @@
 ; let's say 16x8, that would be another 6.1k for a total of
 ; 12k saved.
 .macro PPU_LoadAttributes mapTable
-
-  PPU_Set_Addr $23C8
   PPU_SetMapPtr ptr, mapTable
+  jsr PPU_LoadAttributes
+.endmacro
+.proc PPU_LoadAttributes
+  PPU_Set_Addr $23C8
 
   ldx #48
   ldy #0
@@ -229,11 +299,7 @@
     tax
     dex
     bne @PPU_LoadAttributes_Loop
-.endmacro
-
-.macro PPU_Load_2x2_Column nametableIdx
-
-.endmacro
+.endproc
 
 ; Load a palette of of colors from a given address
 ; Parameters:
@@ -270,16 +336,6 @@
   sta addr+2
 .endmacro
 
-.macro PPU_GetTileIdx addr
-  bit PPU_ADDR
-  lda addr+1                            ; Load high byte of address
-  sta PPU_ADDR                          ; $2006
-  lda addr                              ; Load low byte of address
-  sta PPU_ADDR                          ; $2006
-  lda PPU_DATA
-  lda PPU_DATA
-.endmacro
-
 .scope PPU
   .proc EnableRendering
     PPU_Set_CtrlMask #%10001000, #%00011110
@@ -312,10 +368,36 @@
   .endproc
 .endscope
 
-.macro LDA_GetPPUAddrFromTileIdx tileIdx
+; Outputs:
+;   temp     = PPU_ADDR low byte
+;   temp+1   = PPU_ADDR high byte
+GetMetatilePPUAddr:
+  ; Compute Y * 64 → use a lookup table
+  tya
+  asl         ; Y * 2
+  tay
+  lda Mul64Table,y      ; low byte of Y * 64
+  sta temp
+  lda Mul64Table+1,y     ; high byte of Y * 64
+  sta temp+1
 
-.endmacro
+  ; Compute X * 2 and add to temp
+  txa
+  asl         ; X * 2
+  clc
+  adc temp
+  sta temp
+  lda temp+1
+  adc #$00
+  sta temp+1
 
-.macro PPU_UpdateMetatile tileIdx, metatile
+  ; Add base address $2000
+  clc
+  lda temp
+  adc #<$2000
+  sta temp
+  lda temp+1
+  adc #>$2000
+  sta temp+1
 
-.endmacro
+  rts

@@ -102,8 +102,6 @@ ScrollingCheck:
     clc
     adc scroll_x
     sta scroll_x
-
-;    PPU_Load_2x2_Column
     rts
 
   ScrollingDoBottom:

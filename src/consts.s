@@ -21,14 +21,14 @@ FLAG_N                = 1 << 7
 CONTROLLER_1          = $4016
 CONTROLLER_2          = $4017
 
-BUTTON_B              = 1 << 6
-BUTTON_A              = 1 << 7
-BUTTON_SELECT         = 1 << 5
-BUTTON_START          = 1 << 4
-BUTTON_UP             = 1 << 3
-BUTTON_DOWN           = 1 << 2
-BUTTON_LEFT           = 1 << 1
-BUTTON_RIGHT          = 1 << 0
+BUTTON_A              = 1 << 0
+BUTTON_B              = 1 << 1
+BUTTON_SELECT         = 1 << 2
+BUTTON_START          = 1 << 3
+BUTTON_UP             = 1 << 4
+BUTTON_DOWN           = 1 << 5
+BUTTON_LEFT           = 1 << 6
+BUTTON_RIGHT          = 1 << 7
 BUTTON_DIRECTION_ALL  = %00001111
 
 ; --------------------------------------
@@ -229,3 +229,6 @@ HEADER_STATE_ITEMA   = 1 << 0
 TRANSITION_TYPE_NOP         = 0
 TRANSITION_TYPE_FADEIN      = 1
 TRANSITION_TYPE_FADEOUT     = 2
+
+; Game flag
+GAME_FLAG_PAUSED        = 1 << 0

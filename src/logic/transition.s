@@ -42,6 +42,7 @@ EndTransition:
     rts
 
   FadeOut:
+
     ; Every 32 frames
     lda frame_count
     and #MOD_32
@@ -49,7 +50,7 @@ EndTransition:
       inc transition_type_index
 
       ; Write palette to PPU address
-      PPU_Set_Addr $3F00
+      PPU_Set_Addr $3F00, 0
       SetDeepIndPtrFromTable ptr, FadeOutTable, transition_type_index
       ldy #0
       @loopForEach:
@@ -62,7 +63,7 @@ EndTransition:
       ; Stop transition after end of table
       lda transition_type_index
       cmp #3
-      bne :+
+      bne @fadeOutEnd
         jsr EndTransition
     @fadeOutEnd:
     rts

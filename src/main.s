@@ -10,6 +10,7 @@
 .segment "ZEROPAGE"
 
   frame_count:            .byte 0       ; A global frame count
+  array_index:            .byte 0
 
   ; State management
   execution_state:        .byte 0       ; Execution in progress? ---- -FNI (F: Frame, N: NMI, I: IRQ)
@@ -94,8 +95,19 @@
 ;      0300-07FF (1280 bytes): General purpose RAM
 .segment "RAM"
 
-  ; Location
+  ; Game
   current_level:          .byte 0       ; Current level
+  game_flag:              .byte 0       ; Game flags
+                                        ; Bit 7   6   5   4   3   2   1   0
+                                        ;     |   |   |   |   |   |   |   |
+                                        ;     |   |   |   |   |   |   |   +-- Paused
+                                        ;     |   |   |   |   |   |   +------ Unused
+                                        ;     |   |   |   |   |   +---------- Unused
+                                        ;     |   |   |   |   +-------------- Unused
+                                        ;     |   |   |   +------------------ Unused
+                                        ;     |   |   +---------------------- Unused
+                                        ;     |   +-------------------------- Unused
+                                        ;     +------------------------------ Unused
 
   ; Player
   player_health:          .byte 0       ; Player health
@@ -141,6 +153,7 @@
 
     ; Initialize array definitions
     Array_Init nmi_once_hooks, #2
+    Array_Init delayed_array, #.sizeof(DelayedItem)
 
     ; Enable audio
     jsr Audio::EnableMusic
@@ -169,10 +182,19 @@
 
       ; Read controller inputs
       jsr Controller::Read
+      jsr Pause::Check
 
       ; Convert actors to sprites
-      jsr Actors::RunCallback
       jsr Actors::PushToOAM
+
+      ; Skip if game paused
+      lda game_flag
+      and #GAME_FLAG_PAUSED
+      bne AfterFrame
+
+      ; Run callbacks
+      jsr Actors::RunCallback
+      jsr RunAllDelayedItems
 
       ; Execute frame hooks
       lda player_health
@@ -196,15 +218,14 @@
 ; as it renders the screen.
 NMI:                                    ; Maximum of ~2273 cycles
 
-  Register_PushAll
+  Register_Push_XY
 
   ; Do not execute if previous NMI code was not completed
   ; to prevent a too many cycles issue
   lda execution_state
   and #%00000010                        ; Check if NMI was running or not?
   bne :+                                ; NMI was not running, continue with the script
-    Register_PullAll
-    rti
+    jmp AfterNMI
   :
 
   ; Flag NMI execution state as a new cycle
@@ -215,29 +236,40 @@ NMI:                                    ; Maximum of ~2273 cycles
   ; Run NMI hooks
   RunHooks nmi_once_hooks
   ClearHooks nmi_once_hooks, #10
+
+  ; Skip if game paused
+  lda game_flag
+  and #GAME_FLAG_PAUSED
+  bne SkipNMIHooks
+
+  ; Run other hooks
   jsr RunObjectsNMICallback
   jsr HeaderNMICallback
   jsr CheckTransition
 
-  ; Apply current scroll position
-  jsr Scroll::UpdatePosition
+  SkipNMIHooks:
 
   ; Trigger OAM DMA                     ; 512 CPU cycles to transfer all sprite data
   lda #$02                              ; Page number (high-byte $0200)
   sta PPU_OAM_DMA                       ; Trigger
 
-  ; Update famitone
-  jsr FamiToneUpdate
-
   ; Increase global frame count
   inc frame_count
+
+  AfterNMI:
+
+  ; Apply current scroll position
+  jsr Scroll::UpdatePosition
+
+  ; Update famitone
+  jsr FamiToneUpdate
 
   ; NMI execution completed
   lda execution_state
   and #%11111100                        ; Reset NMI and IRQ bit to 0 (ready to be executed again)
   sta execution_state
 
-  Register_PullAll
+  Register_Pull_XY
 
   rti                                   ; Return from NMI
 

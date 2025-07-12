@@ -220,7 +220,7 @@ PlayerReadControls:
   lda pressed_buttons
   tax
   and #BUTTON_A
-  beq PlayerReadControlsInteractionEnd
+  beq PlayerReadControlsInteractionAfterA
 
     ; Get player direction
     lda player_dir
@@ -276,6 +276,15 @@ PlayerReadControls:
     :
 
     jmp PlayerReadControlsInteractionEnd
+
+  PlayerReadControlsInteractionAfterA:
+    txa
+    and #BUTTON_B
+    beq PlayerReadControlsInteractionAfterB
+
+  PlayerReadControlsInteractionAfterB:
+
+    jmp PlayerReadControlsEnd           ; Needed to skip
 
   PlayerReadControlsInteractionDo:
     jsr Collision_SpritePushback_GetTileIdx
