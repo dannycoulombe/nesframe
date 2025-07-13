@@ -38,7 +38,7 @@ PlayerIsDead:
 
   ; Change metasprite to dead one
   SetCurrentActorIdx #0
-  CurActor_SetMetasprite GnomeDiesEnd
+  SetCurrentActorMetasprite GnomeDiesEnd
 
   ; Update death screen
   jsr PPU::ClearNametable
@@ -52,7 +52,7 @@ PlayerIsDeadNMI:
   rts
 
 PlayerDies:
-  CurActor_SetMetasprite GnomeDiesStart
+  SetCurrentActorMetasprite GnomeDiesStart
   ForEachActor Player_HideOtherActors
   StartDelayedTable PlayerRotateTbl
   DoTransition #TRANSITION_TYPE_FADEOUT, NoOp
@@ -102,11 +102,11 @@ PlayerSpinContinue:
   SetCurrentActorIdx #0
   lda #0
   sta actor_array + ACTOR_COUNTER, y
-  CurActor_SetMetasprite GnomeSpinLeft
+  SetCurrentActorMetasprite GnomeSpinLeft
   rts
 
 PlayerSpinStop:
-  CurActor_SetMetasprite GnomeSpinFront
+  SetCurrentActorMetasprite GnomeSpinFront
   rts
 
 .segment "RODATA"

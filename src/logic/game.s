@@ -1,7 +1,7 @@
 InitializeGame:
 
   ; Initialize player values
-  lda #1
+  lda #8
   sta player_health
   lda #8
   sta player_hearths

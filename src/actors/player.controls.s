@@ -33,7 +33,7 @@ PlayerReadControls:
     ; Up
     and #DIRECTION_UP
     beq :+
-      CurActor_SetMetasprite GnomeStillBack
+      SetCurrentActorMetasprite GnomeStillBack
       jmp @PlayerReadControlsResetEnd
     :
 
@@ -41,7 +41,7 @@ PlayerReadControls:
     txa
     and #DIRECTION_DOWN
     beq :+
-      CurActor_SetMetasprite GnomeStillFront
+      SetCurrentActorMetasprite GnomeStillFront
       jmp @PlayerReadControlsResetEnd
     :
 
@@ -49,7 +49,7 @@ PlayerReadControls:
     txa
     and #DIRECTION_LEFT
     beq :+
-      CurActor_SetMetasprite GnomeStillLeft
+      SetCurrentActorMetasprite GnomeStillLeft
       jmp @PlayerReadControlsResetEnd
     :
 
@@ -57,7 +57,7 @@ PlayerReadControls:
     txa
     and #DIRECTION_RIGHT
     beq :+
-      CurActor_SetMetasprite GnomeStillRight
+      SetCurrentActorMetasprite GnomeStillRight
       jmp @PlayerReadControlsResetEnd
     :
 
@@ -135,7 +135,7 @@ PlayerReadControls:
       lda #DIRECTION_UP
       sta player_ori_dir
       sta player_dir
-      CurActor_SetMetasprite GnomeWalkBackA
+      SetCurrentActorMetasprite GnomeWalkBackA
       jmp PlayerReadControlsSetMetaspriteEnd
     :
 
@@ -146,7 +146,7 @@ PlayerReadControls:
       lda #DIRECTION_DOWN
       sta player_ori_dir
       sta player_dir
-      CurActor_SetMetasprite GnomeWalkFrontA
+      SetCurrentActorMetasprite GnomeWalkFrontA
       jmp PlayerReadControlsSetMetaspriteEnd
     :
 
@@ -158,7 +158,7 @@ PlayerReadControls:
       lda #DIRECTION_LEFT
       sta player_ori_dir
       sta player_dir
-      CurActor_SetMetasprite GnomeWalkLeft
+      SetCurrentActorMetasprite GnomeWalkLeft
       jmp PlayerReadControlsSetMetaspriteEnd
     :
 
@@ -170,7 +170,7 @@ PlayerReadControls:
       lda #DIRECTION_RIGHT
       sta player_ori_dir
       sta player_dir
-      CurActor_SetMetasprite GnomeWalkRight
+      SetCurrentActorMetasprite GnomeWalkRight
       jmp PlayerReadControlsSetMetaspriteEnd
     :
 

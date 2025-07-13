@@ -115,31 +115,6 @@
   rts
 .endproc
 
-.macro CurActor_SetStateOr value
-  ldy #ACTOR_STATE
-  lda (actor_ptr),y
-  ora value
-  sta (actor_ptr),y
-.endmacro
-
-.macro CurActor_SetStateAnd value
-  ldy #ACTOR_STATE
-  lda (actor_ptr),y
-  and value
-  sta (actor_ptr),y
-.endmacro
-
-.macro CurActor_SetStateBit bit_number, positive
-  ldy #ACTOR_STATE
-  lda (actor_ptr),y
-  .if positive = 1
-    ora #bit_number
-  .else
-    and #<~bit_number
-  .endif
-  sta (actor_ptr),y
-.endmacro
-
 .macro SetCurrentActorIdx index
   lda index
   clc
@@ -150,7 +125,7 @@
   sta actor_ptr+1
 .endmacro
 
-.macro CurActor_SetMetasprite label
+.macro SetCurrentActorMetasprite label
   Addr_SetPointer actor_ptr+ACTOR_DATA_PTR_LO, label, 1
 .endmacro
 
@@ -386,6 +361,16 @@
   and #ACTOR_STATE_DAMAGE
   bne @else
 
+    ; Decrease actor's health
+    stx temp
+    ldy #ACTOR_HEALTH
+    lda (actor_ptr), y
+    sec
+    sbc temp
+    sta (actor_ptr), y
+
+    bne @else
+
     ; Flag actor as damaged
     lda (actor_ptr), y
     ora #ACTOR_STATE_DAMAGE
@@ -394,15 +379,7 @@
     ; Set invulnerability timer
     ldy #ACTOR_INVULN_TIMER
     lda (actor_ptr), y
-    lda #90
-    sta (actor_ptr), y
-
-    ; Decrease actor's health
-    stx temp
-    ldy #ACTOR_HEALTH
-    lda (actor_ptr), y
-    sec
-    sbc temp
+    lda #60
     sta (actor_ptr), y
 
     ; JSR to current actor damage callback

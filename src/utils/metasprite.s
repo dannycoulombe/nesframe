@@ -49,10 +49,15 @@
   sta (oam_ptr),y
 
   ; Set attributes
-  ldy #3
-  lda (ptr),y
-  ldy #2
-  sta (oam_ptr),y
+  ldy params_bytes+2
+  lda actor_array + ACTOR_STATE, y
+  and #ACTOR_STATE_DAMAGE
+  bne :+
+    jsr ApplyMetaspriteAttributes
+    jmp :++
+  :
+    jsr FlashMetasprite
+  :
 
   ; Prepare pointer for next tile
   lda ptr
@@ -74,6 +79,30 @@
 
   dex
   bne @MetaspriteSetLoop
+
+  rts
+.endproc
+
+.proc ApplyMetaspriteAttributes
+  ldy #3
+  lda (ptr),y
+  ldy #2
+  sta (oam_ptr),y
+
+  rts
+.endproc
+
+.proc FlashMetasprite
+  lda frame_count
+  and #4
+  bne ApplyMetaspriteAttributes
+
+  ldy #3
+  lda (ptr),y
+  and #%11110000
+  ora #%00000011
+  ldy #2
+  sta (oam_ptr),y
 
   rts
 .endproc
