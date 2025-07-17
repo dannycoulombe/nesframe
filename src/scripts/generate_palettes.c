@@ -20,7 +20,8 @@ int process_files(const char* dir_path) {
     while ((entry = readdir(folder))) {
         const int is_pal = strstr(entry->d_name, ".pal") && entry->d_type == DT_REG;
         const int is_dim_pal = strstr(entry->d_name, "-dim") && entry->d_type == DT_REG;
-        if (is_pal && !is_dim_pal) {
+        const int is_black = strstr(entry->d_name, "black.pal") && entry->d_type == DT_REG;
+        if (is_pal && !is_dim_pal && !is_black) {
 
             // Generate 3 dimed versions
             for (int i = 1; i <= 3; i++) {

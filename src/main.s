@@ -291,6 +291,7 @@ Metatiles2x2Prop: .incbin "data/metatiles.prop"
 DefaultBGPal: .incbin "data/background.pal"
 BgPalDim1: .incbin "data/background-dim1.pal"
 BgPalDim2: .incbin "data/background-dim2.pal"
+BgPalDim3: .incbin "data/background-dim3.pal"
 DefaultSpritePal: .incbin "data/sprite.pal"
 BlackPal: .incbin "data/black.pal"
 

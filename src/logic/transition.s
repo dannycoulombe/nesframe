@@ -43,9 +43,9 @@ EndTransition:
 
   FadeOut:
 
-    ; Every 32 frames
+    ; Every 16 frames
     lda frame_count
-    and #MOD_32
+    and #MOD_16
     bne @fadeOutEnd
       inc transition_type_index
 
@@ -62,7 +62,7 @@ EndTransition:
 
       ; Stop transition after end of table
       lda transition_type_index
-      cmp #3
+      cmp #4
       bne @fadeOutEnd
         jsr EndTransition
     @fadeOutEnd:
@@ -80,6 +80,7 @@ TransitionTable:
 ; Fade in table
 FadeInTable:
   .word BlackPal
+  .word BgPalDim3
   .word BgPalDim2
   .word BgPalDim1
   .word DefaultBGPal
@@ -90,4 +91,5 @@ FadeOutTable:
   .word DefaultBGPal
   .word BgPalDim1
   .word BgPalDim2
+  .word BgPalDim3
   .word BlackPal

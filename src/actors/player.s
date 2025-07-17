@@ -55,7 +55,7 @@ PlayerDies:
   SetCurrentActorMetasprite GnomeDiesStart
   ForEachActor Player_HideOtherActors
   StartDelayedTable PlayerRotateTbl
-  DoTransition #TRANSITION_TYPE_FADEOUT, NoOp
+  DoTransition #TRANSITION_TYPE_FADEOUT
   jsr Music::Stop
   rts
 
@@ -121,6 +121,6 @@ PlayerRotateTbl:
   .word PlayerSpinStop
   .byte 55, DELAYED_FLAG_DEFAULT
   .word PlayerIsDead
-  .byte 60
+  .byte 60, DELAYED_FLAG_DEFAULT
   .word DeathScreen
   .byte 0

@@ -3,12 +3,14 @@
 .byte 1                                 ; PRG-ROM Size: 1x16kb (16kb)
 .byte 1                                 ; CHR-ROM Size: 1x8kb (8kb)
 
-.byte %00000011                         ; Bit 7: Reserved (must be 0).
-                                        ; Bit 6: Is battery backed?
-                                        ; Bit 5: Trainer present?
-                                        ; Bit 4: Four screens mirroring?
-                                        ; Bit 3: Mirroring type?
-                                        ; Bits 2-0: Mapper (Lower 3 bits)
+.byte %01000010
+      ;||||||||
+      ;|||||||+- Nametable arrangement: 0: vertical arrangement ("horizontal mirrored") (CIRAM A10 = PPU A11)
+      ;|||||||                          1: horizontal arrangement ("vertically mirrored") (CIRAM A10 = PPU A10)
+      ;||||||+-- 1: Cartridge contains battery-backed PRG RAM ($6000-7FFF) or other persistent memory
+      ;|||||+--- 1: 512-byte trainer at $7000-$71FF (stored before PRG data)
+      ;||||+---- 1: Alternative nametable layout
+      ;++++----- Lower nybble of mapper number
 
 .byte %00000000                         ; Bit 7: Reserved (must be 0).
                                         ; Bit 6: VS Unisystem

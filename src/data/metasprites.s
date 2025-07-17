@@ -85,10 +85,10 @@ GnomeWalkRight:
 
 GnomePushRight:
 	.byte   4
-	.byte <- 8,<-11,$09,0
-	.byte    0,<-11,$0a,0
-	.byte <- 8,<- 3,$19,0
-	.byte    0,<- 3,$1a,0
+	.byte <- 7,<-11,$09,0
+	.byte    1,<-11,$0a,0
+	.byte <- 7,<- 3,$19,0
+	.byte    1,<- 3,$1a,0
 	.byte 0
 
 GnomeStillLeft:

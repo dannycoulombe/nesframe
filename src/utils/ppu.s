@@ -339,6 +339,18 @@
   sta addr+2
 .endmacro
 
+; Writing twice to $2006 ensures the internal write toggle
+; is reset to first write, so that the next two $2005 writes
+; are interpreted as X/Y.
+; If you skip this, the latch might already be in "second write"
+; state (or worse, flipped by a prior $2006), so you end up
+; writing Y/Y or nothing at all.
+.macro PPU_ResetLatch
+  lda #0
+  sta PPU_ADDR       ; write to $2006 (dummy)
+  sta PPU_ADDR       ; write to $2006 (dummy)
+.endmacro
+
 .scope PPU
   .proc EnableRendering
     PPU_Set_CtrlMask #%10001000, #%00011110
