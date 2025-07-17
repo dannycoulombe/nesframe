@@ -13,6 +13,9 @@ DoorObject_NMI:
 DoorObject_Interaction:
   rts
 
+DoorObject_Pushed:
+  rts
+
 DoorObject_Collision:
   rts
 

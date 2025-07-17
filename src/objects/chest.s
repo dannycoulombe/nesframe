@@ -28,13 +28,16 @@ ChestObject_Interaction:
   lda player_dir
   and #DIRECTION_UP
   beq :+
-
     BEQ_ObjFlagSet OBJ_MEM_FLAG, #CHEST_MEM_FLAG_OPENED, :+
       ObjMemSetBit OBJ_MEM_FLAG, CHEST_MEM_FLAG_OPENED, 1
       jsr Sound::OpenLock
       jsr RunObjNMIOnce
+      OpenTreasure Cane
   :
 
+  rts
+
+ChestObject_Pushed:
   rts
 
 ChestObject_Collision:

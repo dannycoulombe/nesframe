@@ -31,9 +31,6 @@ delayed_item_counter = delayed_item + DelayedItem::counter
 delayed_item_memory = delayed_item + DelayedItem::memory
 
 ; --------------------------------------
-.segment "RODATA"
-
-; --------------------------------------
 .segment "ZEROPAGE"
   delayed_tbl_idx_ptr:         .word 0
   delayed_tbl_idx_label_ptr:   .word 0

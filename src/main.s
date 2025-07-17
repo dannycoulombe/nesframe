@@ -48,6 +48,7 @@
   metasprite_delta_x:     .byte 0       ; Current delta X
   metasprite_delta_y:     .byte 0       ; Current delta Y
   metasprite_metatile_idx:.byte 0       ; Current metatile index
+  metasprite_metatile_touch_idx: .byte 0; Metatile is touching tile indx
   metasprite_direction:   .byte 0       ; Current direction (4 first bits)
 
   ; Scene
@@ -59,9 +60,6 @@
   scroll_x:               .byte 0       ; Scroll X position
   scroll_y:               .byte 0       ; Scroll Y position
   scrolling_direction:    .byte 0       ; Currently scrolling to direction?
-
-  ; Interaction
-  interaction_tile_idx:   .byte 0
 
   ; Collision detection
   collision_check_x:      .byte 0       ; Check X position
@@ -141,8 +139,8 @@
   ; Declarations, utils, tools, etc.
   .include "utils/index.s"
   .include "lib/index.s"
-  .include "objects/index.s"
   .include "logic/index.s"
+  .include "objects/index.s"
   .include "actors/index.s"
 
   ; Initialize the NES
@@ -294,8 +292,7 @@ DefaultBGPal: .incbin "data/background.pal"
 BgPalDim1: .incbin "data/background-dim1.pal"
 BgPalDim2: .incbin "data/background-dim2.pal"
 DefaultSpritePal: .incbin "data/sprite.pal"
-BlackPal: .byte $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
-          .byte $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
+BlackPal: .incbin "data/black.pal"
 
 ; --------------------------------------
 ; Sprites data

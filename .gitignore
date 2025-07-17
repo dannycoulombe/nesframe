@@ -6,3 +6,4 @@ build
 .vscode
 assets/famitracker/*.txt
 assets/famitracker/*.nsf
+/generate_*

@@ -50,8 +50,7 @@
 
   ; Set attributes
   ldy params_bytes+2
-  lda actor_array + ACTOR_STATE, y
-  and #ACTOR_STATE_DAMAGE
+  lda actor_array + ACTOR_INVULN_TIMER, y
   bne :+
     jsr ApplyMetaspriteAttributes
     jmp :++

@@ -54,6 +54,9 @@ SpikesObject_NMI:
 SpikesObject_Interaction:
   rts
 
+SpikesObject_Pushed:
+  rts
+
 SpikesObject_Collision:
   BNE_ObjFlagSet SPIKE_MEM_FLAG, #SPIKE_MEM_FLAG_RAISED, @else
     lda #1

@@ -51,3 +51,14 @@
   clc
   adc temp                              ; Add Y*8 to X to get final offset
 .endproc
+
+; A = tile idx
+.proc GetMetatileProp
+  sec
+  sbc #32
+  tay
+  lda (map_ptr), y
+  tay
+  lda Metatiles2x2Prop, y
+  rts
+.endproc

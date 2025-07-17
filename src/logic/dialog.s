@@ -155,12 +155,12 @@ dialog_nl_offset:     .byte 0           ; Amount of tiles for next line to start
   sta PPU_DATA
 
   ; Set PPU address attributes
-  ldx dialog_x
-  ldy dialog_y
-  SetPPUAttrsAddrFromXY dialog_ppu_addr
+  ;ldx dialog_x
+  ;ldy dialog_y
+  ;SetPPUAttrsAddrFromXY dialog_ppu_addr
 
-  lda PPU_DATA
-  lda PPU_DATA
+  ;lda PPU_DATA
+  ;lda PPU_DATA
   ;jsr SetMetatilePalette
   ;lda #0
   ;sta PPU_DATA

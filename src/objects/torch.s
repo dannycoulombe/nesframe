@@ -20,6 +20,9 @@ TorchObject_NMI:
 TorchObject_Interaction:
   rts
 
+TorchObject_Pushed:
+  rts
+
 TorchObject_Collision:
   rts
 

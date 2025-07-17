@@ -361,16 +361,6 @@
   and #ACTOR_STATE_DAMAGE
   bne @else
 
-    ; Decrease actor's health
-    stx temp
-    ldy #ACTOR_HEALTH
-    lda (actor_ptr), y
-    sec
-    sbc temp
-    sta (actor_ptr), y
-
-    bne @else
-
     ; Flag actor as damaged
     lda (actor_ptr), y
     ora #ACTOR_STATE_DAMAGE
@@ -380,6 +370,14 @@
     ldy #ACTOR_INVULN_TIMER
     lda (actor_ptr), y
     lda #60
+    sta (actor_ptr), y
+
+    ; Decrease actor's health
+    stx temp
+    ldy #ACTOR_HEALTH
+    lda (actor_ptr), y
+    sec
+    sbc temp
     sta (actor_ptr), y
 
     ; JSR to current actor damage callback

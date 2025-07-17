@@ -15,8 +15,6 @@ OBJ_PPU_ADDR_HI = 3
 OBJ_MEM_FLAG = 0
 OBJ_MEM_FLAG_STATE_CHANGED = 1 << 7
 
-
-
 .macro LDA_ObjData index
   SetObjDataY index
   lda (object_ptr), y
@@ -211,7 +209,7 @@ FetchNextObjBytes:
     adc #OBJ_TILE_IDX
     tay
     lda (object_ptr), y
-    cmp interaction_tile_idx
+    cmp metasprite_metatile_touch_idx
     bne @skipJsr
       jsr IndirectJSR
     @skipJsr:
@@ -244,11 +242,30 @@ RunObjectsFrameCallback:
     txa
     pha
 
+    ; Run object every frame event
     ldy object_ptr_index
     lda (object_ptr), y
     tay
     SetDeepIndPtrFromTable indirect_jsr_ptr, ObjectFrameTable
     jsr IndirectJSR
+
+    ; Run object pushed event is player is pushing something
+    lda player_is_pushing
+    beq :+
+      lda object_ptr_index
+      clc
+      adc #OBJ_TILE_IDX
+      tay
+      lda (object_ptr), y
+      cmp metasprite_metatile_touch_idx
+      bne :+
+
+      ldy object_ptr_index
+      lda (object_ptr), y
+      tay
+      SetDeepIndPtrFromTable indirect_jsr_ptr, ObjectPushedTable
+      jsr IndirectJSR
+    :
 
     jsr FetchNextObjBytes
 

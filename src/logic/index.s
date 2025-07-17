@@ -6,4 +6,5 @@
 .include "controller.s"
 .include "dialog.s"
 .include "pause.s"
+.include "treasure.s"
 .include "death.s"

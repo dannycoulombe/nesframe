@@ -13,6 +13,9 @@ StairsObject_NMI:
 StairsObject_Interaction:
   rts
 
+StairsObject_Pushed:
+  rts
+
 StairsObject_Collision:
   rts
 

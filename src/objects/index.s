@@ -33,6 +33,12 @@ ObjectInteractionTable:
   .word StairsObject_Interaction
   .word SpikesObject_Interaction
 
+ObjectPushedTable:
+  .word ChestObject_Pushed
+  .word DoorObject_Pushed
+  .word StairsObject_Pushed
+  .word SpikesObject_Pushed
+
 ObjectCollisionTable:
   .word ChestObject_Collision
   .word DoorObject_Collision

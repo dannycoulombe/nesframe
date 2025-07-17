@@ -29,7 +29,7 @@ BUTTON_UP             = 1 << 4
 BUTTON_DOWN           = 1 << 5
 BUTTON_LEFT           = 1 << 6
 BUTTON_RIGHT          = 1 << 7
-BUTTON_DIRECTION_ALL  = %00001111
+BUTTON_DIRECTION_ALL  = %11110000
 
 ; --------------------------------------
 ; TILE
@@ -214,7 +214,8 @@ COLLISION_DANGEROUS   = 1 << 1
 COLLISION_ESCAPE      = 1 << 6
 
 ; Level
-LEVEL_OFFSET          = $2080
+NM0_LEVEL_OFFSET          = $2080
+NM1_LEVEL_OFFSET          = $2480
 
 ; Header
 ; (Km HMBA): K=Key, m=Money, H:Hearts, M:Magic, B:ItemB, A:ItemA

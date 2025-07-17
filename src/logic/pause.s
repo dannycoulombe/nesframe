@@ -26,21 +26,30 @@ PauseTxt2: .byte "PAUSED", 0
       ; Pause or unpause the game
       and #GAME_FLAG_PAUSED
       beq @pause
-        jsr Music::Pause
-        jsr Sound::PauseIn
-        OpenDialogMiddle #6, #2
-        OnceDuringNMI PrintPauseText
-        ForEachActor Actors::HideCurrent
+        jsr PauseGame
         jmp @complete
       @pause:
-        jsr Music::Resume
-        jsr Sound::PauseOut
-        jsr CloseDialog
-        ForEachActor Actors::ShowCurrent
-        OnceDuringNMI ReloadScreen
+        jsr ResumeGame
       @complete:
     @end:
 
+    rts
+
+  PauseGame:
+    jsr Music::Pause
+    jsr Sound::PauseIn
+    ;OnceDuringNMI PPU::Clone
+    OpenDialogMiddle #6, #2
+    OnceDuringNMI PrintPauseText
+    ForEachActor Actors::HideCurrent
+    rts
+
+  ResumeGame:
+    jsr Music::Resume
+    jsr Sound::PauseOut
+    jsr CloseDialog
+    ForEachActor Actors::ShowCurrent
+    OnceDuringNMI ReloadScreen
     rts
 
   PrintPauseText:
@@ -50,7 +59,7 @@ PauseTxt2: .byte "PAUSED", 0
 
   ReloadScreen:
     jsr PPU::DisableRendering
-    PPU_Load_2x2_Screen LEVEL_OFFSET, #13, Level1_MapTable
+    PPU_Load_2x2_Screen NM0_LEVEL_OFFSET, #13, Level1_MapTable
     PPU_LoadAttributes Level1_MapTable
     jsr PPU::EnableRendering
     rts

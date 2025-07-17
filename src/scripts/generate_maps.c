@@ -427,6 +427,18 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                     }
                     fprintf(asm_out, "\n");
 
+                    // Write ObjectPushedMap jump table
+                    fprintf(asm_out, "ObjectPushedTable:\n");
+                    for (int i = 0; i < typeIndex.count; i++) {
+                        char* type = typeIndex.types[i];
+                        if (*type != '\0') {
+                            char capitalizedType[MAX_PATH];
+                            snprintf(capitalizedType, sizeof(capitalizedType), "%c%s", toupper(type[0]), type + 1);
+                            fprintf(asm_out, "  .word %sObject_Pushed\n", capitalizedType);
+                        }
+                    }
+                    fprintf(asm_out, "\n");
+
                     // Write ObjectCollisionMap jump table
                     fprintf(asm_out, "ObjectCollisionTable:\n");
                     for (int i = 0; i < typeIndex.count; i++) {
@@ -475,6 +487,7 @@ void process_json_file(const char* json_path, const char* maps_directory, const 
                                     fprintf(handler_out, "%sObject_NMI:\n  rts\n\n", capitalizedType);
                                     fprintf(handler_out, "%sObject_NMIOnce:\n  rts\n\n", capitalizedType);
                                     fprintf(handler_out, "%sObject_Interaction:\n  rts\n\n", capitalizedType);
+                                    fprintf(handler_out, "%sObject_Pushed:\n  rts\n\n", capitalizedType);
                                     fprintf(handler_out, "%sObject_Collision:\n  rts\n\n", capitalizedType);
                                     fprintf(handler_out, "%sObject_Destroyed:\n  rts\n", capitalizedType);
                                     fclose(handler_out);

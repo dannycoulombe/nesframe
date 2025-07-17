@@ -8,9 +8,9 @@
   ; Load nametable
   lda namIdx
   sta nametable_idx
-  PPU_Load_2x2_Screen LEVEL_OFFSET, #13, mapTbl
-  PPU_LoadAttributes mapTbl
+  PPU_Load_2x2_Screen NM0_LEVEL_OFFSET, #13, mapTbl
   ApplyObjectsToNametable objTbl, objAmountTbl
+  PPU_LoadAttributes mapTbl, $23C8
 
   ; Cache map pointer
   lda nametable_idx

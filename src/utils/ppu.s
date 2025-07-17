@@ -224,13 +224,16 @@
 ; So if 8 levels ~ 6.1k and if you include an overworld of
 ; let's say 16x8, that would be another 6.1k for a total of
 ; 12k saved.
-.macro PPU_LoadAttributes mapTable
+.macro PPU_LoadAttributes mapTable, fromPPUAddress
   PPU_SetMapPtr ptr, mapTable
+  .ifnblank fromPPUAddress
+    PPU_Set_Addr fromPPUAddress
+  .else
+    PPU_Set_Addr $23C8
+  .endif
   jsr PPU_LoadAttributes
 .endmacro
 .proc PPU_LoadAttributes
-  PPU_Set_Addr $23C8
-
   ldx #48
   ldy #0
   @PPU_LoadAttributes_Loop:
@@ -364,6 +367,13 @@
       cpx #4
       bne @loop
     jsr EnableRendering
+    rts
+  .endproc
+
+  ; Clone nametable
+  .proc Clone
+    PPU_Load_2x2_Screen NM1_LEVEL_OFFSET, #13, map_ptr
+    PPU_LoadAttributes map_ptr, $27C8
     rts
   .endproc
 .endscope

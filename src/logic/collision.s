@@ -80,13 +80,13 @@
 
         ; Check top-left tile
         lda collision_tl_tile_idx
-        jsr @Collision_SpritePushback_GetTileProp
+        jsr GetMetatileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoVerticalCollisionUp
 
         ; Check top-right tile
         lda collision_tr_tile_idx
-        jsr @Collision_SpritePushback_GetTileProp
+        jsr GetMetatileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoVerticalCollisionUp
 
@@ -95,13 +95,13 @@
 
         ; Check bottom-right position
         lda collision_br_tile_idx
-        jsr @Collision_SpritePushback_GetTileProp
+        jsr GetMetatileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoVerticalCollisionDown
 
         ; Check bottom-left position
         lda collision_bl_tile_idx
-        jsr @Collision_SpritePushback_GetTileProp
+        jsr GetMetatileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoVerticalCollisionDown
       :
@@ -156,13 +156,13 @@
 
         ; Check top-left tile
         lda collision_tl_tile_idx
-        jsr @Collision_SpritePushback_GetTileProp
+        jsr GetMetatileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoHorizontalCollisionLeft
 
         ; Check bottom-left tile
         lda collision_bl_tile_idx
-        jsr @Collision_SpritePushback_GetTileProp
+        jsr GetMetatileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoHorizontalCollisionLeft
 
@@ -171,13 +171,13 @@
 
         ; Check top-right position
         lda collision_tr_tile_idx
-        jsr @Collision_SpritePushback_GetTileProp
+        jsr GetMetatileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoHorizontalCollisionRight
 
         ; Check bottom-right position
         lda collision_br_tile_idx
-        jsr @Collision_SpritePushback_GetTileProp
+        jsr GetMetatileProp
         cmp #COLLISION_SOLID
         beq @Collision_SpritePushback_DoHorizontalCollisionRight
       :
@@ -196,17 +196,6 @@
 
       @Collision_SpritePushback_DoHorizontalCollisionRight:
         rts
-
-  ; ------------------------------------
-  ; Get tile properties
-  @Collision_SpritePushback_GetTileProp:
-    sec
-    sbc #32
-    tay
-    lda (map_ptr), y
-    tay
-    lda Metatiles2x2Prop, y
-    rts
 
   ; ------------------------------------
   ; End collision check

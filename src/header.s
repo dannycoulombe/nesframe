@@ -3,7 +3,7 @@
 .byte 1                                 ; PRG-ROM Size: 1x16kb (16kb)
 .byte 1                                 ; CHR-ROM Size: 1x8kb (8kb)
 
-.byte %00011011                         ; Bit 7: Reserved (must be 0).
+.byte %00000011                         ; Bit 7: Reserved (must be 0).
                                         ; Bit 6: Is battery backed?
                                         ; Bit 5: Trainer present?
                                         ; Bit 4: Four screens mirroring?
