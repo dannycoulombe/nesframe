@@ -322,6 +322,7 @@ PlayerPushingControlsCheck:
   bne :+
     lda #0
     sta player_is_pushing
+    sta player_push_timer
   :
   rts
 
