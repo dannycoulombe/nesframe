@@ -1,0 +1,26 @@
+Todo:
+- when switching direction, reset pushing
+- upon death, ask player to continue
+- dialog attributes
+- reload screen on unpause
+- door logic (rename passage)
+- transition to nametable
+- stairs logic
+- treasure logic
+
+Done:
+x load generated texts
+x transition broken
+x dying fatal error
+x push front metasprite
+x sprite issue in fceux
+x trigger push events
+x check player_dir/ori_dir (seems similar)
+x wall pushing
+x dying rotation
+x actor flashing when hit
+x music not resuming after unpausing
+x can pause when dying or dead
+x hide sprites on pause
+x glitch when hitting spikes
+x can open chest by mashing arrow keys on the right side of the chest
