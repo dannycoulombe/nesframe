@@ -1,7 +1,3 @@
-.segment "RODATA"
-LifeTxt: .byte "LIFE", 0
-MagicTxt: .byte "MAGIC", 0
-
 .segment "CODE"
 PrintLifeText:
   PrintText $2022, LifeTxt

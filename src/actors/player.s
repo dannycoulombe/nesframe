@@ -48,7 +48,7 @@ PlayerIsDead:
 
 PlayerIsDeadNMI:
   PPU_LoadPalette DefaultBGPal, $3F00, #16
-  PrintText $21CC, DeadTxt
+  PrintText $21CC, YouDiedTxt
   rts
 
 PlayerDies:
@@ -110,8 +110,6 @@ PlayerSpinStop:
   rts
 
 .segment "RODATA"
-DeadTxt: .byte "YOU DIED", 0
-
 PlayerRotateTbl:
   .byte 60, DELAYED_FLAG_DEFAULT
   .word PlayerSpinStart

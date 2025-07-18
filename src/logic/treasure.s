@@ -18,8 +18,8 @@ ShowTreasureDialog:
   rts
 
 PrintTreasureText:
-  PrintText $21EA, TreasureYouFoundText
-  PrintText $220A, TreasureCaneText
+  PrintText $21EA, YouFoundTxt
+  PrintText $220A, TheCaneTxt
   rts
 
 .macro OpenTreasure metasprite
@@ -30,8 +30,6 @@ PrintTreasureText:
 ; --------------------------------------
 ; Delayed tables
 .segment "RODATA"
-TreasureYouFoundText: .byte "YOU FOUND", 0
-TreasureCaneText: .byte "THE CANE!", 0
 
 TreasureAnimTbl:
   .byte 60, DELAYED_FLAG_DEFAULT

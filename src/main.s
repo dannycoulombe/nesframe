@@ -139,6 +139,7 @@
   ; Declarations, utils, tools, etc.
   .include "utils/index.s"
   .include "lib/index.s"
+  .include "texts/index.s"
   .include "logic/index.s"
   .include "objects/index.s"
   .include "actors/index.s"
