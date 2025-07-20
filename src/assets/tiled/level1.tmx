@@ -131,7 +131,7 @@
  </layer>
  <objectgroup id="2" name="actors">
   <object id="4" name="Cane" type="chest" gid="24" x="208" y="112" width="16" height="16"/>
-  <object id="5" name="Entrance" type="door" gid="7" x="32" y="16" width="16" height="16">
+  <object id="5" name="Entrance" type="passage" gid="7" x="32" y="16" width="16" height="16">
    <properties>
     <property name="wrap" type="object" value="0"/>
    </properties>

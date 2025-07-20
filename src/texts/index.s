@@ -4,3 +4,4 @@
 .include "death.s"
 .include "items.s"
 .include "header.s"
+.include "modal.s"

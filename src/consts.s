@@ -33,7 +33,7 @@ BUTTON_DIRECTION_ALL  = %11110000
 
 ; --------------------------------------
 ; TILE
-TILE_EMPTY            = $00             ; An empty tile with nothing in it
+TILE_EMPTY            = $FF             ; An empty tile with nothing in it
 
 ; --------------------------------------
 ; NES Color Palette Constants

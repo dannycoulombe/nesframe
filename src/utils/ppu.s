@@ -1,4 +1,17 @@
+.segment "RAM"
+  ppu_tile_cache:         .res 256, 0
+  ppu_tile_cache_target:  .res 3, 0
+
 .segment "CODE"
+
+; Y: High-byte
+; X: Low-byte
+.proc SetPPUAddrFromYX
+  tya
+  sta PPU_ADDR
+  txa
+  sta PPU_ADDR
+.endproc
 
 ; Set the PPU_ADDR to write to
 ; Parameters:
@@ -370,7 +383,7 @@
     PPU_Set_Addr $2000
     ldx #0
     ldy #0
-    lda #0
+    lda #TILE_EMPTY
     @loop:
       sta PPU_DATA
       iny
@@ -423,3 +436,59 @@ GetMetatilePPUAddr:
   sta temp+1
 
   rts
+
+; Print all tiles that are withing the cache
+; to the PPU.
+;
+; Data structure:
+; Byte #0: Amount of tiles to push (0 will stop the process)
+; Byte #1: Horizontal (0) or vertical (1)
+; Byte #2: Width/Height (amount of tiles to print on a line)
+; Byte #3: Next line offset (offset to skip to start printing on next line)
+; Byte #4-6: PPU address to write to
+; Byte X...Y: Tiles to write based on amount of tiles
+.proc PrintPPUCache
+
+  ; Get amount of tiles
+  SeqPullY ppu_tile_cache_target
+  beq @end                              ; Skip if value is 0
+
+    ; Get direction
+    ; TODO: Direction logic
+    SeqPull ppu_tile_cache_target
+    sta temp
+
+    ; Get width
+    SeqPullX ppu_tile_cache_target
+    stx temp+1
+
+    ; Get next line offset
+    SeqPull ppu_tile_cache_target
+    pha
+
+    ; Set PPU address
+    SeqPull ppu_tile_cache_target
+    sta ptr
+    SeqPull ppu_tile_cache_target
+    sta ptr+1
+    PPU_Set_Addr ptr, 0, 1
+
+    ; Push a line of tiles to PPU
+    @loopLine:
+
+      ; Push tile to PPU
+      SeqPull ppu_tile_cache_target
+      sta PPU_DATA
+
+      ; Decrease counter and continue if required
+      dex
+      txa
+      bne @loopLine
+
+    ; Launch recursively to continue with the next
+    ; entry on the line.
+    jsr PrintPPUCache
+  @end:
+
+  rts
+.endproc

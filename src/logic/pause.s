@@ -1,7 +1,3 @@
-.segment "RODATA"
-PauseTxt1: .byte "GAME", 0
-PauseTxt2: .byte "PAUSED", 0
-
 .segment "CODE"
 .scope Pause
 
@@ -53,8 +49,8 @@ PauseTxt2: .byte "PAUSED", 0
     rts
 
   PrintPauseText:
-    PrintText $21EE, PauseTxt1
-    PrintText $220D, PauseTxt2
+    PrintText $21EE, GameTxt
+    PrintText $220D, PausedTxt
     rts
 
   ReloadScreen:

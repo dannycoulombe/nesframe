@@ -1,5 +1,5 @@
 ; Generated from death.txt
 ; DO NOT EDIT MANUALLY
 
-YouDiedTxt: .byte $22, $18, $1E, $B9, $0D, $12, $0E, $0D, 0
-StartAgainTxt: .byte $1C, $1D, $0A, $1B, $1D, $B9, $0A, $10, $0A, $12, $17, $27, 0
+YouDiedTxt: .byte $E2, $D8, $DE, $FF, $CD, $D2, $CE, $CD, 0
+StartAgainTxt: .byte $DC, $DD, $CA, $DB, $DD, $FF, $CA, $D0, $CA, $D2, $D7, $E7, 0

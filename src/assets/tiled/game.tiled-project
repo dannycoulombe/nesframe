@@ -31,19 +31,6 @@
             ]
         },
         {
-            "color": "#ff55aaff",
-            "drawFill": true,
-            "id": 4,
-            "members": [
-            ],
-            "name": "door",
-            "type": "class",
-            "useAs": [
-                "object",
-                "project"
-            ]
-        },
-        {
             "color": "#ffa0a0a4",
             "drawFill": true,
             "id": 10,
@@ -70,6 +57,19 @@
                 "tileset",
                 "wangcolor",
                 "wangset",
+                "project"
+            ]
+        },
+        {
+            "color": "#ff55aaff",
+            "drawFill": true,
+            "id": 4,
+            "members": [
+            ],
+            "name": "passage",
+            "type": "class",
+            "useAs": [
+                "object",
                 "project"
             ]
         },

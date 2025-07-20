@@ -1,14 +1,15 @@
 Todo:
-- when switching direction, reset pushing
-- upon death, ask player to continue
 - dialog attributes
-- reload screen on unpause
+- reload screen on resume
 - door logic (rename passage)
 - transition to nametable
 - stairs logic
 - treasure logic
+- upon death, ask player to continue
 
 Done:
+x charset reorganization
+x when switching direction, reset pushing
 x load generated texts
 x transition broken
 x dying fatal error
@@ -19,7 +20,7 @@ x check player_dir/ori_dir (seems similar)
 x wall pushing
 x dying rotation
 x actor flashing when hit
-x music not resuming after unpausing
+x music not resuming after resuming
 x can pause when dying or dead
 x hide sprites on pause
 x glitch when hitting spikes

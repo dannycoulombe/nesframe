@@ -1,4 +1,24 @@
+; --------------------------------------
+; Declaration
+HEADER_MAGIC_TILE_FULL      = $F3
+HEADER_MAGIC_TILE_HALF      = $F4
+HEADER_MAGIC_TILE_EMPTY     = $F5
+HEADER_HEART_TILE_FULL      = $F0
+HEADER_HEART_TILE_HALF      = $F1
+HEADER_HEART_TILE_EMPTY     = $F2
+HEADER_KEY_TILE             = $EA
+HEADER_PEBBLE_TILE          = $FB
+HEADER_X_TILE               = $E9
+HEADER_CONTAINER_TL_B_TILE  = $F6
+HEADER_CONTAINER_TL_A_TILE  = $F8
+HEADER_CONTAINER_BL_TILE    = $F9
+HEADER_CONTAINER_TR_TILE    = $F7
+HEADER_CONTAINER_BR_TILE    = $FA
+
+; --------------------------------------
+; Logic
 .segment "CODE"
+
 PrintLifeText:
   PrintText $2022, LifeTxt
   rts
@@ -7,9 +27,6 @@ PrintMagicText:
   PrintText $2042, MagicTxt
   rts
 
-; Full: D7
-; Half: D8
-; Empty: D9
 PrintMagicBars:
   PPU_Set_Addr $2048
 
@@ -22,7 +39,7 @@ PrintMagicBars:
   tay
   beq :++
   :
-    lda #$D7
+    lda #HEADER_MAGIC_TILE_FULL
     sta PPU_DATA
     dex
     dey
@@ -37,7 +54,7 @@ PrintMagicBars:
   tay
   beq :+
     dex
-    lda #$D8
+    lda #HEADER_MAGIC_TILE_HALF
     sta PPU_DATA
   :
 
@@ -46,7 +63,7 @@ PrintMagicBars:
   beq :++
   tay
   :
-    lda #$D9
+    lda #HEADER_MAGIC_TILE_EMPTY
     sta PPU_DATA
     dey
     tya
@@ -55,9 +72,6 @@ PrintMagicBars:
 
   rts
 
-; Full: C0
-; Half: C1
-; Empty: C2
 PrintHearts:
   PPU_Set_Addr $2028
 
@@ -70,7 +84,7 @@ PrintHearts:
   tay
   beq :++
   :
-    lda #$C0
+    lda #HEADER_HEART_TILE_FULL
     sta PPU_DATA
     dex
     dey
@@ -85,7 +99,7 @@ PrintHearts:
   tay
   beq :+
     dex
-    lda #$C1
+    lda #HEADER_HEART_TILE_HALF
     sta PPU_DATA
   :
 
@@ -94,7 +108,7 @@ PrintHearts:
   beq :++
   tay
   :
-    lda #$C2
+    lda #HEADER_HEART_TILE_EMPTY
     sta PPU_DATA
     dey
     tya
@@ -105,9 +119,9 @@ PrintHearts:
 
 PrintKeys:
   PPU_Set_Addr $203C
-  lda #$C4
+  lda #HEADER_KEY_TILE
   sta PPU_DATA
-  lda #$C3
+  lda #HEADER_X_TILE
   sta PPU_DATA
   rts
 
@@ -117,9 +131,9 @@ PrintKeyDigit:
 
 PrintPebbles:
   PPU_Set_Addr $205A
-  lda #$C8
+  lda #HEADER_PEBBLE_TILE
   sta PPU_DATA
-  lda #$C3
+  lda #HEADER_X_TILE
   sta PPU_DATA
   rts
 
@@ -131,31 +145,31 @@ PrintPebblesNumber:
 
 PrintItemContainerB:
   PPU_Set_Addr $2031
-  lda #$C5
+  lda #HEADER_CONTAINER_TL_B_TILE
   sta PPU_DATA
   PPU_Set_Addr $2051
-  lda #$D5
+  lda #HEADER_CONTAINER_BL_TILE
   sta PPU_DATA
   PPU_Set_Addr $2034
-  lda #$C6
+  lda #HEADER_CONTAINER_TR_TILE
   sta PPU_DATA
   PPU_Set_Addr $2054
-  lda #$D6
+  lda #HEADER_CONTAINER_BR_TILE
   sta PPU_DATA
   rts
 
 PrintItemContainerA:
   PPU_Set_Addr $2035
-  lda #$C7
+  lda #HEADER_CONTAINER_TL_A_TILE
   sta PPU_DATA
   PPU_Set_Addr $2055
-  lda #$D5
+  lda #HEADER_CONTAINER_BL_TILE
   sta PPU_DATA
   PPU_Set_Addr $2038
-  lda #$C6
+  lda #HEADER_CONTAINER_TR_TILE
   sta PPU_DATA
   PPU_Set_Addr $2058
-  lda #$D6
+  lda #HEADER_CONTAINER_BR_TILE
   sta PPU_DATA
   rts
 

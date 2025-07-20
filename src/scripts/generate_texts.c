@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h> // For strtol function
 
 // Convert a string to SnakeCase with Txt suffix, keeping only alphanumeric chars
 void toSnakeCase(char *dest, const char *src) {
@@ -29,30 +30,24 @@ void toSnakeCase(char *dest, const char *src) {
 unsigned char charToDigitValue(char c) {
     c = toupper(c);
 
-    if (isdigit(c)) {
+    if (c == ' ') {
+        // Space character
+        return 63;
+    }
+    else if (isdigit(c)) {
         // Numbers stay the same
         return c - '0';
     } else if (isalpha(c)) {
         // Letters start at 10: A = 10, B = 11, etc.
         return c - 'A' + 10;
     } else if (c == '.') {
-        // . goes after Z (Z = 35, so . = 36)
-        return 36;
-    } else if (c == ',') {
-        // , goes after . (. = 36, so , = 37)
         return 37;
-    } else if (c == ':') {
-        // : goes after , (, = 37, so : = 38)
+    } else if (c == ',') {
         return 38;
     } else if (c == '?') {
-        // ? goes after : (: = 38, so ? = 39)
         return 39;
     } else if (c == '!') {
-        // ! goes after ? (? = 39, so ! = 40)
         return 40;
-    } else if (c == ' ') {
-        // Space character
-        return 0xB9;
     }
 
     // Default for unknown characters
@@ -63,7 +58,7 @@ unsigned char charToDigitValue(char c) {
  * Find all files ending with .txt and generate an assembly file
  * with converted text in SnakeCase format.
  */
-int process_files(const char* dir_path) {
+int process_files(const char* dir_path, unsigned char hex_offset) {
     // Check if folder available for reading
     DIR *folder = opendir(dir_path);
     if (!folder) {
@@ -161,6 +156,9 @@ int process_files(const char* dir_path) {
                 for (char *c = start; *c; c++) {
                     unsigned char value = charToDigitValue(*c);
 
+                    // Apply hex offset to character value
+                    value = (value + hex_offset) & 0xFF; // Apply offset with wraparound
+
                     // Write the value in hex format
                     fprintf(out, "$%02X", value);
 
@@ -185,9 +183,25 @@ int process_files(const char* dir_path) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("Usage: %s <texts_folder>\n", argv[0]);
+    unsigned char hex_offset = 0;
+
+    if (argc < 2 || argc > 3) {
+        printf("Usage: %s <texts_folder> [hex_offset]\n", argv[0]);
         return 1;
     }
-    return process_files(argv[1]);
+
+    if (argc == 3) {
+        // Parse hexadecimal offset from command line
+        char *endptr;
+        long offset = strtol(argv[2], &endptr, 16); // Parse as hex
+
+        if (*endptr != '\0' || offset < 0 || offset > 0xFF) {
+            printf("Error: Invalid hexadecimal offset (must be 0-FF)\n");
+            return 1;
+        }
+
+        hex_offset = (unsigned char)offset;
+    }
+
+    return process_files(argv[1], hex_offset);
 }

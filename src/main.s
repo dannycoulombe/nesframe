@@ -61,14 +61,6 @@
   scroll_y:               .byte 0       ; Scroll Y position
   scrolling_direction:    .byte 0       ; Currently scrolling to direction?
 
-  ; Collision detection
-  collision_check_x:      .byte 0       ; Check X position
-  collision_check_y:      .byte 0       ; Check Y position
-  collision_tl_tile_idx:  .byte 0       ; Check top-left tile index
-  collision_tr_tile_idx:  .byte 0       ; Check top-right tile index
-  collision_bl_tile_idx:  .byte 0       ; Check bottom-left tile index
-  collision_br_tile_idx:  .byte 0       ; Check bottom-right tile index
-
   ; Hooks
   nmi_once_hooks:         .res 2 + (4 * 2), 0 ; Jump table of things to execute once during NMI
 
@@ -84,7 +76,6 @@
   oam_ptr:                .word 0       ; Current OAM pointer
   sprite_ptr:             .word 0       ; Current sprite pointer
   map_ptr:                .word 0
-  transition_callback:    .word 0
 
 ; --------------------------------------
 ; RAM (0100-07FF)
@@ -127,10 +118,6 @@
   object_memory:          .res 8*4,0    ; 4 bytes per object
   object_memory_index:    .byte 0       ; Current memory index (index * 4 bytes)
 
-  ; Transition
-  transition_type:         .byte 0
-  transition_type_index:   .byte 0
-
 ; --------------------------------------
 ; Main code
 ; You can use a maximum of ~27'000 cycles
@@ -149,6 +136,7 @@
 
     ; Reset and wait for 2 VBlanks
     Reset_NES
+    jsr PPU::ClearNametable
 
     ; Initialize array definitions
     Array_Init nmi_once_hooks, #2

@@ -1,3 +1,16 @@
+; --------------------------------------
+; Memory
+.segment "ZEROPAGE"
+transition_callback:      .word 0
+
+.segment "RAM"
+transition_type:          .byte 0
+transition_type_index:    .byte 0
+
+; --------------------------------------
+; Logic
+.segment "CODE"
+
 .macro DoTransition type, callback
   .ifblank callback
     lda #0

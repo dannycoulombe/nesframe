@@ -5,8 +5,6 @@
 :
   lda textLabel, y
   beq :+
-  clc
-  adc #$99
   sta PPU_DATA
   iny
   bne :-
@@ -18,7 +16,7 @@
   PPU_Set_Addr ppuAddr
   lda digit
   clc
-  adc #$C9
+  adc #$C0
   sta PPU_DATA
 .endmacro
 
@@ -27,6 +25,6 @@
   PPU_Set_Addr ppuAddr
   lda number
   clc
-  adc #$C9
+  adc #$C0
   sta PPU_DATA
 .endmacro

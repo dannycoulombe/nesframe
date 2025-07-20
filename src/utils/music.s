@@ -21,7 +21,7 @@ MUSIC_DUNGEON = 0
 
   ; A = Music ID
   .proc Play
-    jsr FamiToneMusicPlay
+    ;jsr FamiToneMusicPlay
     rts
   .endproc
 

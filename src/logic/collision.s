@@ -1,3 +1,17 @@
+; --------------------------------------
+; Memory
+.segment "ZEROPAGE"
+collision_check_x:      .byte 0       ; Check X position
+collision_check_y:      .byte 0       ; Check Y position
+collision_tl_tile_idx:  .byte 0       ; Check top-left tile index
+collision_tr_tile_idx:  .byte 0       ; Check top-right tile index
+collision_bl_tile_idx:  .byte 0       ; Check bottom-left tile index
+collision_br_tile_idx:  .byte 0       ; Check bottom-right tile index
+
+; --------------------------------------
+; Logic
+.segment "CODE"
+
 .macro Collision_SpritePushback mapData, xPos, yPos, width, height, deltaX, deltaY
 
   ; Perform collision check

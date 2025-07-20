@@ -1,5 +1,5 @@
 ; Generated from header.txt
 ; DO NOT EDIT MANUALLY
 
-LifeTxt: .byte $15, $12, $0F, $0E, 0
-MagicTxt: .byte $16, $0A, $10, $12, $0C, 0
+LifeTxt: .byte $D5, $D2, $CF, $CE, 0
+MagicTxt: .byte $D6, $CA, $D0, $D2, $CC, 0

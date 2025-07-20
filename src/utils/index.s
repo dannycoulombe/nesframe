@@ -1,3 +1,4 @@
+.include "memory.s"
 .include "addr.s"
 .include "debug.s"
 .include "general.s"

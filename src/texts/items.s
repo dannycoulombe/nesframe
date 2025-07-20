@@ -1,6 +1,6 @@
 ; Generated from items.txt
 ; DO NOT EDIT MANUALLY
 
-YouFoundTxt: .byte $22, $18, $1E, $B9, $0F, $18, $1E, $17, $0D, 0
-TheCaneTxt: .byte $1D, $11, $0E, $B9, $0C, $0A, $17, $0E, $28, 0
-TheTorchTxt: .byte $1D, $11, $0E, $B9, $1D, $18, $1B, $0C, $11, $28, 0
+YouFoundTxt: .byte $E2, $D8, $DE, $FF, $CF, $D8, $DE, $D7, $CD, 0
+TheCaneTxt: .byte $DD, $D1, $CE, $FF, $CC, $CA, $D7, $CE, $E8, 0
+TheTorchTxt: .byte $DD, $D1, $CE, $FF, $DD, $D8, $DB, $CC, $D1, $E8, 0

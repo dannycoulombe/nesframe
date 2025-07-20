@@ -14,7 +14,7 @@ generate_palettes:
 	./bin/generate_palettes src/data
 
 generate_texts:
-	./bin/generate_texts src/texts
+	./bin/generate_texts src/texts C0
 
 generate_music:
 	wine /opt/famitracker/Dn-FamiTracker.exe src/assets/famitracker/music.dnm -export src/assets/famitracker/music.txt
